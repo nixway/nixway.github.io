@@ -4,7 +4,7 @@
   <title><![CDATA[Категория: How-to | Путь юниксоида]]></title>
   <link href="http://nixway.org/categories/how-to/atom.xml" rel="self"/>
   <link href="http://nixway.org/"/>
-  <updated>2016-08-10T13:15:01+06:00</updated>
+  <updated>2016-08-10T13:28:15+06:00</updated>
   <id>http://nixway.org/</id>
   <author>
     <name><![CDATA[nihi1ist]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Оптимизация производительности PostgreSQL для сервера 1С:Предприятие]]></title>
-    <link href="http://nixway.org/how-to/optimizacija-proizvoditelnosti-postgresql-dlja-servera-1c-predprijatie/"/>
+    <link href="http://nixway.org/how-to/optimizacija-proizvoditelnosti-postgresql-dlja-servera-1c-predpriyatie/"/>
     <updated>2015-12-06T13:31:30+06:00</updated>
-    <id>http://nixway.org/how-to/optimizacija-proizvoditelnosti-postgresql-dlja-servera-1c-predprijatie</id>
+    <id>http://nixway.org/how-to/optimizacija-proizvoditelnosti-postgresql-dlja-servera-1c-predpriyatie</id>
     <content type="html"><![CDATA[<p><img src="/images/posts/2015-12-06/postgresql_for_1c.png" alt="Оптимизация производительности PostgreSQL" /></p>
 
 <p>На данный момент производительность PostgreSQL оставляет желать лучшего, в сравнении с тем же MS&nbsp;SQL. Эта статья продолжение моих попыток добиться таки достойной производительности на PostgreSQL. И хотя пока не добились производительности сопоставимой MS&nbsp;SQL, но думаю стоит продолжать попытки.</p>
@@ -188,7 +188,7 @@ hasp
 <pre><code># dpkg -i libicu48*.deb
 </code></pre>
 
-<p>4. Так же необходимо увеличить максимальный размер сегмента памяти до 64Мб:</p>
+<p>4. Так же необходимо увеличить максимальный размер сегмента памяти до 64&nbsp;Мб:</p>
 
 <pre><code># echo kernel.shmmax = `echo 64*1024*1024 | bc` &gt;&gt; /etc/sysctl.conf
 </code></pre>
@@ -198,7 +198,7 @@ hasp
 <pre><code># sysctl -p
 </code></pre>
 
-<p>Тут товарищ Vasiliy P. Melnik в своем <a href="http://nixway.org/how-to/1c-predpriyatie-8-3+postgresql-na-baze-debian-8-jessie/#comment-2612897528">комментарии</a> пишет, что в данной процедуре необходимости нет. Я его утверждение не проверял, но вы можете попробовать пропустить 4 пункт. А если всё таки процедура потребудется, вы можете выполнить её позже</p>
+<p>Тут товарищ Vasiliy P. Melnik в своем <a href="http://nixway.org/how-to/1c-predpriyatie-8-3+postgresql-na-baze-debian-8-jessie/#comment-2612897528">комментарии</a> пишет, что в данной процедуре необходимости нет. Я его утверждение не проверял, но вы можете попробовать пропустить 4 пункт. А если всё таки процедура потребуется, вы можете выполнить её позже.</p>
 
 <p>5. В этой статье я решил использовать версию PostgreSQL от 1С. Переходим в каталог с пакетами PostgreSQL:</p>
 
@@ -261,7 +261,7 @@ drwxr-xr-x 2 nihi1ist nihi1ist    4096 окт  6 09:50 addons
 <pre><code># service postgresql restart
 </code></pre>
 
-<p>После чего снова проверьте статус сервиса. В итоге вы должны получить что то похожее на первое сообщение.</p>
+<p>После чего снова проверьте статус сервиса. В итоге вы должны получить что-то похожее на первое сообщение.</p>
 
 <p>6. После установки нужно еще немного подправить конфигурационный файл. Как ни странно PostgreSQL будучи установленным из пакетов 1С, содержит неправильные настройки для обработки экранирующих символов, и при создании базы выдает ошибку:</p>
 
@@ -305,7 +305,7 @@ standard_conforming_strings = off
 <pre><code>$ psql -U postgres -c "alter user postgres with password '123456';"
 </code></pre>
 
-<p>Где <code>-U postgres</code> - системный пользователь от имени которого будет запущен <code>psql</code>, <code>user postgres</code> - внутренний пользователь БД, ну а <code>123456</code> - пароль который будет задан внутреннему пользователю БД.</p>
+<p>Где <code>-U postgres</code> - системный пользователь от имени которого будет запущен <code>psql</code>, <code>user postgres</code> - внутренний пользователь БД, ну а <code>123456</code> - <em>произвольный</em> пароль который будет задан внутреннему пользователю БД.</p>
 
 <p>Если смена пароля прошла успешно, вы должны получить сообщение:</p>
 
@@ -332,7 +332,7 @@ postgresql-common помечен как зафиксированный.
 postgresql-contrib-9.4 помечен как зафиксированный.
 </code></pre>
 
-<p>На этом установка PostgreSQL закончена. Вопросы настройки и оптимизации будут рассмотрены в отдельной статье.</p>
+<p>На этом установка PostgreSQL закончена. Вопросы настройки и оптимизации будут рассмотрены в отдельных статьях.</p>
 
 <h2>Установка сервера 1С:Предприятие 8.3<a name="server"></a> <a href="#content" title="К содержанию">↑</a></h2>
 
@@ -391,12 +391,13 @@ postgresql-contrib-9.4 помечен как зафиксированный.
 <p>Всего 8 пакетов, из которых нам для функционирования сервера 1С:Предприятия необходимы 2 пакета: <strong>1c-enterprise83-common</strong>, <strong>1c-enterprise83-server</strong>.</p>
 
 <p>Небольшое пояснение по назначениям пакетов:<br/>
-<em>1c_enterprise83-client…</em> — Компоненты клиента 1С Предприятие 8.3 для Linux<br/>
-<em>1c_enterprise83-thin-client…</em> — Компоненты тонкого клиента 1С Предприятие 8.3 для Linux<br/>
-<em>1c_enterprise83-common…</em> — Общие компоненты 1С Предприятие 8.3 для Linux<br/>
-<em>1c_enterprise83-server…</em> — Сервер 1С Предприятие 8.2 для Linux<br/>
-<em>1c_enterprise83-ws…</em> — Компоненты интернет-сервисов 1С Предприятие 8.3 для Linux<br/>
-<em>1c_enterprise83-…-nls&hellip;</em> — Компоненты необходимые для ОС не поддерживающих кириллическую кодировку.</p>
+| Название пакета | Описание пакета |
+| <em>1c_enterprise83-client…</em> | Компоненты клиента 1С Предприятие 8.3 для Linux |
+| <em>1c_enterprise83-thin-client…</em> | Компоненты тонкого клиента 1С Предприятие 8.3 для Linux |
+| <em>1c_enterprise83-common…</em> | Общие компоненты 1С Предприятие 8.3 для Linux |
+| <em>1c_enterprise83-server…</em> | Сервер 1С Предприятие 8.2 для Linux |
+| <em>1c_enterprise83-ws…</em> | Компоненты интернет-сервисов 1С Предприятие 8.3 для Linux |
+| <em>1c_enterprise83-…-nls&hellip;</em> | Компоненты необходимые для ОС не поддерживающих кириллическую кодировку |</p>
 
 <p>5. Устанавливаем необходимые пакеты:</p>
 
