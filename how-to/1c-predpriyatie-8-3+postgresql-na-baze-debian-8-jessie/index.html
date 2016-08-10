@@ -1,72 +1,116 @@
-<?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Путь юниксоида]]></title>
-  <link href="http://nixway.org/atom.xml" rel="self"/>
-  <link href="http://nixway.org/"/>
-  <updated>2016-08-10T12:37:33+06:00</updated>
-  <id>http://nixway.org/</id>
-  <author>
-    <name><![CDATA[nihi1ist]]></name>
-    <email><![CDATA[nihi1ist@nixway.org]]></email>
-  </author>
-  <generator uri="http://octopress.org/">Octopress</generator>
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="ru"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>1С:Предприятие 8.3 + PostgreSQL 9.4 на базе Debian&nbsp;8&nbsp;&laquo;Jessie&raquo; - Путь юниксоида</title>
+  <meta name="author" content="nihi1ist">
 
   
-  <entry>
-    <title type="html"><![CDATA[Оптимизация производительности PostgreSQL для сервера 1С:Предприятие]]></title>
-    <link href="http://nixway.org/how-to/optimizacija-proizvoditelnosti-postgresql-dlja-servera-1c-predprijatie/"/>
-    <updated>2015-12-06T13:31:30+06:00</updated>
-    <id>http://nixway.org/how-to/optimizacija-proizvoditelnosti-postgresql-dlja-servera-1c-predprijatie</id>
-    <content type="html"><![CDATA[<p><img src="http://nixway.org/images/posts/2015-12-06/postgresql_for_1c.png" alt="Оптимизация производительности PostgreSQL" /></p>
+  <meta name="description" content="В конце мая 2013 года компания 1С представила первый стабильный релиз платформы 1С:Предприятие версии&nbsp;8.3. Главная особенность ветки&nbsp;8.3 &hellip;">
+  <meta name="keywords" content="Linux, Debian, 1C, PostgreSQL, 1C:Enterprise, 1С:Предприятие">
 
-<p>На данный момент производительность PostgreSQL оставляет желать лучшего, в сравнении с тем же MS&npsp;SQL. Эта статья продолжение моих попыток добиться таки достойной производительности на PostgreSQL. И хотя пока не добились производительности сопоставимой MS&npsp;SQL, но думаю стоит продолжать попытки.</p>
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<!-- more -->
-
-
-<p>Ниже перечислены основные параметры, на  которые следует обратить внимание при оптимизации производительности PostgreSQL.</p>
-
-<h4>shared_buffers</h4>
-
-<p>Объём совместно используемой памяти, выделяемой PostgreSQL для кэширования данных, определяется числом страниц <code>shared_buffers</code> по 8 килобайт каждая. Следует учитывать, что операционная система сама кеширует данные, поэтому нет необходимости отводить под кэш всю наличную оперативную память. Размер <code>shared_buffers</code> зависит от многих факторов, для начала можно принять следующие значения:</p>
-
-<p>-&npsp;8–16&npsp;Мб&npsp;–&npsp;Обычный настольный компьютер с 512&npsp;Мб и небольшой базой данных<br/>
--&npsp;80–160&npsp;Мб&npsp;–&npsp;Небольшой сервер, предназначенный для обслуживания базы данных с объёмом оперативной памяти 1&npsp;Гб и базой данных около 10&npsp;Гб.<br/>
--&npsp;400&npsp;Мб&npsp;–&npsp;Сервер с несколькими процессорами, с объёмом памяти в 8&npsp;Гб и базой данных занимающей свыше 100&npsp;Гб обслуживающий несколько сотен активных соединений одновременно.</p>
-
-<h4>work_mem</h4>
-
-<p>Под каждый запрос выделяется ограниченный объём памяти для работы. Этот объём используется для сортировки, объединения и других подобных операций. При превышении этого объёма сервер начинает использовать временные файлы на диске, что может существенно снизить производительность. Оценить необходимое значение для work_mem можно разделив объём доступной памяти (физическая память минус объём занятый под другие программы и под совместно используемые страницы <code>shared_buffers</code>) на максимальное число одновременно используемых активных соединений.</p>
-
-<h4>maintenance_work_mem</h4>
-
-<p>Эта память используется для выполнения операций по сбору статистики <code>ANALYZE</code>, сборке мусора <code>VACUUM</code>, создания индексов <code>CREATE INDEX</code> и добавления внешних ключей. Размер выделяемой под эти операции памяти должен быть сравним с физическим размером самого большого индекса на диске.</p>
-
-<h4>effective_cache_size</h4>
-
-<p>PostgreSQL в своих планах опирается на кэширование файлов, осуществляемое операционной системой. Этот параметр соответствует максимальному размеру объекта, который может поместиться в системный кэш. Это значение используется только для оценки. <code>effective_cache_size</code> можно установить в &frac12;&npsp;- 2/3 от объёма имеющейся в наличии оперативной памяти, если вся она отдана в распоряжение PostgreSQL.</p>
-
-<p>Следующие параметры могут существенно увеличить производительность работы PostgreSQL. Однако их рекомендуется использовать только если имеются надежные ИБП и программное обеспечение, завершающее работу системы при низком заряде батарей.</p>
-
-<h4>fsync</h4>
-
-<p>Данный параметр отвечает за сброс данных из кэша на диск при завершении транзакций. Если установить его значение <code>off</code> то данные не будут записываться на дисковые накопители сразу после завершения операций. Это может существенно повысить скорость операций <code>insert</code> и <code>update</code>, но есть риск повредить базу, если произойдет сбой (неожиданное отключение питания, сбой ОС, сбой дисковой подсистемы).</p>
-
-<h4>synchronous_commit</h4>
-
-<p>Включает/выключает синхронную запись в лог файлы после каждой транзакции. Это защищает от возможной потери данных. Но это накладывает ограничение на пропускную способность сервера.</p>
-
-<p>Если вашей системе не критична потенциально низкая возможность потери небольшого количества изменений при крахе системы, но необходимо обеспечить в несколько раз большую производительность по количеству транзакций в секунду. В этом случае можно установить этот параметр в <code>off</code> (отключение синхронной записи).</p>
-]]></content>
-  </entry>
   
-  <entry>
-    <title type="html"><![CDATA[1С:Предприятие 8.3 + PostgreSQL 9.4 на базе Debian&nbsp;8&nbsp;&laquo;Jessie&raquo;]]></title>
-    <link href="http://nixway.org/how-to/1c-predpriyatie-8-3+postgresql-na-baze-debian-8-jessie/"/>
-    <updated>2015-11-10T16:33:46+06:00</updated>
-    <id>http://nixway.org/how-to/1c-predpriyatie-8-3+postgresql-na-baze-debian-8-jessie</id>
-    <content type="html"><![CDATA[<p><img src="http://nixway.org/images/posts/2015-11-10/debian+1c+postgresql.png" alt="Debian + 1C + PostgreSQL" /></p>
+  <link rel="canonical" href="http://nixway.org/how-to/1c-predpriyatie-8-3+postgresql-na-baze-debian-8-jessie/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Путь юниксоида" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-67931233-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body    class="collapse-sidebar sidebar-footer" >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Путь юниксоида</a></h1>
+  
+    <h2>Блог посвященный UNIX-подобным операционным системам.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="Подпишитесь через RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="nixway.org">
+    <input class="search" type="text" name="q" results="0" placeholder="Поиск"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Главная</a></li>
+  <li><a href="https://community.nixway.org/">Сообщество</a></li>
+  <li><a href="/blog/archives">Архив</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">1С:Предприятие 8.3 + PostgreSQL 9.4 на базе Debian&nbsp;8&nbsp;&laquo;Jessie&raquo;</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 10 Ноября 2015, 16:33, Вт
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://nixway.org">Комментарии</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p><img src="/images/posts/2015-11-10/debian+1c+postgresql.png" alt="Debian + 1C + PostgreSQL" /></p>
 
 <p>В конце мая 2013 года компания 1С представила первый стабильный релиз платформы 1С:Предприятие версии&nbsp;8.3. Главная особенность ветки&nbsp;8.3 - это выпуск нативного клиента под *nix-подобные операционные системы. И вот спустя два года я решил написать новую статью посвященную этой теме. Я помню, что большая часть тех, кому была интересна моя <a href="http://linuxforum.ru/topic/11116">прошлая статья</a> просили и дальше брать в основу Ubuntu. Тем не менее, я решил взять за основу Debian&nbsp;8&nbsp;&laquo;Jessie&raquo;. Основная причина в том, что производительность серверов 1С:Предприятие на Ubuntu оставляет желать лучшего. В то время как Debian и CentOS показывают более высокую производительность <span style="color:gray;font-style:italic">(CentOS даже опережает Debian, но я постараюсь исправить это положение)</span>. Сравнительные таблицы производительности серверов 1С:Предприятие вы можете поискать в интернете. Сам я пока ничего толкового не нашел.</p>
 
@@ -98,7 +142,7 @@
 
 <p>Как это указано на скриншоте:</p>
 
-<p><a href="http://nixway.org/images/posts/2015-11-10/debian_preinstall_options.png"><img src="http://nixway.org/images/posts/2015-11-10/debian_preinstall_options_preview.png" alt="Компоненты сервера" /></a></p>
+<p><a href="/images/posts/2015-11-10/debian_preinstall_options.png"><img src="/images/posts/2015-11-10/debian_preinstall_options_preview.png" alt="Компоненты сервера" /></a></p>
 
 <p>Остальные пункты на ваше усмотрение.</p>
 
@@ -182,7 +226,7 @@
 
 
 
-<div class="infoDiv"><img src="http://nixway.org/images/info.png" alt="Примечание" width="48" height="48" class="infoImg">Если вы ставите 1С:Предприятие на удаленную машину, то для передачи файлов можете воспользоваться утилитой <a href="http://ru.wikipedia.org/wiki/SCP">scp</a>, которая входит в состав пакета <span style="font-weight:bold">openssh-client</span>.</div>
+<div class="infoDiv"><img src="/images/info.png" alt="Примечание" width="48" height="48" class="infoImg">Если вы ставите 1С:Предприятие на удаленную машину, то для передачи файлов можете воспользоваться утилитой <a href="http://ru.wikipedia.org/wiki/SCP">scp</a>, которая входит в состав пакета <span style="font-weight:bold">openssh-client</span>.</div>
 
 
 <h2>Установка PostgreSQL 9.4<a name="postgre"></a> <a href="#content" title="К содержанию">↑</a></h2>
@@ -688,12 +732,12 @@
 
 
 
-<div class="warnDiv"><img src="http://nixway.org/images/warn.png" alt="Предупреждение" width="48" height="48" class="warnImg">Для 64-битного сервера 1С:Предприятие, нужен 64-битный серверный HASP-ключ. 32-битный серверный HASP-ключ с 64-битным сервером 1С:Предприятие работать не будет!</div>
+<div class="warnDiv"><img src="/images/warn.png" alt="Предупреждение" width="48" height="48" class="warnImg">Для 64-битного сервера 1С:Предприятие, нужен 64-битный серверный HASP-ключ. 32-битный серверный HASP-ключ с 64-битным сервером 1С:Предприятие работать не будет!</div>
 
 
 
 
-<div class="infoDiv"><img src="http://nixway.org/images/info.png" alt="Примечание" width="48" height="48" class="infoImg">Сервер 1С:Предприятие под *nix-подобные операционные системы не требует наличия серверного ключа, если число пользользователей не превышает 12. В этом случае требуется наличие только клиентских лицензий. Однако, согласно правилам лицензирования, организация должна приобрести серверный ключ.</div>
+<div class="infoDiv"><img src="/images/info.png" alt="Примечание" width="48" height="48" class="infoImg">Сервер 1С:Предприятие под *nix-подобные операционные системы не требует наличия серверного ключа, если число пользользователей не превышает 12. В этом случае требуется наличие только клиентских лицензий. Однако, согласно правилам лицензирования, организация должна приобрести серверный ключ.</div>
 
 
 <p>На этом установка драйвера закончена.</p>
@@ -820,57 +864,57 @@
 
 <p>Для начала можно (но совсем необязательно) установить демонстрационную конфигурацию. Дабы продемострировать работую так называемого &laquo;Управляемого приложения&raquo;. Демонстрационная конфигурация идет в комплекте с 1С:Предприятие 8.3. Установщик конфигурации представлен в виде простого скрипта. Потому подробно я останавливаться на этом процессе не буду, просто выложу несколько скриншотов процесса установки:</p>
 
-<p><a href="http://nixway.org/images/posts/2015-11-10/1c_demo_1.png"><img src="http://nixway.org/images/posts/2015-11-10/1c_demo_1_preview.png" alt="Установка демо конфигурации" /></a></p>
+<p><a href="/images/posts/2015-11-10/1c_demo_1.png"><img src="/images/posts/2015-11-10/1c_demo_1_preview.png" alt="Установка демо конфигурации" /></a></p>
 
 <p>1. Создание информационных баз на *nix-подобных ОС должно проходить из под толстого клиента. В противном случае вы рискуете получить ошибку:</p>
 
-<p><img src="http://nixway.org/images/posts/2015-11-10/1c_error_1.png" alt="Создание ИБ. Ошибка" /></p>
+<p><img src="/images/posts/2015-11-10/1c_error_1.png" alt="Создание ИБ. Ошибка" /></p>
 
 <p>Кроме вышеуказанной ошибки, встречается и другая, но уже в толстом клиенте. Когда при добавлении новой ИБ 1С:Предприятие выдает сообщение:</p>
 
-<p><img src="http://nixway.org/images/posts/2015-11-10/1c_error_2.png" alt="Создание ИБ. Ошибка" /></p>
+<p><img src="/images/posts/2015-11-10/1c_error_2.png" alt="Создание ИБ. Ошибка" /></p>
 
 <p>ИБ создается, но 1С:Предприятие некорректно обрабатывает её создание. В этом случае достаточно просто добавить ИБ в список:</p>
 
-<p><a href="http://nixway.org/images/posts/2015-11-10/1c_02.1.png"><img src="http://nixway.org/images/posts/2015-11-10/1c_02.1_preview.png" alt="Создание ИБ. Добавление существующей ИБ" /></a></p>
+<p><a href="/images/posts/2015-11-10/1c_02.1.png"><img src="/images/posts/2015-11-10/1c_02.1_preview.png" alt="Создание ИБ. Добавление существующей ИБ" /></a></p>
 
 <p>Вышеуказанные ошибки будут рассмотрены в отдельной статье.</p>
 
 <p>2. При первом запуске 1С:Предприятие сразу же предложить нам добавить информационную базу (ИБ), жмем <kbd>Да</kbd>:</p>
 
-<p><img src="http://nixway.org/images/posts/2015-11-10/1c_01.png" alt="Создание ИБ. Добавление" /></p>
+<p><img src="/images/posts/2015-11-10/1c_01.png" alt="Создание ИБ. Добавление" /></p>
 
 <p>3. Создаем ИБ или добавляем уже созданную ИБ, жмем <kbd>Далее ></kbd>:</p>
 
-<p><img src="http://nixway.org/images/posts/2015-11-10/1c_02.png" alt="Создание ИБ. Новая" /></p>
+<p><img src="/images/posts/2015-11-10/1c_02.png" alt="Создание ИБ. Новая" /></p>
 
 <p>4. Выбраем шаблон конфигурации для создаваемой ИБ или же создаем ИБ без конфигурации, жмем <kbd>Далее ></kbd>:</p>
 
-<p><img src="http://nixway.org/images/posts/2015-11-10/1c_03.png" alt="Создание ИБ. Конфигурация" /></p>
+<p><img src="/images/posts/2015-11-10/1c_03.png" alt="Создание ИБ. Конфигурация" /></p>
 
 <p>5. Задаем имя ИБ и выбираем пункт &laquo;На сервере 1С:Предприятия&raquo;, жмем <kbd>Далее ></kbd>:</p>
 
-<p><img src="http://nixway.org/images/posts/2015-11-10/1c_04.png" alt="Создание ИБ. Сервер" /></p>
+<p><img src="/images/posts/2015-11-10/1c_04.png" alt="Создание ИБ. Сервер" /></p>
 
 <p>6. По порядку указываем: доменное имя или IP-адрес сервера 1С:Предприятие, имя ИБ, параметры соединения, тип СУБД, адрес сервера баз данных (БД), имя БД на сервере БД, имя пользователя сервера БД, пароль пользователя сервера БД, жмем <kbd>Далее ></kbd>:</p>
 
-<p><img src="http://nixway.org/images/posts/2015-11-10/1c_05.png" alt="Создание ИБ. Параметры подключения" /></p>
+<p><img src="/images/posts/2015-11-10/1c_05.png" alt="Создание ИБ. Параметры подключения" /></p>
 
 <p>7. Параметры запуска оставляем без изменений, жмем <kbd>Готово</kbd>:</p>
 
-<p><img src="http://nixway.org/images/posts/2015-11-10/1c_06.png" alt="Создание ИБ. Параметры запуска" /></p>
+<p><img src="/images/posts/2015-11-10/1c_06.png" alt="Создание ИБ. Параметры запуска" /></p>
 
 <p>8. Если вы всё сделали правильно, то через некоторое время ИБ будет создана и вы увидите её в списке:</p>
 
-<p><img src="http://nixway.org/images/posts/2015-11-10/1c_07.png" alt="Создание ИБ. Список ИБ" /></p>
+<p><img src="/images/posts/2015-11-10/1c_07.png" alt="Создание ИБ. Список ИБ" /></p>
 
 <p>9. Теперь, когда мы создали ИБ, можно её запустить. Как вы помните, я создавал ИБ из шаблона демонстрационной конфигурации. Так выглядит рабочее окно этой конфигурации:</p>
 
-<p><a href="http://nixway.org/images/posts/2015-11-10/1c_08.png"><img src="http://nixway.org/images/posts/2015-11-10/1c_08_preview.png" alt="Режим - 1С:Предприятие" /></a></p>
+<p><a href="/images/posts/2015-11-10/1c_08.png"><img src="/images/posts/2015-11-10/1c_08_preview.png" alt="Режим - 1С:Предприятие" /></a></p>
 
 <p>Ну и конечно же конфигуратор:</p>
 
-<p><a href="http://nixway.org/images/posts/2015-11-10/1c_09.png"><img src="http://nixway.org/images/posts/2015-11-10/1c_09_preview.png" alt="Режим - Конфигуратор" /></a></p>
+<p><a href="/images/posts/2015-11-10/1c_09.png"><img src="/images/posts/2015-11-10/1c_09_preview.png" alt="Режим - Конфигуратор" /></a></p>
 
 <h2>Публикация ИБ на веб-сервере Apache 2.4<a name="apache24"></a> <a href="#content" title="К содержанию">↑</a></h2>
 
@@ -920,7 +964,7 @@
 </pre></td><td class='code'><pre><code class=''><span class='line'>http[s]://server_ip|server_name/ibname</span></code></pre></td></tr></table></div></figure>
 
 
-<p><a href="http://nixway.org/images/posts/2015-11-10/1c_10.png"><img src="http://nixway.org/images/posts/2015-11-10/1c_10_preview.png" alt="Режим - Конфигуратор" /></a></p>
+<p><a href="/images/posts/2015-11-10/1c_10.png"><img src="/images/posts/2015-11-10/1c_10_preview.png" alt="Режим - Конфигуратор" /></a></p>
 
 <h2>Послесловие<a name="afterword"></a> <a href="#content" title="К содержанию">↑</a></h2>
 
@@ -929,472 +973,165 @@
 <p><em>Статья обновлена 10 августа 2016 года.</em></p>
 
 <p>Напоминаю копипастерам, использование прямой ссылки на оригинальную статью обязательно.</p>
-]]></content>
-  </entry>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
   
-  <entry>
-    <title type="html"><![CDATA[WPS Office от Kingsoft альтернатива MS Office]]></title>
-    <link href="http://nixway.org/review/wps-kingsoft-office-review/"/>
-    <updated>2015-07-27T10:53:04+06:00</updated>
-    <id>http://nixway.org/review/wps-kingsoft-office-review</id>
-    <content type="html"><![CDATA[<p><img src="http://nixway.org/images/posts/2015-07-27/wps-office.png" alt="Debian + 1C + PostgreSQL" /><br/>
-Наконец дошли руки до тестирования <a href="https://www.wps.com/?lang=ru">WPS Office</a>. Это - пакет офисных программ, созданный китайским разработчиком программного обеспечения <a href="https://www.wps.com/about-us">Kingsoft</a>, как бесплатная альтернатива <a href="https://ru.wikipedia.org/wiki/Microsoft_Office">Microsoft Office</a>. Пакет состоит из текстового процессора - <em>WPS&nbsp;Writer</em>, табличного процессора - <em>WPS&nbsp;Spreadsheets</em> и программы создания презентаций - <em>WPS&nbsp;Presentation</em>. Несмотря на то, что продукт с закрытым исходным кодом, он на данный момент бесплатен, потому я решился написать небольшой обзор об этом продукте.</p>
 
-<!--more-->
+<span class="byline author vcard">Автор - <span class="fn">nihi1ist, </span></span>
+ опубликовано: 
+      
 
 
-<p>На данный момент доступна только альфа-версия, что не помешает нам использовать этот продукт, ведь текущая версия достаточно стабильна. К тому же ведется ведется активная разработка. Официально поддерживается только английский и китайские языки, но к нашей радости имеется <a href="http://wps-community.org">сообщество</a>, отдельные преставители которого занимаются переводом и созданием словарей.</p>
 
-<h2>Установка</h2>
 
-<p>Не думаю, что процесс установки вызовет сложности, т.к. <a href="http://wps-community.org/downloads">доступны</a> установочные пакеты для большинства популярных *nix-подобных ОС. К сожалению готовых установочных пакетов с <a href="https://github.com/wps-community/wps_i18n">локализациями</a>, <a href="http://wps-community.org/download/dicts/">словарями</a> и шрифтами нет. Но я готов предоставить пакеты, которые собирал для себя:<br/>
-- Русская локализация - <a href="https://mega.nz/#!GBhmATxD!i_eRU5DmNGapyo_cf8Q8m2bK8EFDgPasn60PJZSHhUk">deb</a> | <a href="https://mega.nz/#!WIpgnK6Y!5NKa21IZBlRIPkldglGBWS3BFjw8fGRp_Ju2UJ3vHAg">rpm</a>.<br/>
-- Словари для русского языка - <a href="https://mega.nz/#!iN4h1agZ!0RngC7qgpQUwPuWKnxC9N6bf7Yis3HLCfnlldOVYzPo">deb</a> | <a href="https://mega.nz/#!bFwmAbRI!MAOdYAaz6Wj55mckmoNdmPYfGw4L6Wsg1cLN2U0cRCg">rpm</a>,<br/>
-- Шрифты - <a href="https://mega.nz/#!PBwGGTiL!FuZ7VJKh4TwCVefM1seyz8oakTYXrGq2C2zJ_2B3wSo">deb</a> | <a href="https://mega.nz/#!HAIwkSAS!94Ava1zlqB4AVclSerFcjcw8ktMMwF1ef9GY-rYGT80">rpm</a>.*</p>
 
-<p>* <span style="font-style:italic;color:gray">В состав пакета входят шрифты: Calibri, Cambria, MT-Extra, Symbol, Webdings, Wingding 1, Wingding 2, Wingding 3.</span></p>
 
-<h2>Впечатление</h2>
 
-<p>Первым что бросается в глаза, это интерфейс в стиле <a href="https://ru.wikipedia.org/wiki/Ribbon">Ribbon</a>. На первый взгляд выглядит все просто замечательно, но по мере работы с пакетом начинаешь понимать, что не всё так радужно. К примеру панель быстрого доступа очень ограничена по функционалу. Она недоступна через горячие клавиши, на неё нельзя назначить нужный функционал, кроме заданного разработчиками. А ведь это очень удобно, вывести на панель наиболее часто используемый функционал и вызывать его горячими клавишами, не переключаясь по вкладкам.</p>
 
-<p><img src="http://nixway.org/images/posts/2015-07-27/ms_office_quick%20access%20toolbar-01.gif" alt="MS Office Quick Access Toolbar" /></p>
 
-<p>Далее рассмотрим функционал <a href="https://ru.wikipedia.org/wiki/Microsoft_Office_Backstage">Backstage</a>. В WPS Office он имеет двойное назначение и это видно по самой кнопке. Сама кнопка, предоставляет крайне скудный функционал:</p>
 
-<p><img src="http://nixway.org/images/posts/2015-07-27/wps_writer_backstage_01.png" alt="WPS Office Backstage" /></p>
 
-<p>Несравнимый с функционалом предоставляемым MS Office Backstage:</p>
 
-<p><a href="http://nixway.org/images/posts/2015-07-27/ms_office_backstage-01.png"><img src="http://nixway.org/images/posts/2015-07-27/ms_office_backstage-01-preview.png" alt="MS Office Backstage" /></a></p>
 
-<p>Те кто работал поймут насколько удобнее меню Backstage из MS Office 2010. Стрелка находящаяся справа от кнопки, предоставляет доступ к меню. Его вы можете увидет на изображении ниже.</p>
 
-<p>Явные на мой взгляд недостатки я перечислил, теперь давайте рассмотрим особенности и отличия. Самой заметной особенностью, является поддержка стилей интерфейса. Стоит отдельно отметить наличие стиля классического интефейса. Поменять стиль интерфейса вы можете через меню <span style="font-style:italic;color:gray">(Сервис &raquo; Поменять стиль интерфейса)</span> или через кнопку в заголовке окна:</p>
+ 10 Ноября 2015, 16:33, Вт
+      
 
-<p><a href="http://nixway.org/images/posts/2015-07-27/wps-office_gui_change.png"><img src="http://nixway.org/images/posts/2015-07-27/wps-office_gui_change-preview.png" alt="WPS Office GUI change" /></a></p>
-
-<p>Ещё одной отличительной чертой являются вкладки, довольно удобное решение. Кроме того, на приветственной странице, пользователю предлагается набор шаблонов на любой вкус:</p>
-
-<p><a href="http://nixway.org/images/posts/2015-07-27/wps_spreadsheets_01.png"><img src="http://nixway.org/images/posts/2015-07-27/wps_spreadsheets_01-preview.png" alt="WPS Office Spreadsheets" /></a></p>
-
-<p>По поводу заявлениянной поддержки форматов *.docx, *.xlsx, *.pptx, я ничего сказать не могу. На данный момент я не работаю со сложными документами в этих форматах. И даже, если поддержка вышеперечисленных форматов соответствует заявленному, многих огорчит отсутствие поддержки <a href="https://ru.wikipedia.org/wiki/OpenDocument" title="OpenDocument Format">ODF</a>.</p>
-
-<h2>Выводы</h2>
-
-<p>Итак, что из себя представляет Kingsoft WPS Office? Это - попытка создать альтернативу популярнейшему пакету офисных програм. Но, на данный момент продукт не может конкурировать ни с Microsoft Office, ни даже с LibreOffice. Кому же подойдет этот пакет? Думаю, тем кто привык к ленточному интерфейсу и никогда не работал с классическим интерфейсом. Ведь как я уже писал выше, ленточный интерфейс в этом продукте крайне скуден на функционал и настройки.</p>
-
-<p>Конечно же не стоит ставить крест на этом продукте. Работа над ним продолжается и быть может в будущем продукт сможет приятно удивить пользователей функционалом и удобным интерфейсом. Ну а на данный момент времени, мне больше подходит <a href="http://ru.libreoffice.org/">LibreOffice</a>.</p>
-]]></content>
-  </entry>
+<span class="categories">
   
-  <entry>
-    <title type="html"><![CDATA[Установка и настройка Bind9 на Debian&nbsp;8&nbsp;&laquo;Jessie&raquo;]]></title>
-    <link href="http://nixway.org/how-to/ustanovka-i-nastroika-bind9-na-debian-jessie/"/>
-    <updated>2015-05-01T09:29:13+06:00</updated>
-    <id>http://nixway.org/how-to/ustanovka-i-nastroika-bind9-na-debian-jessie</id>
-    <content type="html"><![CDATA[<p><img src="http://nixway.org/images/posts/2015-05-01/debian+bind9.png" alt="Bind9" /></p>
-
-<p>В сети очень много статей на тему установки и настройки DNS-сервера Bind9. Они разные. Некоторые написаны просто и доступно, но нет пояснений зачем и почему. В других материал подан очень подробно, но новичкам такой материал осилить сложно. Я же попытаюсь совместить достоинства способов подачи материала, нащупать ту золотую середину, которая подойден большинству. Но опять таки, я не претендую на истину в последней инстанции и готов принять конструктивную критику.</p>
-
-<!--more-->
-
-
-<p>Итак, вступление закончено, приступим к самой статье. Я как приверженнец Debian, буду описывать процесс установки и настройки именно на этой ОС. Дано Debian&nbsp;8&nbsp;&laquo;Jessie&raquo; установленный вот с такими параметрами <em>(Ну разве кроме пункта <strong>web server</strong>, он пригодится тем, кто в дальнейшем будет работать с веб-сервером Apache):</em><br/>
-<a href="http://nixway.org/images/posts/2015-05-01/debian_preinstall_options.png"><img src="http://nixway.org/images/posts/2015-05-01/debian_preinstall_options_preview.png" alt="Debian preinstall options" /></a></p>
-
-<h4>Настройки сети:</h4>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>IP адрес роутера 192.168.1.1
-</span><span class='line'>IP адрес сервера 192.168.1.10
-</span><span class='line'>Имя домена nixway.loc</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Для решения данной задачи настроим сервер таким образом, чтобы при обращении по доменному имени внутри сети он отвечал по локальному адресу. Все комманды выполняются от имени суперпользователя (<strong>root</strong>).</p>
-
-<p>Сначала установим необходимые пакеты:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>apt-get -y install bind9 dnsutils</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Теперь необходимо настроить файл конфигурации Bind9:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>vim /etc/bind/named.conf.options</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Приведём его к следующему виду:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>acl mynetwork {192.168.1.0/24; 127.0.0.1; };
-</span><span class='line'>options {
-</span><span class='line'>  directory "/var/cache/bind";
-</span><span class='line'>  auth-nxdomain no;
-</span><span class='line'>  forwarders {192.168.1.1; 8.8.8.8; };
-</span><span class='line'>  listen-on-v6 { none; };
-</span><span class='line'>  allow-query { mynetwork; };
-</span><span class='line'>}; </span></code></pre></td></tr></table></div></figure>
-
-
-<p><strong>Расшифровка:</strong><br/>
-<code>acl</code> - создает <a href="https://ru.wikipedia.org/wiki/ACL">ACL</a> (<em>Access control list</em>) - так называемый список контроля доступа, с помощью которого мы ограничиваем диапазон адресов которые могут запрашивать зоны с нашего сервера. В данном примере это разрешено подсети <em>192.168.1.0/24.</em> и <a href="https://ru.wikipedia.org/wiki/Localhost">локальному хосту</a>.<br/>
-<code>allow-query { mynetwork; };</code> - список тех, кто имеет право запрашивать  информацию. Можно ограничить с помошью <em>acl</em> либо установить <em>allow-query { any; };</em> - что будет означать, что запросы разрешенмы всем.<br/>
-<code>forwarders {192.168.1.1; 8.8.8.8; };</code> - это DNS провайдера, или любые другие, у которых можно получить информацию о доменах неизвестных вашему серверу.<br/>
-<code>listen-on-v6 { none; }</code> - запрещает работать с IPv6.</p>
-
-<h3>Настройка зон</h3>
-
-<p>Для начала покорректируем файл локальной конфигурации Bind9:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>vim /etc/bind/named.conf.local</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Этот файл содержит локальную конфигурацию DNS-сервера, в нем объявляются зоны, связанные с доменами этого сервера. Добавляем в него файлы наших зон (зону прямого просмотра и зону обратного просмотра):</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>zone "nixway.loc" {
-</span><span class='line'>    type master;
-</span><span class='line'>    file "/etc/bind/zones/nixway/flz.nixway.zone";
-</span><span class='line'>};
-</span><span class='line'> 
-</span><span class='line'>zone "1.168.192.in-addr.arpa" {
-</span><span class='line'>    type master;
-</span><span class='line'>    file "/etc/bind/zones/nixway/rlz.nixway.zone";
-</span><span class='line'>};
-</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Зона прямого просмотра</h3>
-
-<p>Зона в DNS — это часть пространства имён DNS, управляемая конкретным сервером или группой серверов DNS. Зона прямого просмотра - это тип зоны в которой доменное имя преобразуется в IP-адрес. Создадим файл для зоны прямого просмотра:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>vim /etc/bind/zones/nixway/flz.nixway.zone</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Со следующим содержимым:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>;
-</span><span class='line'>; Зона прямого просмотра
-</span><span class='line'>;
-</span><span class='line'>$TTL 30
-</span><span class='line'>$ORIGIN nixway.loc.
-</span><span class='line'> 
-</span><span class='line'>@               IN      SOA     ns1.nixway.loc. admin.nixway.loc. (
-</span><span class='line'>        2015050101      ; Serial
-</span><span class='line'>                1d      ; Refresh
-</span><span class='line'>                1h      ; Retry
-</span><span class='line'>                1w      ; Expire
-</span><span class='line'>                2h      ; Negative Cache TTL
-</span><span class='line'>)
-</span><span class='line'>
-</span><span class='line'>@               IN      NS      ns1.nixway.loc.
-</span><span class='line'>@               IN      NS      ns.provider.org.
-</span><span class='line'>@               IN      A       192.168.1.10
-</span><span class='line'>
-</span><span class='line'>ns1             IN      A       192.168.1.10
-</span><span class='line'>nixway.loc      IN      A       192.168.1.10
-</span><span class='line'>
-</span><span class='line'>www             IN      CNAME   nixway.loc.
-</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
-
-
-<p>В конце этого файла нужно обязательно оставить пустую строку!</p>
-
-<p><strong>Расшифровка:</strong><br/>
-<code>$ORIGIN</code> - оригинальное имя зоны<br/>
-<code>ns1.nixway.loc.</code>  - Наш DNS-сервер (точка в конце обязательна).<br/>
-<code>admin.nixway.loc.</code> - email администратора сервера, где вместо символа @ используется точка.<br/>
-<code>Serial</code> - серийный номер зоны в формате ГГГГММДД и номер текущего изменения за этот день. (Важно, при каждом изменении, нужно редактировать этот номер увеличивая его в большую сторону) Пример: <em>2015020301.</em><br/>
-<code>Refresh</code> - период времени с которым вторичный сервер днс обращается к основному.<br/>
-<code>Retry</code> - период с которым вторичный сервер будет повторять попытки при неудачном обновлении.<br/>
-<code>Expire</code> - максимальное время использования данных на вторичном сервере, после которого делается обязательное обновление.<br/>
-<code>Negative Cache TTL</code> - время актуальности данных в кэше запросов.</p>
-
-<p>Далее идут записи имён хостов с ip-адресами или псевдонимами.
-<em>ns.provider.org.</em> - вместо этой записи можете указать NS вашего регистратора либо Free DNS сервиса.</p>
-
-<h3>Зона обратного просмотра</h3>
-
-<p>Зона обратного просмотра, выполняет преобразование IP-адреса в доменное имя. Создадим файл для зоны обратного просмотра:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>vim /etc/bind/zones/nixway/rlz.nixway.zone</span></code></pre></td></tr></table></div></figure>
-
-
-<p>И запишем туда следующее:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>;
-</span><span class='line'>; Зона обратного просмотря для nixway.loc
-</span><span class='line'>;
-</span><span class='line'>$TTL 30
-</span><span class='line'>@               IN      SOA     ns1.nixway.loc. root.nixway.loc. (
-</span><span class='line'>         201505013      ; Serial
-</span><span class='line'>                1d      ; Refresh
-</span><span class='line'>                1h      ; Retry
-</span><span class='line'>                1w      ; Expire
-</span><span class='line'>                2h      ; Negative Cache TTL
-</span><span class='line'>)
-</span><span class='line'> 
-</span><span class='line'>@               IN      NS      nixway.loc.
-</span><span class='line'>
-</span><span class='line'>10              IN      PTR     ns1.nixway.loc.
-</span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
-
-
-<p>В этом файле должны быть только записи типа PTR. В конце этого файла так же должна быть пустая строка. Число 10 - это последний <a href="https://ru.wikipedia.org/wiki/%D0%9E%D0%BA%D1%82%D0%B5%D1%82_%28%D0%B8%D0%BD%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B8%D0%BA%D0%B0%29">октет</a> в IP адресе нашего сервера.</p>
-
-<p>Например, можно добавить в файл зоны прямого просмотра строку:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>router          IN      A       192.168.1.1</span></code></pre></td></tr></table></div></figure>
-
-
-<p>А в файл зоны обратного просмотра строку:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>1               IN      PTR     router.nixway.loc.</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Тогда по адресу <em>router.nixway.loc</em> в браузере будет открываться web-интерфейс роутера (эквивалентно 192.168.1.1), но только внутри локальной сети.</p>
-
-<h3>Проверка</h3>
-
-<p>Проверим файлы зон на наличие ошибок командой:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>named-checkconf -z</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Если ошибок нет, обновим информацию о зонах:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>rndc reload</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Теперь необходимо отредактировать <em>resolv.conf</em>:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>vim /etc/resolv.conf</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Приводим его в следующий вид:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>domain nixway.loc
-</span><span class='line'>search nixway.loc
-</span><span class='line'>nameserver 192.168.1.10
-</span><span class='line'>nameserver 192.168.1.1</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Проверку можно сделать двумя командами:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>nslookup nixway.loc
-</span><span class='line'>nslookup 192.168.1.10</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Которые должны выдать cледующий результат:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Имя:   nixway.loc
-</span><span class='line'>Address: 192.168.1.10</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Последние штрихи</h3>
-
-<p>Если DHCP у вас раздает роутер, не забудьте установить выдаваемые по умолчанию DNS сервера 192.168.1.10 и 192.168.1.1
-Проверьте корректность работы, введя в консоли Windows-машины</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>tracert nixway.loc</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Если маршрут пошел сразу на адрес  192.168.1.10, значит все работает корректно. Если нет, пропробуйте очистить кэш DNS и посторить еще раз:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ipconfig /flushdns</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Не забудьте пробросить необходимые порты на роутере.</p>
-
-<p><a href="http://forum.nixway.org/viewtopic.php?id=27">Обсуждение</a> статьи на форуме.</p>
-]]></content>
-  </entry>
+    <a class='category' href='/categories/how-to/'>how-to</a>
   
-  <entry>
-    <title type="html"><![CDATA[Skype и PulseAudio. Настройка микрофона...]]></title>
-    <link href="http://nixway.org/multimedia/skype-i-pulseaudio-nastroika-mikrofona/"/>
-    <updated>2015-04-11T16:36:28+06:00</updated>
-    <id>http://nixway.org/multimedia/skype-i-pulseaudio-nastroika-mikrofona</id>
-    <content type="html"><![CDATA[<p><img src="http://nixway.org/images/posts/2015-04-11/skype+pulseaudio+pavucontrol.png" alt="Skype &amp; PulseAudio" /></p>
+</span>
 
-<p>После выпуска Skype версии 4.3 для Linux, многие поклонники Linux столкнулись с проблемой работы микрофона в вышеупомянутом Skype. Недавно нашел более-менее универсальное решение. Оно должно подойти всем, у кого микрофон в системе работает.</p>
-
-<!-- more -->
-
-
-<p>Нам понадобится Pavucontrol.</p>
-
-<blockquote><p>PulseAudio Volume Control (pavucontrol) - простая утилита управления звуком (микшер).
-В отличие от классического микшера, он позволяет управлять звуком для устройства и каждого потока воспроизведения раздельно.
-Также позволяет перенаправлять поток на другой выход не прерывая воспроизведение.</p></blockquote>
-
-<p>Не сомневаюсь, те у кого Pavucontrol не установлен, прекрасно справится с его установкой. :) Потому описывать процесс установку я не буду.</p>
-
-<ol>
-<li>Итак, открываем Pavucontrol, переходим на вкладку Запись (Recording):<br/>
-<a href="http://itmages.ru/image/view/2426287/8f1e27e9"><img src="http://storage3.static.itmages.ru/i/15/0404/s_1428122957_1207467_8f1e27e9ca.png" alt="Pavucontrol, recording tab" /></a><br/>
-Как мы видим, вкладка Запись (Recording) пуста.</li>
-<li>Запускаем тестовый звонок в Skype:<br/>
-<a href="http://itmages.ru/image/view/2426290/2200628e"><img src="http://storage3.static.itmages.ru/i/15/0404/s_1428122957_3453301_2200628eae.png" alt="Skype, Echo - Sound Test Service" /></a></li>
-<li>Переключаемся в окно Pavucontrol, там мы увидим ползунок настройки громкости для Skype:<br/>
-<a href="http://itmages.ru/image/view/2426288/2a1d02a6"><img src="http://storage3.static.itmages.ru/i/15/0404/s_1428122957_2227499_2a1d02a687.png" alt="Pavucontrol, recording tab, Skype stream" /></a></li>
-<li>А чуть выше ползунка настройки громкости, есть меню выбора устройства с которого Skype считывает звук. Именно в этом меню надо выбрать устройство, с которого Skype будет считывать звук:<br/>
-<a href="http://itmages.ru/image/view/2426291/8576133d"><img src="http://storage4.static.itmages.ru/i/15/0404/s_1428122958_9178295_8576133d07.png" alt="Pavucontrol, recording tab, Skype stream, recording device" /></a><br/>
-В моем случае это HP Webcam HD-4110. Его я и выбрал:<br/>
-<img src="http://storage4.static.itmages.ru/i/15/0404/h_1428122958_6709430_eaee045f1c.png" alt="Pavucontrol, recording tab, recording device selection menu" /><br/>
-После этой простенькой настройки, микрофон в Skype начал вполне сносно работать.</li>
-</ol>
-
-]]></content>
-  </entry>
+    </p>
+    
+      <div class="sharing">
   
-  <entry>
-    <title type="html"><![CDATA[Octopress – Troubleshooting]]></title>
-    <link href="http://nixway.org/how-to/octopress-troubleshooting/"/>
-    <updated>2015-04-09T21:38:00+06:00</updated>
-    <id>http://nixway.org/how-to/octopress-troubleshooting</id>
-    <content type="html"><![CDATA[<p><img src="http://nixway.org/images/posts/2015-04-09/octopress-troubleshooting.png" alt="Troubleshooting" /></p>
-
-<p>В данный пост я буду собирать решения всех возможных проблем, которые я встречу знакомясь с Octopress.</p>
-
-<!--more-->
-
-
-<h2>Как исправить ошибку &ldquo;build warning Layout nil requested&rdquo;.</h2>
-
-<p>В случае если команда <code>rake generate</code> ошибку:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Build Warning: Layout 'nil' requested in blog/tags/git/atom.xml does not exist.</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Надо найти и исправить:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>layout: nil</span></code></pre></td></tr></table></div></figure>
-
-
-<p>На:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>layout: null</span></code></pre></td></tr></table></div></figure>
-
-
-<p>В следующих файлах:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>source/atom.xml
-</span><span class='line'>source/robots.txt
-</span><span class='line'>source/_includes/custom/category_feed.xml</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Вышеуказанные файлы находятся в каталоге Octopress.</p>
-]]></content>
-  </entry>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://nixway.org/how-to/1c-predpriyatie-8-3+postgresql-na-baze-debian-8-jessie/" data-via="starnixway" data-counturl="http://nixway.org/how-to/1c-predpriyatie-8-3+postgresql-na-baze-debian-8-jessie/" >Tweet</a>
   
-  <entry>
-    <title type="html"><![CDATA[Подборка тем Octopress]]></title>
-    <link href="http://nixway.org/web/octopress-themes/"/>
-    <updated>2015-04-09T17:11:14+06:00</updated>
-    <id>http://nixway.org/web/octopress-themes</id>
-    <content type="html"><![CDATA[<p><img src="http://nixway.org/images/posts/2015-04-09/octopress-themes.png" alt="Octopress themes" /></p>
-
-<p>Решил сделать для себя поборку наиболее понравившихся тем Octopress. Надеюсь эта подборка понравится и вам. В комментариях можете делиться своим списком тем. Вполне возможно, я пропустил немало интересных тем.</p>
-
-<!--more-->
-
-
-<p>1. Приятная минималистичная тема <a href="https://github.com/tommy351/Octopress-Theme-Slash">Slash</a>, в серых тонах.<br/>
-<a href="http://nixway.org/images/posts/2015-04-09/octopress-themes-slash.png"><img src="http://nixway.org/images/posts/2015-04-09/octopress-themes-slash-preview.png" title="Превью темы Slash" alt="Тема Slash" /></a></p>
-
-<p>2. Строгая тема <a href="https://github.com/yang-wei/simplified">Simplified</a>, в оранжево-коричневых тонах. Яркая, но в то же время не режет глаза.<br/>
-<a href="http://nixway.org/images/posts/2015-04-09/octopress-themes-simplified.png"><img src="http://nixway.org/images/posts/2015-04-09/octopress-themes-simplified-preview.png" title="Превью темы Simplified" alt="Тема Slash" /></a></p>
-
-<p>3. Светлая тема <a href="https://github.com/lucaslew/whitespace">Whitespace</a>, в серых оттенках, не напрягает. Но в этой теме для меня есть существенный недостаток, а именно использование шрифтов не поддерживающих кириллицу.<br/>
-<a href="http://nixway.org/images/posts/2015-04-09/octopress-themes-whitespace.png"><img src="http://nixway.org/images/posts/2015-04-09/octopress-themes-whitespace-preview.png" title="Превью темы Whitespace" alt="Тема Slash" /></a></p>
-
-<p>4. Отличная серо-зеленая тема <a href="https://github.com/lijinma/jin">Jin</a>, автор lijinma.<br/>
-<a href="http://nixway.org/images/posts/2015-04-09/octopress-themes-lijinma.png"><img src="http://nixway.org/images/posts/2015-04-09/octopress-themes-lijinma-preview.png" title="Превью темы Jin" alt="Тема Slash" /></a></p>
-]]></content>
-  </entry>
   
-</feed>
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/review/wps-kingsoft-office-review/" title="Предыдущая статья">&laquo; WPS Office от Kingsoft альтернатива MS Office</a>
+      
+      
+        <a class="basic-alignment right" href="/how-to/optimizacija-proizvoditelnosti-postgresql-dlja-servera-1c-predprijatie/" title="Следующая статья">Оптимизация производительности PostgreSQL для сервера 1С:Предприятие &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Комментарии</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Недавние сообщения
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/how-to/optimizacija-proizvoditelnosti-postgresql-dlja-servera-1c-predprijatie/">Оптимизация производительности PostgreSQL для сервера 1С:Предприятие</a>
+      </li>
+    
+      <li class="post">
+        <a href="/how-to/1c-predpriyatie-8-3+postgresql-na-baze-debian-8-jessie/">1С:Предприятие 8.3 + PostgreSQL 9.4 на базе Debian&nbsp;8&nbsp;&laquo;Jessie&raquo;</a>
+      </li>
+    
+      <li class="post">
+        <a href="/review/wps-kingsoft-office-review/">WPS Office от Kingsoft альтернатива MS Office</a>
+      </li>
+    
+      <li class="post">
+        <a href="/how-to/ustanovka-i-nastroika-bind9-na-debian-jessie/">Установка и настройка Bind9 на Debian&nbsp;8&nbsp;&laquo;Jessie&raquo;</a>
+      </li>
+    
+      <li class="post">
+        <a href="/multimedia/skype-i-pulseaudio-nastroika-mikrofona/">Skype и PulseAudio. Настройка микрофона...</a>
+      </li>
+    
+  </ul>
+</section>
+    {\% if site.twitter_user and site.twitter_widget_id \%}
+    <section>
+        <h1>Latest Tweets</h1>
+        <p><a class="twitter-timeline" href="https://twitter.com/cmd_q_ru" data-widget-id="336577879670403072">Tweets by @cmd_q_ru</a></p>
+        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+    </section>
+    {\% endif \%}
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  &copy; <a href="mailto:nihi1ist@nixway.org">nihi1ist</a>, 2016. 
+  <span class="credit">Создано на платформе <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'nixway';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://nixway.org/how-to/1c-predpriyatie-8-3+postgresql-na-baze-debian-8-jessie/';
+        var disqus_url = 'http://nixway.org/how-to/1c-predpriyatie-8-3+postgresql-na-baze-debian-8-jessie/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
