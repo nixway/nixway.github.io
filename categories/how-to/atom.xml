@@ -4,7 +4,7 @@
   <title><![CDATA[Категория: How-to | Путь юниксоида]]></title>
   <link href="http://nixway.org/categories/how-to/atom.xml" rel="self"/>
   <link href="http://nixway.org/"/>
-  <updated>2016-08-10T15:14:13+06:00</updated>
+  <updated>2016-08-10T15:17:50+06:00</updated>
   <id>http://nixway.org/</id>
   <author>
     <name><![CDATA[nihi1ist]]></name>
@@ -388,7 +388,7 @@ postgresql-contrib-9.4 помечен как зафиксированный.
 -rwxr-xr-x 1 nihi1ist nihi1ist    236970 июн  8  2008 ttf2pt1_3.4.4-1.4_amd64.deb
 </code></pre>
 
-<p>Всего 8 пакетов, из которых нам для функционирования сервера 1С:Предприятия необходимы 3 пакета: <strong><em>1c-enterprise83-common_8.3*.deb</em></strong>, <strong><em>1c-enterprise83-server_8.3*.deb</em></strong>, <strong><em>1c-enterprise83-ws_8.3*.deb</em></strong>.</p>
+<p>Всего 8 пакетов, из которых нам для функционирования сервера 1С:Предприятия необходимы 3 пакета: <strong><em>1c-enterprise83-common</em></strong>, <strong><em>1c-enterprise83-server</em></strong>, <strong><em>1c-enterprise83-ws</em></strong>.</p>
 
 <h5>Небольшая таблица с пояснениями по назначению пакетов:</h5>
 
