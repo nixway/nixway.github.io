@@ -4,7 +4,7 @@
   <title><![CDATA[Категория: How-to | Путь юниксоида]]></title>
   <link href="http://nixway.org/categories/how-to/atom.xml" rel="self"/>
   <link href="http://nixway.org/"/>
-  <updated>2016-08-10T15:17:50+06:00</updated>
+  <updated>2016-08-10T15:34:08+06:00</updated>
   <id>http://nixway.org/</id>
   <author>
     <name><![CDATA[nihi1ist]]></name>
@@ -20,12 +20,12 @@
     <id>http://nixway.org/how-to/optimizacija-proizvoditelnosti-postgresql-dlja-servera-1c-predpriyatie</id>
     <content type="html"><![CDATA[<p><img src="/images/posts/2015-12-06/postgresql_for_1c.png" alt="Оптимизация производительности PostgreSQL" /></p>
 
-<p>На данный момент производительность PostgreSQL оставляет желать лучшего, в сравнении с тем же MS&nbsp;SQL. Эта статья продолжение моих попыток добиться таки достойной производительности на PostgreSQL. И хотя пока не добились производительности сопоставимой MS&nbsp;SQL, но думаю стоит продолжать попытки.</p>
+<p>На данный момент производительность PostgreSQL в связке с 1С:Предприятием в сравнении с тем же MS&nbsp;SQL оставляет желать лучшего. Эта статья продолжение моих попыток добиться таки достойной производительности на PostgreSQL. И хотя пока не добились производительности сопоставимой MS&nbsp;SQL, но думаю стоит продолжать попытки.</p>
+
+<p>Ниже (под катом) перечислены основные параметры, на  которые следует обратить внимание при оптимизации производительности PostgreSQL.</p>
 
 <!-- more -->
 
-
-<p>Ниже перечислены основные параметры, на  которые следует обратить внимание при оптимизации производительности PostgreSQL.</p>
 
 <h4>shared_buffers</h4>
 
