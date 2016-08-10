@@ -4,7 +4,7 @@
   <title><![CDATA[Категория: How-to | Путь юниксоида]]></title>
   <link href="http://nixway.org/categories/how-to/atom.xml" rel="self"/>
   <link href="http://nixway.org/"/>
-  <updated>2016-08-10T13:28:15+06:00</updated>
+  <updated>2016-08-10T13:30:36+06:00</updated>
   <id>http://nixway.org/</id>
   <author>
     <name><![CDATA[nihi1ist]]></name>
@@ -392,6 +392,7 @@ postgresql-contrib-9.4 помечен как зафиксированный.
 
 <p>Небольшое пояснение по назначениям пакетов:<br/>
 | Название пакета | Описание пакета |
+|&mdash;&mdash;&mdash;&mdash;&mdash;&ndash;|&mdash;&mdash;&mdash;&mdash;&mdash;&ndash;|
 | <em>1c_enterprise83-client…</em> | Компоненты клиента 1С Предприятие 8.3 для Linux |
 | <em>1c_enterprise83-thin-client…</em> | Компоненты тонкого клиента 1С Предприятие 8.3 для Linux |
 | <em>1c_enterprise83-common…</em> | Общие компоненты 1С Предприятие 8.3 для Linux |
