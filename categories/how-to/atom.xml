@@ -4,7 +4,7 @@
   <title><![CDATA[Категория: How-to | Путь юниксоида]]></title>
   <link href="http://nixway.org/categories/how-to/atom.xml" rel="self"/>
   <link href="http://nixway.org/"/>
-  <updated>2016-08-10T12:59:39+06:00</updated>
+  <updated>2016-08-10T13:01:36+06:00</updated>
   <id>http://nixway.org/</id>
   <author>
     <name><![CDATA[nihi1ist]]></name>
@@ -128,7 +128,7 @@ hasp
 
 <pre><code># fdisk -l
 
-Disk /dev/sdc: 14,9 GiB, 16013852672 bytes, 31277056 sectors
+Disk /dev/sdb: 14,9 GiB, 16013852672 bytes, 31277056 sectors
 Units: sectors of 1 * 512 = 512 bytes
 Sector size (logical/physical): 512 bytes / 512 bytes
 I/O size (minimum/optimal): 512 bytes / 512 bytes
@@ -136,7 +136,7 @@ Disklabel type: dos
 Disk identifier: 0xcad4ebea
 
 Device     Boot Start      End  Sectors  Size Id Type
-/dev/sdc4  *       63 31277055 31276993 14,9G  7 HPFS/NTFS/exFAT
+/dev/sdb4  *       63 31277055 31276993 14,9G  7 HPFS/NTFS/exFAT
 </code></pre>
 
 <p>У меня это <code>sdb4</code>, теперь монтируем флешку сразу в каталог <em>1сinstall</em>:</p>
