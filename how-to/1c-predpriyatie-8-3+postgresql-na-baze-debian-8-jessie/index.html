@@ -537,22 +537,50 @@
 </span><span class='line'>-rwxr-xr-x 1 nihi1ist nihi1ist    236970 июн  8  2008 ttf2pt1_3.4.4-1.4_amd64.deb</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Всего 8 пакетов, из которых нам для функционирования сервера 1С:Предприятия необходимы 2 пакета: <strong>1c-enterprise83-common</strong>, <strong>1c-enterprise83-server</strong>.</p>
+<p>Всего 8 пакетов, из которых нам для функционирования сервера 1С:Предприятия необходимы 3 пакета: <strong>1c-enterprise83-common_8.3*.deb</strong>, <strong>1c-enterprise83-server_8.3*.deb</strong>, <strong>1c-enterprise83-ws_8.3*.deb</strong>.</p>
 
-<p>Небольшое пояснение по назначениям пакетов:<br/>
-| Название пакета | Описание пакета |
-|&mdash;&mdash;&mdash;&mdash;&mdash;&ndash;|&mdash;&mdash;&mdash;&mdash;&mdash;&ndash;|
-| <em>1c_enterprise83-client…</em> | Компоненты клиента 1С Предприятие 8.3 для Linux |
-| <em>1c_enterprise83-thin-client…</em> | Компоненты тонкого клиента 1С Предприятие 8.3 для Linux |
-| <em>1c_enterprise83-common…</em> | Общие компоненты 1С Предприятие 8.3 для Linux |
-| <em>1c_enterprise83-server…</em> | Сервер 1С Предприятие 8.2 для Linux |
-| <em>1c_enterprise83-ws…</em> | Компоненты интернет-сервисов 1С Предприятие 8.3 для Linux |
-| <em>1c_enterprise83-…-nls&hellip;</em> | Компоненты необходимые для ОС не поддерживающих кириллическую кодировку |</p>
+<h5>Небольшое пояснение по назначениям пакетов:</h5>
+
+<table>
+<thead>
+<tr>
+<th> Название пакета </th>
+<th> Описание пакета </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> <em>1c_enterprise83-client…</em> </td>
+<td> Компоненты клиента 1С Предприятие 8.3 для Linux </td>
+</tr>
+<tr>
+<td> <em>1c_enterprise83-thin-client…</em> </td>
+<td> Компоненты тонкого клиента 1С Предприятие 8.3 для Linux </td>
+</tr>
+<tr>
+<td> <em>1c_enterprise83-common…</em> </td>
+<td> Общие компоненты 1С Предприятие 8.3 для Linux </td>
+</tr>
+<tr>
+<td> <em>1c_enterprise83-server…</em> </td>
+<td> Сервер 1С Предприятие 8.2 для Linux </td>
+</tr>
+<tr>
+<td> <em>1c_enterprise83-ws…</em> </td>
+<td> Компоненты интернет-сервисов 1С Предприятие 8.3 для Linux </td>
+</tr>
+<tr>
+<td> <em>1c_enterprise83-…-nls&hellip;</em> </td>
+<td> Компоненты необходимые для ОС не поддерживающих кириллическую кодировку </td>
+</tr>
+</tbody>
+</table>
+
 
 <p>5. Устанавливаем необходимые пакеты:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'># dpkg -i 1c-enterprise83-common_8*.deb 1c-enterprise83-server_8*.deb</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'># dpkg -i 1c-enterprise83-common_8*.deb 1c-enterprise83-server_8*.deb 1c-enterprise83-ws_8.3*.deb</span></code></pre></td></tr></table></div></figure>
 
 
 <p>6. Даем пользователю <strong>usr1cv8</strong> и группе <strong>grp1cv8</strong> права на установочную директорию 1С:Предприятие:</p>
@@ -615,13 +643,13 @@
 </pre></td><td class='code'><pre><code class=''><span class='line'># systemctl daemon-reload</span></code></pre></td></tr></table></div></figure>
 
 
-<p>9. Перезапускаем сервер 1С:Предприятие:</p>
+<p>9. Перезапускаем службу сервера 1С:Предприятие:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'># service srv1cv83 restart</span></code></pre></td></tr></table></div></figure>
 
 
-<p>10. Проверяем запускаются ли при старте системы постгрес и сервер 1С:Предприятие:</p>
+<p>10. Проверяем запускаются ли при старте системы сервер 1С:Предприятие:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'># netstat -atn|grep 0.0.0.0:15</span></code></pre></td></tr></table></div></figure>
@@ -657,10 +685,10 @@
 
 <h2>Установка драйвера для аппаратной лицензии 1С (HASP)<a name="hasp"></a> <a href="#content" title="К содержанию">↑</a></h2>
 
-<p>Большая часть новичков впервые столкнувшиеся с процессом установки 1С:Предприятие не могут понять о какой лицензии, ключе, <a href="https://ru.wikipedia.org/wiki/HASP">HASP</a> идет речь. Итак, лицензия 1С необходима для запуска продуктов 1С:Предприятие. Лицензии 1С можно разделить на аппаратные и программные. Мы рассмотрим аппаратную лицензию (ключ). Аппаратные ключи 1С делятся на 3 вида и их можно отличить по цвету:<br/>
-- <span style="color:green">зеленый</span> - серверный ключ 1С (сервер 1С:Предприятия),<br/>
-- <span style="color:blue">синий</span> (<span style="color:purple">фиолетовый</span>) - ключ 1С, который поставляется вместе с конфигурацией и является однопользовательским,<br/>
-- <span style="color:red">красный</span> - лицензии на пользователей, данный ключ 1С может приобретаться отдельно в том случае, если у Вас уже есть в наличие какая-либо конфигурация 1С:Предприятие.</p>
+<p>Большая часть новичков впервые столкнувшиеся с процессом установки 1С:Предприятие не могут понять о какой лицензии, ключе, <a href="https://ru.wikipedia.org/wiki/HASP">HASP</a> идет речь. Итак, лицензия&nbsp;1С необходима для запуска продуктов 1С:Предприятие. Лицензии&nbsp;1С можно разделить на аппаратные и программные. Мы рассмотрим аппаратную лицензию (ключ). Аппаратные ключи&nbsp;1С делятся на 3 вида и их можно отличить по цвету:<br/>
+- <span style="color:green">зеленый</span> - серверный ключ&nbsp;1С (сервер&nbsp;1С:Предприятия),<br/>
+- <span style="color:blue">синий</span> (<span style="color:purple">фиолетовый</span>) - ключ&nbsp;1С, который поставляется вместе с конфигурацией и является однопользовательским,<br/>
+- <span style="color:red">красный</span> - лицензии на пользователей, данный ключ&nbsp;1С может приобретаться отдельно в том случае, если у Вас уже есть в наличие какая-либо конфигурация 1С:Предприятие.</p>
 
 <p><strong>Клиентское приложение допускает использование следующих ключей HASP:</strong><br/>
 - локальный клиентский ключ серии ORGL8 на 1 пользователя,<br/>
@@ -670,7 +698,7 @@
 
 <p>Причём на одном компьютере может быть установлено не более одного ключа одной серии. Подробнее о видах лицензии и ключей вы можете прочитать <a href="http://www.1service.ru/price/litsenzii_klyuchi_1s.php">здесь</a>.</p>
 
-<p>Из вышеуказанного следует - нам нужны два типа лицензий. Лицензия для сервера 1С:Предприятие и лицензия для клиента 1С:Предприятие. После того как мы выяснили какие ключи нам необходимы, можно перейти к установке драйвера. Свежий драйвер можно <a href="http://safenet-sentinel.ru/helpdesk/download-space/">скачать</a> на официальном сайте. Большинству подойдет HASP 4, его и скачивайте.</p>
+<p>Из вышеуказанного следует - нам нужны два типа лицензий. <em>Лицензия для сервера</em> 1С:Предприятие и <em>лицензия для клиента</em> 1С:Предприятие. После того как мы выяснили какие ключи нам необходимы, можно перейти к установке драйвера. Свежий драйвер можно <a href="http://safenet-sentinel.ru/helpdesk/download-space/">скачать</a> на официальном сайте. Большинству подойдет HASP 4, его и скачивайте.</p>
 
 <p>1. Как вы помните, всё необходимое я уже скачал, потому просто переходим из каталога <em>1с</em>, в каталог <em>hasp</em>:</p>
 
@@ -758,7 +786,7 @@
 </pre></td><td class='code'><pre><code class=''><span class='line'># apt-get install libwebkitgtk-1.0-0 imagemagick libglib2.0-0 libgsf-1-114 ttf-mscorefonts-installer t1utils unixodbc --no-install-recommends</span></code></pre></td></tr></table></div></figure>
 
 
-<p>2. На памятной флешке, имеются также пакеты клиента. Подключим флешку как указано в пунктах 4 и 5, главы <a href="#lead-up">Подготовка сервера</a>. Откроем терминал и сразу перейдем в каталог с пакетами 1С:Предприятие:</p>
+<p>2. На памятной флешке, имеются также пакеты клиента. Подключим флешку как указано в пунктах 4 и 5, главы <a href="#lead-up">Подготовка сервера</a> и сразу перейдем в каталог с пакетами 1С:Предприятие:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'># cd /mnt/1cinstall/1c</span></code></pre></td></tr></table></div></figure>
@@ -807,20 +835,20 @@
 
 <p>После чего надо выполнить процедуры указанные в пунктах с 6 по 9, главы <a href="#server">Установка сервера 1С:Предприятие 8.3</a>.</p>
 
-<p>3.2. Тонкий клиент, можно устанавливать на те машины, где не планируется использование толстого клиента. Преимущество тонкого клиента, это отсутствие зависимостей в виде компонентов сервера 1С:Предприятие, а также возможность работать через интернет. Итак, установка тонкого клиента:</p>
+<p>3.2. Тонкий клиент, можно устанавливать на те машины, где не планируется использование толстого клиента. Преимущество тонкого клиента, это отсутствие зависимостей от компонентов сервера 1С:Предприятие, а также возможность работать через интернет. Итак, установка тонкого клиента:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'># dpkg -i 1c-enterprise83-thin-client_8*.deb</span></code></pre></td></tr></table></div></figure>
 
 
-<p>В каких случаях нам необходим толстый клиент?<br/>
+<p><strong> В каких случаях нам необходим толстый клиент?</strong><br/>
 - Работа с конфигуратором,<br/>
 - Создание информационных баз,<br/>
 - Проведение объемных вычислений (в случае толстого клиента, все вычисления проводятся на стороне клиента).</p>
 
 <p>Подробнее о тонких и толстых клиентах можно почитать <a href="http://v8.1c.ru/overview/Term_000000121.htm">здесь</a>.</p>
 
-<p>4. Теперь нам необходимо выбрать каким способом мы будем взаимодействовать с сервером. В зависимости от обстоятельств и предпочтений, вы можете <a href="http://nixway.org/how-to/ustanovka-i-nastroika-bind9-na-debian-jessie/">установить сервер DNS</a>, или прописывать имя сервера на каждой клиентской машине вручную:</p>
+<p>4. Теперь нам необходимо выбрать каким способом мы будем взаимодействовать с сервером. В зависимости от обстоятельств и предпочтений, вы можете <a href="http://nixway.org/how-to/ustanovka-i-nastroika-bind9-na-debian-jessie/">установить DNS-сервер</a>, или прописывать имя сервера на каждой клиентской машине вручную:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'># vim /etc/hosts</span></code></pre></td></tr></table></div></figure>
@@ -866,7 +894,7 @@
 
 <h3>Создание информационной базы.</h3>
 
-<p>Для начала можно (но совсем необязательно) установить демонстрационную конфигурацию. Дабы продемострировать работую так называемого &laquo;Управляемого приложения&raquo;. Демонстрационная конфигурация идет в комплекте с 1С:Предприятие 8.3. Установщик конфигурации представлен в виде простого скрипта. Потому подробно я останавливаться на этом процессе не буду, просто выложу несколько скриншотов процесса установки:</p>
+<p>Для начала можно (но совсем необязательно) установить демонстрационную конфигурацию. Дабы продемострировать работую так называемого &laquo;Управляемого приложения&raquo;. Демонстрационная конфигурация идет в комплекте с 1С:Предприятие 8.3. Установщик конфигурации представлен в виде простого скрипта. Потому, описывать процесс установки я не буду, просто выложу несколько скриншотов процесса установки:</p>
 
 <p><a href="/images/posts/2015-11-10/1c_demo_1.png"><img src="/images/posts/2015-11-10/1c_demo_1_preview.png" alt="Установка демо конфигурации" /></a></p>
 
@@ -884,11 +912,11 @@
 
 <p>Вышеуказанные ошибки будут рассмотрены в отдельной статье.</p>
 
-<p>2. При первом запуске 1С:Предприятие сразу же предложить нам добавить информационную базу (ИБ), жмем <kbd>Да</kbd>:</p>
+<p>2. При первом запуске 1С:Предприятие сразу же предлагает нам добавить информационную базу (ИБ), жмем <kbd>Да</kbd>:</p>
 
 <p><img src="/images/posts/2015-11-10/1c_01.png" alt="Создание ИБ. Добавление" /></p>
 
-<p>3. Создаем ИБ или добавляем уже созданную ИБ, жмем <kbd>Далее ></kbd>:</p>
+<p>3. Выбираем пункт <em>Создание новой информационной базы,</em> жмем <kbd>Далее ></kbd>:</p>
 
 <p><img src="/images/posts/2015-11-10/1c_02.png" alt="Создание ИБ. Новая" /></p>
 
@@ -896,7 +924,7 @@
 
 <p><img src="/images/posts/2015-11-10/1c_03.png" alt="Создание ИБ. Конфигурация" /></p>
 
-<p>5. Задаем имя ИБ и выбираем пункт &laquo;На сервере 1С:Предприятия&raquo;, жмем <kbd>Далее ></kbd>:</p>
+<p>5. Задаем имя ИБ и выбираем пункт <em>На сервере 1С:Предприятия,</em> жмем <kbd>Далее ></kbd>:</p>
 
 <p><img src="/images/posts/2015-11-10/1c_04.png" alt="Создание ИБ. Сервер" /></p>
 
@@ -922,12 +950,18 @@
 
 <h2>Публикация ИБ на веб-сервере Apache 2.4<a name="apache24"></a> <a href="#content" title="К содержанию">↑</a></h2>
 
-<p>Хочу обрадовать тех, кому не хватало возможности публикации информационной базы на веб-сервере Apache. Добавление поддержки последней версии Apache, я заметил при установке 1С:Предприятие версии 8.3.8.1652. Может поддержка Apache 2.4 появилась и раньше, мне проверять было лень, а новостей на эту тему я не нашел. Даже на <a href="http://v8.1c.ru/requirements/">официальном сайте</a> 1С, на данный момент устаревшая информация. Процесс публикации не изменился.</p>
+<p>Хочу обрадовать тех, кому не хватало возможности публикации информационной базы на веб-сервере Apache. Добавление поддержки последней версии Apache, я заметил при установке 1С:Предприятие версии 8.3.8.1652. Может поддержка Apache 2.4 появилась и раньше. Но проверять мне было лень, а новостей на эту тему я не нашел. Даже на <a href="http://v8.1c.ru/requirements/">официальном сайте</a> 1С, на данный момент устаревшая информация. Процесс публикации не изменился. <strong><em>Обращаю особое внимание, что процесс установки описан для Apache не ниже 2.4.</em></strong></p>
 
-<p>Создаем каталог для vrd-файла:</p>
+<p>Создаем директорию для vrd-файла:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'># mkdir -p /var/www/ib/ibname</span></code></pre></td></tr></table></div></figure>
+
+
+<p>А также файл конфигурации Apache:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># touch /etc/apache2/conf-available/ibname.conf</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Переходим в каталог со утилитой публикации веб-клиента:</p>
@@ -942,13 +976,7 @@
 </pre></td><td class='code'><pre><code class=''><span class='line'># ./webinst -apache24 -wsdir ibname -dir '/var/www/ib/ibname' -connstr 'Srvr="as1.nixway.loc";Ref="ibname";' -confPath /etc/apache2/conf-available/ibname.conf</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Где <code>ibname</code> - имя ИБ, <code>as1.nixway.loc</code> - адрес сервера 1С:Предпрятие, а <code>/etc/apache2/conf-available/ibname.conf</code> - путь до конфигурационного файла Apache.</p>
-
-<p>Как и файл конфигурации:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'># touch /etc/apache2/conf-available/ibname.conf</span></code></pre></td></tr></table></div></figure>
-
+<p>Где <code>/var/www/ib/ibname</code> - директория где будет создан vrd-файл, <code>ibname</code> - имя ИБ, <code>as1.nixway.loc</code> - адрес сервера 1С:Предпрятие, а <code>/etc/apache2/conf-available/ibname.conf</code> - путь до конфигурационного файла Apache.</p>
 
 <p>Подключаем конфигурацию:</p>
 
@@ -956,7 +984,7 @@
 </pre></td><td class='code'><pre><code class=''><span class='line'># a2enconf ibname</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Перечитываем настройки Apache:</p>
+<p>Перечитываем конфигурацию Apache:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'># service apache2 reload</span></code></pre></td></tr></table></div></figure>
@@ -968,15 +996,15 @@
 </pre></td><td class='code'><pre><code class=''><span class='line'>http[s]://server_ip|server_name/ibname</span></code></pre></td></tr></table></div></figure>
 
 
-<p><a href="/images/posts/2015-11-10/1c_10.png"><img src="/images/posts/2015-11-10/1c_10_preview.png" alt="Режим - Конфигуратор" /></a></p>
+<p><a href="/images/posts/2015-11-10/1c_10.png"><img src="/images/posts/2015-11-10/1c_10_preview.png" alt="Режим - Веб-клиент" /></a></p>
 
 <h2>Послесловие<a name="afterword"></a> <a href="#content" title="К содержанию">↑</a></h2>
 
-<p>Прошу в комментариях задавать вопросы только по статье. Если найдете в статье ошибку или у вас есть предложения, просьбы и вопросы выходящие за рамки статьи, можете оставлять их на нашем <a href="https://community.nixway.org">форуме</a>, в специально созданной <a href="https://community.nixway.org/viewtopic.php?pid=589">теме</a>.</p>
-
-<p><em>Статья обновлена 10 августа 2016 года.</em></p>
+<p>Прошу в комментариях задавать вопросы только по статье. Если же вы найдете в статье ошибку или у вас есть предложения, просьбы, вопросы выходящие за рамки статьи, можете оставлять их на нашем <a href="https://community.nixway.org">форуме</a>, в специально созданной <a href="https://community.nixway.org/viewtopic.php?pid=589">теме</a>.</p>
 
 <p>Напоминаю копипастерам, использование прямой ссылки на оригинальную статью обязательно.</p>
+
+<p><em>Статья обновлена 10 августа 2016 года.</em></p>
 </div>
 
 
