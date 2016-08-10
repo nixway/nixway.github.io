@@ -4,7 +4,7 @@
   <title><![CDATA[Категория: How-to | Путь юниксоида]]></title>
   <link href="http://nixway.org/categories/how-to/atom.xml" rel="self"/>
   <link href="http://nixway.org/"/>
-  <updated>2016-08-10T15:11:20+06:00</updated>
+  <updated>2016-08-10T15:14:13+06:00</updated>
   <id>http://nixway.org/</id>
   <author>
     <name><![CDATA[nihi1ist]]></name>
@@ -348,7 +348,7 @@ postgresql-contrib-9.4 помечен как зафиксированный.
 <pre><code># apt-get install imagemagick libglib2.0-0 libgsf-1-114 ttf-mscorefonts-installer t1utils unixodbc --no-install-recommends
 </code></pre>
 
-<p>3. Так как я не нашел достойной альтернативы пакету <strong><em>ttf2pt1</em></strong>, который не тянет кучу зависимостей. То я буду ставить его. В репозиториях его нету, скачаем из архивов Debian:</p>
+<p>3. Так как я не нашел достойной альтернативы пакету <strong><em>ttf2pt1</em></strong>, который не тянет кучу зависимостей. То я буду ставить его. В репозиториях его нету, скачаем из архива Debian:</p>
 
 <pre><code># wget http://archive.debian.org/debian/pool/main/t/ttf2pt1/ttf2pt1_3.4.4-1.4_amd64.deb
 </code></pre>

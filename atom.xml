@@ -4,7 +4,7 @@
   <title><![CDATA[Путь юниксоида]]></title>
   <link href="http://nixway.org/atom.xml" rel="self"/>
   <link href="http://nixway.org/"/>
-  <updated>2016-08-10T15:11:20+06:00</updated>
+  <updated>2016-08-10T15:14:13+06:00</updated>
   <id>http://nixway.org/</id>
   <author>
     <name><![CDATA[nihi1ist]]></name>
@@ -435,7 +435,7 @@
 </pre></td><td class='code'><pre><code class=''><span class='line'># apt-get install imagemagick libglib2.0-0 libgsf-1-114 ttf-mscorefonts-installer t1utils unixodbc --no-install-recommends</span></code></pre></td></tr></table></div></figure>
 
 
-<p>3. Так как я не нашел достойной альтернативы пакету <strong><em>ttf2pt1</em></strong>, который не тянет кучу зависимостей. То я буду ставить его. В репозиториях его нету, скачаем из архивов Debian:</p>
+<p>3. Так как я не нашел достойной альтернативы пакету <strong><em>ttf2pt1</em></strong>, который не тянет кучу зависимостей. То я буду ставить его. В репозиториях его нету, скачаем из архива Debian:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'># wget http://archive.debian.org/debian/pool/main/t/ttf2pt1/ttf2pt1_3.4.4-1.4_amd64.deb</span></code></pre></td></tr></table></div></figure>
