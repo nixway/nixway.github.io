@@ -4,7 +4,7 @@
   <title><![CDATA[Категория: How-to | Путь юниксоида]]></title>
   <link href="http://nixway.org/categories/how-to/atom.xml" rel="self"/>
   <link href="http://nixway.org/"/>
-  <updated>2016-08-10T15:03:03+06:00</updated>
+  <updated>2016-08-10T15:09:31+06:00</updated>
   <id>http://nixway.org/</id>
   <author>
     <name><![CDATA[nihi1ist]]></name>
@@ -90,7 +90,7 @@
 
 <h2>Подготовка сервера.<a name="lead-up"></a> <a href="#content" title="К содержанию">↑</a></h2>
 
-<p>Основное отличие Debian от Ubuntu с которым очень часто сталкиваются пользователи Ubuntu, это отсутствие в стандартной конфигурации команды повышения привилегий <code>sudo</code>. Операции требующие прав <strong>root</strong>, выполняются от суперпользователя <strong>root</strong>. Тем же кто не хочет изменять своей привычке работать с <code>sudo</code>, достаточно при установке не задавать пароль суперпользователю <strong>root</strong> и пакет <code>sudo</code> будет установлен и настроен. Для наглядности, перед каждой командой будет указан определенный знак, если это <code>#</code> - значит команда выполняется от имени суперпользователя <strong>root</strong>, если знак <code>$</code> - то команда выполняется от имени простого пользователя.</p>
+<p>Основное отличие Debian от Ubuntu с которым очень часто сталкиваются пользователи Ubuntu, это отсутствие в стандартной конфигурации команды повышения привилегий <code>sudo</code>. Операции требующие прав <strong>root</strong>, выполняются от суперпользователя <strong>root</strong>. Тем же кто не хочет изменять своей привычке работать с <code>sudo</code>, достаточно при установке не задавать пароль суперпользователю <strong>root</strong> и пакет <strong><em>sudo</em></strong> будет установлен и настроен. Для наглядности, перед каждой командой будет указан определенный знак, если это <code>#</code> - значит команда выполняется от имени суперпользователя <strong>root</strong>, если знак <code>$</code> - то команда выполняется от имени простого пользователя.</p>
 
 <p>1. Итак у вас имеется установленный Debian 8. Если установка только предстоит, рекомендую выбрать пункты:<br/>
 -&nbsp;Сервер SSH<br/>
@@ -173,7 +173,7 @@ hasp
 <pre><code># apt-get install ssl-cert libossp-uuid16 libxslt1.1
 </code></pre>
 
-<p>3. К сожалению, мейнтейнеры работающие на 1С, не следят за порядком в зависимостях своих пакетов. По этой простой причине, нам надо скачать и установить пакет <strong>libicu48</strong>:</p>
+<p>3. К сожалению, мейнтейнеры работающие на 1С, не следят за порядком в зависимостях своих пакетов. По этой простой причине, нам надо скачать и установить пакет <strong><em>libicu48</em></strong>:</p>
 
 <pre><code># wget http://ftp.ru.debian.org/debian/pool/main/i/icu/libicu48_4.8.1.1-12+deb7u3_amd64.deb
 </code></pre>
@@ -348,12 +348,12 @@ postgresql-contrib-9.4 помечен как зафиксированный.
 <pre><code># apt-get install imagemagick libglib2.0-0 libgsf-1-114 ttf-mscorefonts-installer t1utils unixodbc --no-install-recommends
 </code></pre>
 
-<p>3. Так как я не нашел достойной альтернативы пакету ttf2pt1, который не тянет кучу зависимостей. То я буду ставить его. В репозиториях его нету, скачаем из архивов Debian:</p>
+<p>3. Так как я не нашел достойной альтернативы пакету <strong><em>ttf2pt1</em></strong>, который не тянет кучу зависимостей. То я буду ставить его. В репозиториях его нету, скачаем из архивов Debian:</p>
 
 <pre><code># wget http://archive.debian.org/debian/pool/main/t/ttf2pt1/ttf2pt1_3.4.4-1.4_amd64.deb
 </code></pre>
 
-<p>Докачиваем <strong>libt1-5</strong> от которого зависит <strong>ttf2pt1</strong>:</p>
+<p>Докачиваем <strong><em>libt1-5</em></strong> от которого зависит <strong><em>ttf2pt1</em></strong>:</p>
 
 <pre><code># wget http://ftp.ru.debian.org/debian/pool/main/t/t1lib/libt1-5_5.1.2-3.6_amd64.deb
 </code></pre>
@@ -368,7 +368,7 @@ postgresql-contrib-9.4 помечен как зафиксированный.
 <pre><code># dpkg -i ttf2pt1*.deb libt1*.deb
 </code></pre>
 
-<p>Кстати, жду предложений по возможной альтернативе пакету <strong>ttf2pt1</strong>.</p>
+<p>Кстати, жду предложений по возможной альтернативе пакету <strong><em>ttf2pt1</em></strong>.</p>
 
 <p>4. Посмотрим, какие пакеты есть у нас в каталоге:</p>
 
@@ -388,7 +388,7 @@ postgresql-contrib-9.4 помечен как зафиксированный.
 -rwxr-xr-x 1 nihi1ist nihi1ist    236970 июн  8  2008 ttf2pt1_3.4.4-1.4_amd64.deb
 </code></pre>
 
-<p>Всего 8 пакетов, из которых нам для функционирования сервера 1С:Предприятия необходимы 3 пакета: <strong>1c-enterprise83-common_8.3*.deb</strong>, <strong>1c-enterprise83-server_8.3*.deb</strong>, <strong>1c-enterprise83-ws_8.3*.deb</strong>.</p>
+<p>Всего 8 пакетов, из которых нам для функционирования сервера 1С:Предприятия необходимы 3 пакета: <strong><em>1c-enterprise83-common_8.3*.deb</em></strong>, <strong><em>1c-enterprise83-server_8.3*.deb</em></strong>, <strong><em>1c-enterprise83-ws_8.3*.deb</em></strong>.</p>
 
 <h5>Небольшая таблица с пояснениями по назначению пакетов:</h5>
 
