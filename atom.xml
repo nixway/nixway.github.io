@@ -4,7 +4,7 @@
   <title><![CDATA[Путь юниксоида]]></title>
   <link href="http://nixway.org/atom.xml" rel="self"/>
   <link href="http://nixway.org/"/>
-  <updated>2016-08-10T12:51:03+06:00</updated>
+  <updated>2016-08-10T12:59:39+06:00</updated>
   <id>http://nixway.org/</id>
   <author>
     <name><![CDATA[nihi1ist]]></name>
@@ -114,7 +114,7 @@
 </span><span class='line'># apt-get dist-upgrade</span></code></pre></td></tr></table></div></figure>
 
 
-<p>3. Архивы с установочными пакетами можно скачать из интернета сразу на сервер или скопировать заранее скачанные установочные пакеты в расшаренный каталог <a href="https://ru.wikipedia.org/wiki/Samba">samba</a>. Предположу, что samba настроена не у всех, потому воспользуемся флешкой. Создаем в корне флешки каталоги:</p>
+<p>3. Архивы с установочными пакетами можно скачать из интернета сразу на сервер или скопировать заранее скачанные установочные пакеты в расшаренный каталог <a href="https://ru.wikipedia.org/wiki/Samba">samba</a>. Предположу, что samba настроена не у всех, потому воспользуемся USB-накопителем (<em>флешкой</em>). Создаем в корне флешки каталоги:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -924,7 +924,7 @@
 
 <h2>Послесловие<a name="afterword"></a> <a href="#content" title="К содержанию">↑</a></h2>
 
-<p>Прошу в комментариях задавать вопросы только по статье. Если найдете в статье ошибку, или у вас есть предложения, просьбы и вопросы выходящие за рамки статьи, можете оставлять их на нашем <a href="https://community.nixway.org">форуме</a>, в специально созданной <a href="https://community.nixway.org/viewtopic.php?pid=589">теме</a>.</p>
+<p>Прошу в комментариях задавать вопросы только по статье. Если найдете в статье ошибку или у вас есть предложения, просьбы и вопросы выходящие за рамки статьи, можете оставлять их на нашем <a href="https://community.nixway.org">форуме</a>, в специально созданной <a href="https://community.nixway.org/viewtopic.php?pid=589">теме</a>.</p>
 
 <p><em>Статья обновлена 10 августа 2016 года.</em></p>
 
