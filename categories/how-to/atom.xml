@@ -4,7 +4,7 @@
   <title><![CDATA[Категория: How-to | Путь юниксоида]]></title>
   <link href="http://nixway.org/categories/how-to/atom.xml" rel="self"/>
   <link href="http://nixway.org/"/>
-  <updated>2016-08-10T15:34:08+06:00</updated>
+  <updated>2016-08-12T20:27:30+06:00</updated>
   <id>http://nixway.org/</id>
   <author>
     <name><![CDATA[nihi1ist]]></name>
@@ -12,6 +12,67 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Резервное копирование баз данных PostgreSQL]]></title>
+    <link href="http://nixway.org/how-to/postgresql-backup-script/"/>
+    <updated>2015-12-06T17:07:29+06:00</updated>
+    <id>http://nixway.org/how-to/postgresql-backup-script</id>
+    <content type="html"><![CDATA[<p><img src="/images/posts/2015-12-06/postgresql-backup.png" alt="Оптимизация производительности PostgreSQL" /></p>
+
+<p>Перед всеми системными администраторами возникает задача резервного копирования баз данны (<em>БД</em>). Поэтому хочу представить вашему вниманию скрипт резервного копирования.</p>
+
+<!-- more -->
+
+
+<pre><code>#!/bin/bash
+
+HOST="hostname"                         # Имя хоста на котором будем выполнять скрипт, можно и не использовать
+DUMPER="/usr/bin/pg_dump"               # Указываем утилиту резервного копирования (дампа).
+#DUMPPARAM1="-Q -c -e"                  # -Q оборачивает имена обратными кавычками,
+                                        # -c делает полную вставку, включая имена колонок,
+                                        # -e делает расширенную вставку.
+                                        # Итоговый файл получается меньше и создается он чуть быстрее.
+
+#DBUSER="dbuser"                        # Внутренний пользователь сервера БД от имени которого будет выполнятся бэкап
+#DBPASS="passwd"                        # Пароль внутреннего пользователя mysql
+DBNAME="dbname"                         # Имя БД с которой будет создана резервная копия
+DATE=`date +%F_%H.%M`                   # Задаем дату и время бекапа
+FIND="/usr/bin/find"                    # Указываем утилиту для поиска
+FINDPARAM1="-type f -ctime +7"          # Где +7 - архивы старше семи дней
+FINDPARAM2="-delete"                    # Параметры удаления
+BACKUPDIR="/var/backups/psql/"          # Директория, где будут хранится резервные копии
+
+# Дамп БД, где DBUSER - имя пользователя, DBNAME - имя базы данных, архив имеет следующий формат.
+# Имя базы данных, имя хоста, дата и время, расширение gz: $DBNAME-2016-02-29_14.30.sql.gz
+$DUMPER $DBNAME | gzip &gt; $BACKUPDIR$DBNAME.$HOST-$DATE.sql.gz
+
+# Пауза
+sleep 3
+
+# Удаляем старые архивы, а точней файлы старше 7 дней, так же удаляем  пустые каталоги.
+eval $FIND $BACKUPDIR $FINDPARAM1 $FINDPARAM2
+
+exit 0
+</code></pre>
+
+<p>Хочу напомнить, что данный скрипт нужно выполнять от имени пользователя postgres. Неиспользуемые переменные закомментированы, при желании можно их удалить.</p>
+
+<p>Восстановить дамп можно командой:</p>
+
+<pre><code>gunzip &lt; /var/backups/psql/archname.sql.gz | psql dbname
+</code></pre>
+
+<p>Где <code>archname</code> - имя резервной копии (дампа), а <code>dbname</code> - имя существующей БД в PostgreSQL. Если хотите восстановить дамп в новую БД, то создать ее можно командой:</p>
+
+<pre><code>createdb dbname
+</code></pre>
+
+<p>Опять же, команду необходимо выполнять от имени postgres.</p>
+
+<p>Чтобы скрипт выполнялся ежедневно</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Оптимизация производительности PostgreSQL для сервера 1С:Предприятие]]></title>

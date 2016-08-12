@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://nixway.org/how-to/postgresql-backup-script/</loc>
+    <lastmod>2015-12-06T17:07:29+06:00</lastmod>
+  </url>
+  <url>
     <loc>http://nixway.org/how-to/optimizacija-proizvoditelnosti-postgresql-dlja-servera-1c-predpriyatie/</loc>
     <lastmod>2015-12-06T13:31:30+06:00</lastmod>
   </url>
