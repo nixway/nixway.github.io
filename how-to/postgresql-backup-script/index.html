@@ -182,35 +182,33 @@
 <p>Восстановить дамп можно командой:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>gunzip &lt; /var/backups/psql/archname.sql.gz | psql dbname</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ gunzip &lt; /var/backups/psql/archname.sql.gz | psql dbname</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Где <code>archname</code> - имя резервной копии (дампа), а <code>dbname</code> - имя существующей БД в PostgreSQL. Если хотите восстановить дамп в новую БД, то создать ее можно командой:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>createdb dbname</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ createdb dbname</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Опять же, команду необходимо выполнять от имени postgres.</p>
 
-<p>Теперь осталось настроить расписание запуска скрипта. В этом нам поможет <a href="https://ru.wikipedia.org/wiki/Cron">cron</a>. Мне необходим чтобы скрипт запускался:
+<p>Теперь осталось настроить время запуска скрипта. В этом нам поможет <a href="https://ru.wikipedia.org/wiki/Cron">cron</a>. Мне необходим чтобы скрипт запускался:
 - ежедневно в 22:30, с понедельника по пятницу,
 - ежемесячно в 23:30, в первую субботу месяца.</p>
 
-<p>Кроме того, ежедневные и ежемесячные копии должны хранится отдельно.</p>
-
-<p>С помощью <code>crontab</code>:</p>
+<p>Кроме того, ежедневные и ежемесячные копии должны хранится отдельно. Теперь, с помощью <code>crontab</code>:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>crontab -e</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'># crontab -e</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Добавим в список заданий пару строк в самый конец файла:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>30 22 * * 1-5 postgres /var/backups/psql/weekly                  # Ежедневно, с пн. по пт.
-</span><span class='line'>30 23 1-7 * [ "$(date '+\%u')" -eq 6 ] postgres /var/backups/psql/monthly # Ежемесячно, в первую сб.</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'>30 22 * * 1-5 postgres /var/backups/psql/weekly                                # Ежедневно, с пн. по пт.
+</span><span class='line'>30 23 1-7 * [ "$(date '+\%u')" -eq 6 ] postgres /var/backups/psql/monthly      # Ежемесячно, в первую сб.</span></code></pre></td></tr></table></div></figure>
 
 </div>
 

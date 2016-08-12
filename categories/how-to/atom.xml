@@ -4,7 +4,7 @@
   <title><![CDATA[Категория: How-to | Путь юниксоида]]></title>
   <link href="http://nixway.org/categories/how-to/atom.xml" rel="self"/>
   <link href="http://nixway.org/"/>
-  <updated>2016-08-12T23:46:07+06:00</updated>
+  <updated>2016-08-12T23:52:09+06:00</updated>
   <id>http://nixway.org/</id>
   <author>
     <name><![CDATA[nihi1ist]]></name>
@@ -60,31 +60,29 @@ exit 0
 
 <p>Восстановить дамп можно командой:</p>
 
-<pre><code>gunzip &lt; /var/backups/psql/archname.sql.gz | psql dbname
+<pre><code>$ gunzip &lt; /var/backups/psql/archname.sql.gz | psql dbname
 </code></pre>
 
 <p>Где <code>archname</code> - имя резервной копии (дампа), а <code>dbname</code> - имя существующей БД в PostgreSQL. Если хотите восстановить дамп в новую БД, то создать ее можно командой:</p>
 
-<pre><code>createdb dbname
+<pre><code>$ createdb dbname
 </code></pre>
 
 <p>Опять же, команду необходимо выполнять от имени postgres.</p>
 
-<p>Теперь осталось настроить расписание запуска скрипта. В этом нам поможет <a href="https://ru.wikipedia.org/wiki/Cron">cron</a>. Мне необходим чтобы скрипт запускался:
+<p>Теперь осталось настроить время запуска скрипта. В этом нам поможет <a href="https://ru.wikipedia.org/wiki/Cron">cron</a>. Мне необходим чтобы скрипт запускался:
 - ежедневно в 22:30, с понедельника по пятницу,
 - ежемесячно в 23:30, в первую субботу месяца.</p>
 
-<p>Кроме того, ежедневные и ежемесячные копии должны хранится отдельно.</p>
+<p>Кроме того, ежедневные и ежемесячные копии должны хранится отдельно. Теперь, с помощью <code>crontab</code>:</p>
 
-<p>С помощью <code>crontab</code>:</p>
-
-<pre><code>crontab -e
+<pre><code># crontab -e
 </code></pre>
 
 <p>Добавим в список заданий пару строк в самый конец файла:</p>
 
-<pre><code>30 22 * * 1-5 postgres /var/backups/psql/weekly                 # Ежедневно, с пн. по пт.
-30 23 1-7 * [ "$(date '+\%u')" -eq 6 ] postgres /var/backups/psql/monthly   # Ежемесячно, в первую сб.
+<pre><code>30 22 * * 1-5 postgres /var/backups/psql/weekly                                # Ежедневно, с пн. по пт.
+30 23 1-7 * [ "$(date '+\%u')" -eq 6 ] postgres /var/backups/psql/monthly      # Ежемесячно, в первую сб.
 </code></pre>
 ]]></content>
   </entry>
