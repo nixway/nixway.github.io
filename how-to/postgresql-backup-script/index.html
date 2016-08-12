@@ -9,7 +9,7 @@
   <meta name="author" content="nihi1ist">
 
   
-  <meta name="description" content="Перед всеми системными администраторами возникает задача резервного копирования баз данны (БД). Поэтому хочу представить вашему вниманию скрипт &hellip;">
+  <meta name="description" content="Перед всеми системными администраторами возникает задача резервного копирования баз данных (БД). Поэтому хочу поделится с вами скриптом для &hellip;">
   <meta name="keywords" content="PostgreSQL, BackUp, Резервное копирование, Linux,">
 
   <!-- http://t.co/dKP3o1e -->
@@ -112,7 +112,7 @@
 
 <div class="entry-content"><p><img src="/images/posts/2015-12-06/postgresql-backup.png" alt="Оптимизация производительности PostgreSQL" /></p>
 
-<p>Перед всеми системными администраторами возникает задача резервного копирования баз данны (<em>БД</em>). Поэтому хочу представить вашему вниманию скрипт резервного копирования.</p>
+<p>Перед всеми системными администраторами возникает задача резервного копирования баз данных (<em>БД</em>). Поэтому хочу поделится с вами скриптом для резервного копирования БД PostgreSQL. И его довольно просто переделать для любой друго СУБД. Данный скрипт неплохо подойдет новичкам. На нашем <a href="https://community.nixway.org/viewtopic.php?id=78">форуме</a> есть вариант скрипта для резерного копирования БД MySQL.</p>
 
 <!-- more -->
 
@@ -193,7 +193,25 @@
 
 <p>Опять же, команду необходимо выполнять от имени postgres.</p>
 
-<p>Чтобы скрипт выполнялся ежедневно</p>
+<p>Теперь осталось настроить расписание запуска скрипта. В этом нам поможет <a href="https://ru.wikipedia.org/wiki/Cron">cron</a>. Мне необходим чтобы скрипт запускался:
+- ежедневно в 22:30, с понедельника по пятницу,
+- ежемесячно в 23:30, в первую субботу месяца.</p>
+
+<p>Кроме того, ежедневные и ежемесячные копии должны хранится отдельно.</p>
+
+<p>С помощью <code>crontab</code>:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>crontab -e</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Добавим в список заданий пару строк в самый конец файла:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>30 22 * * 1-5 postgres /var/backups/psql/weekly                  # Ежедневно, с пн. по пт.
+</span><span class='line'>30 23 1-7 * [ "$(date '+\%u')" -eq 6 ] postgres /var/backups/psql/monthly # Ежемесячно, в первую сб.</span></code></pre></td></tr></table></div></figure>
+
 </div>
 
 
