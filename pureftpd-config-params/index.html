@@ -1,0 +1,501 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="ru"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Таблица параметров конфигурации PureFTPd - Путь юниксоида</title>
+  <meta name="author" content="nihi1ist">
+
+  
+  <meta name="description" content="Таблица параметров конфигурации PureFTPd 14 Августа 2016, 14:43, Вс Файлы параметров и их возможные значения Имя параметра (файла) Возможные &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://nixway.org/pureftpd-config-params/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Путь юниксоида" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-67931233-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body    class="collapse-sidebar sidebar-footer" >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Путь юниксоида</a></h1>
+  
+    <h2>Блог посвященный UNIX-подобным операционным системам.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="Подпишитесь через RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="nixway.org">
+    <input class="search" type="text" name="q" results="0" placeholder="Поиск"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Главная</a></li>
+  <li><a href="https://community.nixway.org/">Сообщество</a></li>
+  <li><a href="/blog/archives">Архив</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article role="article">
+  
+  <header>
+    <h1 class="entry-title">Таблица параметров конфигурации PureFTPd</h1>
+    <p class="meta">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 14 Августа 2016, 14:43, Вс</p>
+  </header>
+  
+  <h3>Файлы параметров и их возможные значения</h3>
+
+<table>
+<thead>
+<tr>
+<th> Имя параметра (файла) </th>
+<th> Возможные значения* </th>
+<th> Пояснение </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> ChrootEveryone </td>
+<td> <strong>yes</strong>/no </td>
+<td> Ограничить пользователя его домашним каталогом. </td>
+</tr>
+<tr>
+<td> TrustedGID </td>
+<td> 10 </td>
+<td> Доверенная группа с этим номером имеет доступ ко всей файловой системе. </td>
+</tr>
+<tr>
+<td> BrokenClientsCompatibility </td>
+<td> yes/<strong>no</strong> </td>
+<td> Включить/Выключить совместимость с нестандартными клиентами. </td>
+</tr>
+<tr>
+<td> MaxClientsNumber </td>
+<td> 10 </td>
+<td> Максимальное число одновременно подключенных клиентов. </td>
+</tr>
+<tr>
+<td> Daemonize </td>
+<td> <strong>yes</strong>/no </td>
+<td> Запускать в виде службы (демона). </td>
+</tr>
+<tr>
+<td> MaxClientsPerIP </td>
+<td> 3 </td>
+<td> Максимальное число подключений с одного IP-адреса. </td>
+</tr>
+<tr>
+<td> VerboseLog </td>
+<td> yes/<strong>no</strong> </td>
+<td> Если вы хотите записывать все команды клиентов, то в этом пункте должно быть <code>yes</code>. Если необходимо записывать также ответы сервера, то просто продублируйте этот пункт. </td>
+</tr>
+<tr>
+<td> AllowDotFiles </td>
+<td> <strong>yes</strong>/no </td>
+<td> Разрешить читать <span title="В *nix-подбных системах файлы начинающиеся с точки являются скрытыми.">скрытые файлы</span>. </td>
+</tr>
+<tr>
+<td> DisplayDotFiles </td>
+<td> <strong>yes</strong>/no </td>
+<td> Показывать скрытые файлы, даже когда клиент явно указано не показывать их. </td>
+</tr>
+<tr>
+<td> AnonymousOnly </td>
+<td> yes/<strong>no</strong> </td>
+<td> Разрешить только анонимный доступ. </td>
+</tr>
+<tr>
+<td> NoAnonymous </td>
+<td> <strong>yes</strong>/no </td>
+<td> Разрешить доступ только зарегистрированным пользователям. </td>
+</tr>
+<tr>
+<td> SyslogFacility </td>
+<td> <strong>ftp</strong> </td>
+<td> Средства syslog (<code>auth</code>, <code>authpriv</code>, <code>daemon</code>, <code>ftp</code>, <code>security</code>, <code>user</code>, <code>local*</code>). Значение по умолчанию — <code>ftp</code>, <code>none</code> — отключает логирование. </td>
+</tr>
+<tr>
+<td> FortunesFile </td>
+<td> /usr/share/fortune/zippy </td>
+<td> Показывать сообщения (необходимо создать файл и прочитать man). Например приветствие сервера, правила работы или шутки. </td>
+</tr>
+<tr>
+<td> DontResolve </td>
+<td> yes/<strong>no</strong> </td>
+<td> Записывать в лог IP, а не имя клиента. Это приведет к ускорению работы Pure-FTPd так как не будет использоваться DNS. </td>
+</tr>
+<tr>
+<td> MaxIdleTime </td>
+<td> 3600 </td>
+<td> Максимальное время простоя, после которого клиент будет отключен. </td>
+</tr>
+<tr>
+<td> LDAPConfigFile </td>
+<td> /etc/pure-ftpd/db/ldap.conf </td>
+<td> Файл конфигурации <a href="https://download.pureftpd.org/pub/pure-ftpd/doc/README.LDAP">LDAP</a>. </td>
+</tr>
+<tr>
+<td> MySQLConfigFile </td>
+<td> /etc/pure-ftpd/db/mysql.conf </td>
+<td> Файл конфигурации <a href="https://download.pureftpd.org/pub/pure-ftpd/doc/README.MySQL">MySQL</a>. </td>
+</tr>
+<tr>
+<td> PGSQLConfigFile </td>
+<td> /etc/pureftpd-pgsql.conf </td>
+<td> Файл конфигурации <a href="https://download.pureftpd.org/pub/pure-ftpd/doc/README.PGSQL">PostgreSQL</a>. </td>
+</tr>
+<tr>
+<td> PureDB </td>
+<td> /etc/pure-ftpd/pureftpd.pdb </td>
+<td> База данных пользователей <a href="https://download.pureftpd.org/pub/pure-ftpd/doc/README.Virtual-Users">PureDB</a> </td>
+</tr>
+<tr>
+<td> ExtAuth </td>
+<td> /var/run/ftpd.sock </td>
+<td> Путь к сокету <a href="https://download.pureftpd.org/pub/pure-ftpd/doc/README.Authentication-Modules">pure-authd</a>. </td>
+</tr>
+<tr>
+<td> PAMAuthentication </td>
+<td> <strong>yes</strong>/no </td>
+<td> Разрешить/запретить PAM аутентификацию. </td>
+</tr>
+<tr>
+<td> UnixAuthentication </td>
+<td> yes/<strong>no</strong> </td>
+<td> Разрешить/запретить Unix аутентификацию (/etc/passwd). </td>
+</tr>
+<tr>
+<td> LimitRecursion </td>
+<td> 2000 8 </td>
+<td> Ограничения рекурсии команды <code>ls</code>. Первый аргумент - максимально число файлов, которые будет показаны. Второе - максимальное число подкаталогов. </td>
+</tr>
+<tr>
+<td> AnonymousCanCreateDirs </td>
+<td> no </td>
+<td> Анонимные пользователи могут создавать каталоги. </td>
+</tr>
+<tr>
+<td> MaxLoad </td>
+<td> 4 </td>
+<td> Если система загружена более, чем в указанном параметре, то анонимным пользователям запрещается скачивать файлы. </td>
+</tr>
+<tr>
+<td> PassivePortRange </td>
+<td> 40110 40210 </td>
+<td> Диапазон портов для пассивного ответа соединения. Для брандмауэра. </td>
+</tr>
+<tr>
+<td> ForcePassiveIP </td>
+<td> 192.168.0.1 </td>
+<td> Принудительный IP адрес в PASV/EPSV/SPSV ответах. Для NAT. Символические имена хостов такде приняты для шлюзов с динамическим IP адресом. </td>
+</tr>
+<tr>
+<td> AnonymousRatio </td>
+<td> 1 10 </td>
+<td> Соотношение upload/download для анонимных пользователей. </td>
+</tr>
+<tr>
+<td> UserRatio </td>
+<td> 1 10 </td>
+<td> Соотношение upload/download для всех пользователей. Эта директива не перекрывает предыдущую. </td>
+</tr>
+<tr>
+<td> AntiWarez </td>
+<td> <strong>yes</strong>/no </td>
+<td> Не разрешает анонимным пользователям скачивать (download) файлы, владельцем которых является <code>ftp</code> (как правило, файлы, загруженные с другими анонимными пользователями). Скачивание должно быть подтверждено системным администратором (передача прав на файл другому пользователю), прежде чем этот файл будет доступен для скачивания. </td>
+</tr>
+<tr>
+<td> Bind </td>
+<td> 10.26.95.227,21000 </td>
+<td> IP адрес/порт для прослушивания (по умолчанию = all IP и порт 21). </td>
+</tr>
+<tr>
+<td> AnonymousBandwidth </td>
+<td> 8 </td>
+<td> Максимальная пропускная способность для анонимных пользователей в Кб/с. </td>
+</tr>
+<tr>
+<td> UserBandwidth </td>
+<td> 8 </td>
+<td> Максимальная пропускная способность для всех пользователей (в том числе анонимные) в Кб/с. Используйте AnonymousBandwidth или UserBandwidth, использовать оба, не имеет смысла. </td>
+</tr>
+<tr>
+<td> Umask </td>
+<td> 177 077 </td>
+<td> Маска для создаваемых файлов и каталогов. Значение Umask получаем вычитаением нужной маски из максимального значения (777). Если маска для файлов:каталогов будет - 644:755, то значение <code>Umask</code> будет <code>133:022</code>. Ставьте <code>177:077</code> - если вы чувствуете себя параноиком. </td>
+</tr>
+<tr>
+<td> MinUID </td>
+<td> 1000 </td>
+<td> Минимальный <code>UID</code> с которым пользователь будет авторизован. Рекомендуется от <code>1000</code>. </td>
+</tr>
+<tr>
+<td> AllowUserFXP </td>
+<td> <strong>yes</strong>/no </td>
+<td> Разрешить <a href="https://ru.wikipedia.org/wiki/FTP#FXP">FXP</a> протокол аутентифицированным пользователям. </td>
+</tr>
+<tr>
+<td> AllowAnonymousFXP </td>
+<td> yes/<strong>no</strong> </td>
+<td> Разрешить <a href="https://ru.wikipedia.org/wiki/FTP#FXP">FXP</a> протокол анонимным пользователям </td>
+</tr>
+<tr>
+<td> ProhibitDotFilesWrite </td>
+<td> <strong>yes</strong>/no </td>
+<td> Пользователи не могут удалять и/или изменять скрытые файлы даже если они их владельцы. Если <code>TrustedGID</code> включена, пользователи группы указанной в файле <code>TrustedGID</code> будут иметь доступ скрытым-файлам. </td>
+</tr>
+<tr>
+<td> ProhibitDotFilesRead </td>
+<td> yes/<strong>no</strong> </td>
+<td> Запретить читать скрытые файлы. </td>
+</tr>
+<tr>
+<td> AutoRename </td>
+<td> yes/<strong>no</strong> </td>
+<td> Переименовывает файл загружаемый файл (<em>.1, </em>.2 и т.п.), если файл с таким именем уже есть. </td>
+</tr>
+<tr>
+<td> AnonymousCantUpload </td>
+<td> <strong>yes</strong>/no </td>
+<td> Запретить/разрешить анонимным пользователям загружать новые файлы. </td>
+</tr>
+<tr>
+<td> TrustedIP </td>
+<td> 10.1.1.1 </td>
+<td> Только подключения к этому конкретному IP адресу могут быть не анонимными. Вы можете использовать эту директиву чтобы открыть несколько публичных IP адреса для анонимного FTP, и оставить приватный, защищенный файрволом IP для удалённого администрирования. Вы также можете разрешить не маршрутизируемые локальные IP (например, 10.x.x.x) для аутентификации и оставить публичный для анонимных пользователей FTP-сервер на другом IP. </td>
+</tr>
+<tr>
+<td> LogPID </td>
+<td> yes </td>
+<td> Добавлять PID в каждую строку лога. </td>
+</tr>
+<tr>
+<td> AltLog </td>
+<td> clf:/var/log/pure-ftpd/transfer.log </td>
+<td> Записывает передачи файлов в заданный файл определенного формата (<code>clf</code> - Apache-подобный формат, <code>stats</code> - оптимизирован для стат.отчетов, <code>w3c</code> - в формате W3C) </td>
+</tr>
+<tr>
+<td> NoChmod </td>
+<td> yes/<strong>no</strong> </td>
+<td> Запрещает команду chmod. Т.е. пользователи не могут менять права на свои файлы. </td>
+</tr>
+<tr>
+<td> KeepAllFiles </td>
+<td> yes </td>
+<td> Разрешить пользователям закачивать, но файлы удалять нельзя. </td>
+</tr>
+<tr>
+<td> CreateHomeDir </td>
+<td> <strong>yes</strong>/no </td>
+<td> Автоматически создавать домашний каталог пользователям (если он отсутствует). </td>
+</tr>
+<tr>
+<td> Quota </td>
+<td> 1000:10 </td>
+<td> Включить виртуальную квоту. Первое число - максимальное число файлов. Второе число - максимальный размер, в мегабайтах. Итак 1000:10 ограничивает каждого пользователя 1000 файлов и 10 Мб. </td>
+</tr>
+<tr>
+<td> PIDFile </td>
+<td> /var/run/pure-ftpd.pid </td>
+<td> Если ваш PureFTPd скомпилирован с поддержкой <code>standalone</code> режима, вы можете изменить местоположение pid-файла. По умолчанию используется <code>/var/run/pure-ftpd.pid</code>. </td>
+</tr>
+<tr>
+<td> CallUploadScript </td>
+<td> yes </td>
+<td> Если pure-ftpd скомпилирован с поддержкой <code>pure-uploadscript</code>, то этот пункт позволяет писать информацию о новых загруженных файлах в /var/run/pure-ftpd.upload.pipe так, что pure-uploadscript может прочесть их и обработать загруженный файл. </td>
+</tr>
+<tr>
+<td> MaxDiskUsage </td>
+<td> 99 </td>
+<td> Указывает в процентах, до какой степени может быть заполнен диск. Если параметр превышен, загрузка файл на сервер запрещается. </td>
+</tr>
+<tr>
+<td> NoRename </td>
+<td> yes/<strong>no</strong> </td>
+<td> Запрет переименования файлов. </td>
+</tr>
+<tr>
+<td> CustomerProof </td>
+<td> <strong>yes</strong>/no </td>
+<td> Включить <code>customer proof</code>. Как обход против распространенных ошибок клиентов к примеру <code>chmod 0 public_html</code>. Чтобы исключить некоторые проблемы. </td>
+</tr>
+<tr>
+<td> PerUserLimits </td>
+<td> 3:20 </td>
+<td> Число параллельных процессов. Он будет работать только если FTP-сервер был собран с опцией <code>--with-peruserlimits</code> Формат: &lt;максимум сессий на пользователей>:&lt;максимум сеансов анонимных пользователей> Например, <code>3:20</code> означает, что авторизованный пользователь может иметь 3 активных активных сессии. А для всех анонимных пользователей - максимум 20 сессий. </td>
+</tr>
+<tr>
+<td> NoTruncate </td>
+<td> yes </td>
+<td> Если файл загружается на сервер, и есть предыдущая его версия с тем же именем, то старый файл не будет ни удалён ни усечён. Загрузка будет произведена во временный файл и по окончании загрузки будет произведено атомарное переключение к новой версии файла. Например, при загрузке большого PHP сценария, апач будет работать со старой версией до полной загрузки и немедленно переключится на новый как только, он будет полностью передан Эта опция несовместима с виртуальными квотами. </td>
+</tr>
+<tr>
+<td> TLS </td>
+<td> 0 </td>
+<td> Этот параметр (TLS) может принимать три значения: <code>0</code> - отключить SSL/TLS шифрование (по-умолчанию). <code>1</code> - принимать обычные и шифрованные подключения. <code>2</code> - отклонять подключения которые не используют SSL/TLS, включая анонимные соединения. Не раскомментируйте это вслепую. Проверьте, что: 1) Ваш сервер был собран с поддержкой SSL/TLS (<code>--with-tls</code>), 2) На месте есть действительный сертификат, 3) Только совместимые клиенты будут заходить. </td>
+</tr>
+<tr>
+<td> IPV4Only </td>
+<td> <strong>yes</strong>/no </td>
+<td> Использовать только IPv4. По умолчанию используется как IPv4, так и IPv6. </td>
+</tr>
+<tr>
+<td> IPV6Only </td>
+<td> <strong>yes</strong>/no </td>
+<td> Использовать только IPv6. По умолчанию используется как IPv4, так и IPv6. </td>
+</tr>
+<tr>
+<td> FileSystemCharset </td>
+<td> big5 </td>
+<td>  Определите кодировку для файловой системы сервера.**</td>
+</tr>
+<tr>
+<td> ClientCharset </td>
+<td> big5 </td>
+<td> Определите кодировку по умолчанию для клиентов, которые не используют UTF-8. Опционально.** </td>
+</tr>
+</tbody>
+</table>
+
+
+  
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Последние темы</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/how-to/ustanovka-i-nastoika-pure-ftpd-mysql/">Установка и настройка PureFTPd с поддежкой MySQL</a>
+      </li>
+    
+      <li class="post">
+        <a href="/how-to/postgresql-backup-script/">Резервное копирование баз данных PostgreSQL</a>
+      </li>
+    
+      <li class="post">
+        <a href="/how-to/optimizacija-proizvoditelnosti-postgresql-dlja-servera-1c-predpriyatie/">Оптимизация производительности PostgreSQL для сервера 1С:Предприятие</a>
+      </li>
+    
+      <li class="post">
+        <a href="/how-to/ustanovka-i-nastoika-phppgadmin/">Установка и настройка phpPgAdmin</a>
+      </li>
+    
+      <li class="post">
+        <a href="/how-to/1c-predpriyatie-8-3+postgresql-na-baze-debian-8-jessie/">1С:Предприятие 8.3 + PostgreSQL 9.4 на базе Debian&nbsp;8&nbsp;&laquo;Jessie&raquo;</a>
+      </li>
+    
+  </ul>
+</section>
+    
+    <section>
+        <h1>Последние твиты</h1>
+        <p><a class="twitter-timeline" href="https://twitter.com/starnixway" data-widget-id="689103696911818752">Tweets by @starnixway</a></p>
+        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+    </section>
+    
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  &copy; <a href="mailto:nihi1ist@nixway.org">nihi1ist</a>, 2016. 
+  <span class="credit">Создано на платформе <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

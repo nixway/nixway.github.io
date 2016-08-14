@@ -165,8 +165,8 @@
 
 
 <p><strong>Расшифровка:</strong><br/>
-<code>acl</code> - создает <a href="https://ru.wikipedia.org/wiki/ACL">ACL</a> (<em>Access control list</em>) - так называемый список контроля доступа, с помощью которого мы ограничиваем диапазон адресов которые могут запрашивать зоны с нашего сервера. В данном примере это разрешено подсети <em>192.168.1.0/24.</em> и <a href="https://ru.wikipedia.org/wiki/Localhost">локальному хосту</a>.<br/>
-<code>allow-query { mynetwork; };</code> - список тех, кто имеет право запрашивать  информацию. Можно ограничить с помошью <em>acl</em> либо установить <em>allow-query { any; };</em> - что будет означать, что запросы разрешенмы всем.<br/>
+<code>acl</code> - создает <a href="https://ru.wikipedia.org/wiki/ACL">ACL</a> (<em>Access control list</em>) - так называемый список контроля доступа, с помощью которого мы ограничиваем диапазон адресов которые могут запрашивать зоны с нашего сервера. В данном примере это разрешено подсети <code>192.168.1.0/24</code>. и <a href="https://ru.wikipedia.org/wiki/Localhost">локальному хосту</a>.<br/>
+<code>allow-query { mynetwork; };</code> - список тех, кто имеет право запрашивать  информацию. Можно ограничить с помошью <em>acl</em> либо установить <code>allow-query { any; };</code> - что будет означать, что запросы разрешенмы всем.<br/>
 <code>forwarders {192.168.1.1; 8.8.8.8; };</code> - это DNS провайдера, или любые другие, у которых можно получить информацию о доменах неизвестных вашему серверу.<br/>
 <code>listen-on-v6 { none; }</code> - запрещает работать с IPv6.</p>
 
@@ -266,14 +266,14 @@
 <code>$ORIGIN</code> - оригинальное имя зоны<br/>
 <code>ns1.nixway.loc.</code>  - Наш DNS-сервер (точка в конце обязательна).<br/>
 <code>admin.nixway.loc.</code> - email администратора сервера, где вместо символа @ используется точка.<br/>
-<code>Serial</code> - серийный номер зоны в формате ГГГГММДД и номер текущего изменения за этот день. (Важно, при каждом изменении, нужно редактировать этот номер увеличивая его в большую сторону) Пример: <em>2015020301.</em><br/>
+<code>Serial</code> - серийный номер зоны в формате ГГГГММДД и номер текущего изменения за этот день. (Важно, при каждом изменении, нужно редактировать этот номер увеличивая его в большую сторону) Пример: <code>2015020301.</code><br/>
 <code>Refresh</code> - период времени с которым вторичный сервер днс обращается к основному.<br/>
 <code>Retry</code> - период с которым вторичный сервер будет повторять попытки при неудачном обновлении.<br/>
 <code>Expire</code> - максимальное время использования данных на вторичном сервере, после которого делается обязательное обновление.<br/>
 <code>Negative Cache TTL</code> - время актуальности данных в кэше запросов.</p>
 
-<p>Далее идут записи имён хостов с ip-адресами или псевдонимами.
-<em>ns.provider.org.</em> - вместо этой записи можете указать NS вашего регистратора либо Free DNS сервиса.</p>
+<p>Далее идут записи имён хостов с ip-адресами или псевдонимами.<br/>
+<code>ns.provider.org.</code> - вместо этой записи можете указать NS вашего регистратора либо Free DNS сервиса.</p>
 
 <h3>Зона обратного просмотра</h3>
 
@@ -319,7 +319,7 @@
 </span><span class='line'>  </span></code></pre></td></tr></table></div></figure>
 
 
-<p>В этом файле должны быть только записи типа PTR. В конце этого файла так же должна быть пустая строка. Число 10 - это последний <a href="https://ru.wikipedia.org/wiki/%D0%9E%D0%BA%D1%82%D0%B5%D1%82_%28%D0%B8%D0%BD%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B8%D0%BA%D0%B0%29">октет</a> в IP адресе нашего сервера.</p>
+<p>В этом файле должны быть только записи типа <code>PTR</code>. В конце этого файла так же должна быть пустая строка. Число <code>10</code> - это последний <a href="https://ru.wikipedia.org/wiki/%D0%9E%D0%BA%D1%82%D0%B5%D1%82_%28%D0%B8%D0%BD%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B8%D0%BA%D0%B0%29">октет</a> в IP адресе нашего сервера.</p>
 
 <p>Например, можно добавить в файл зоны прямого просмотра строку:</p>
 
@@ -333,7 +333,7 @@
 </pre></td><td class='code'><pre><code class=''><span class='line'>1               IN      PTR     router.nixway.loc.</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Тогда по адресу <em>router.nixway.loc</em> в браузере будет открываться web-интерфейс роутера (эквивалентно 192.168.1.1), но только внутри локальной сети.</p>
+<p>Тогда по адресу <code>router.nixway.loc</code> в браузере будет открываться web-интерфейс роутера (эквивалентно <em>192.168.1.1</em>), но только внутри локальной сети.</p>
 
 <h3>Проверка</h3>
 
@@ -398,7 +398,7 @@
 </pre></td><td class='code'><pre><code class=''><span class='line'>ipconfig /flushdns</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Не забудьте пробросить необходимые порты на роутере.</p>
+<p>Не забудьте пробросить необходимые порты на роутере, если это необходимо конечно.</p>
 
 <p><a href="http://forum.nixway.org/viewtopic.php?id=27">Обсуждение</a> статьи на форуме.</p>
 </div>
@@ -450,7 +450,7 @@
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/multimedia/skype-i-pulseaudio-nastroika-mikrofona/" title="Предыдущая статья">&laquo; Skype и PulseAudio. Настройка микрофона...</a>
+        <a class="basic-alignment left" href="/mans/osobiennosti-dostupa-k-failam-i-katalogam-v-unix-podobnykh-os/" title="Предыдущая статья">&laquo; Особенности доступа к файлам и каталогам в UNIX-подобных ОС</a>
       
       
         <a class="basic-alignment right" href="/review/wps-kingsoft-office-review/" title="Следующая статья">WPS Office от Kingsoft альтернатива MS Office &raquo;</a>
@@ -470,8 +470,12 @@
 <aside class="sidebar">
   
     <section>
-  <h1>Недавние сообщения
+  <h1>Последние темы</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/how-to/ustanovka-i-nastoika-pure-ftpd-mysql/">Установка и настройка PureFTPd с поддежкой MySQL</a>
+      </li>
     
       <li class="post">
         <a href="/how-to/postgresql-backup-script/">Резервное копирование баз данных PostgreSQL</a>
@@ -482,26 +486,22 @@
       </li>
     
       <li class="post">
+        <a href="/how-to/ustanovka-i-nastoika-phppgadmin/">Установка и настройка phpPgAdmin</a>
+      </li>
+    
+      <li class="post">
         <a href="/how-to/1c-predpriyatie-8-3+postgresql-na-baze-debian-8-jessie/">1С:Предприятие 8.3 + PostgreSQL 9.4 на базе Debian&nbsp;8&nbsp;&laquo;Jessie&raquo;</a>
-      </li>
-    
-      <li class="post">
-        <a href="/review/wps-kingsoft-office-review/">WPS Office от Kingsoft альтернатива MS Office</a>
-      </li>
-    
-      <li class="post">
-        <a href="/how-to/ustanovka-i-nastroika-bind9-na-debian-jessie/">Установка и настройка Bind9 на Debian&nbsp;8&nbsp;&laquo;Jessie&raquo;</a>
       </li>
     
   </ul>
 </section>
-    {\% if site.twitter_user and site.twitter_widget_id \%}
+    
     <section>
-        <h1>Latest Tweets</h1>
-        <p><a class="twitter-timeline" href="https://twitter.com/cmd_q_ru" data-widget-id="336577879670403072">Tweets by @cmd_q_ru</a></p>
+        <h1>Последние твиты</h1>
+        <p><a class="twitter-timeline" href="https://twitter.com/starnixway" data-widget-id="689103696911818752">Tweets by @starnixway</a></p>
         <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
     </section>
-    {\% endif \%}
+    
 
   
 </aside>
