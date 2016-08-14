@@ -1,20 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>http://nixway.org/how-to/ustanovka-i-nastoika-pure-ftpd-mysql/</loc>
-    <lastmod>2016-05-26T10:11:27+06:00</lastmod>
-  </url>
-  <url>
     <loc>http://nixway.org/how-to/postgresql-backup-script/</loc>
     <lastmod>2015-12-06T17:07:29+06:00</lastmod>
   </url>
   <url>
     <loc>http://nixway.org/how-to/optimizacija-proizvoditelnosti-postgresql-dlja-servera-1c-predpriyatie/</loc>
     <lastmod>2015-12-06T13:31:30+06:00</lastmod>
-  </url>
-  <url>
-    <loc>http://nixway.org/how-to/ustanovka-i-nastoika-phppgadmin/</loc>
-    <lastmod>2015-11-23T13:17:09+06:00</lastmod>
   </url>
   <url>
     <loc>http://nixway.org/how-to/1c-predpriyatie-8-3+postgresql-na-baze-debian-8-jessie/</loc>
@@ -27,10 +19,6 @@
   <url>
     <loc>http://nixway.org/how-to/ustanovka-i-nastroika-bind9-na-debian-jessie/</loc>
     <lastmod>2015-05-01T09:29:13+06:00</lastmod>
-  </url>
-  <url>
-    <loc>http://nixway.org/mans/osobiennosti-dostupa-k-failam-i-katalogam-v-unix-podobnykh-os/</loc>
-    <lastmod>2015-04-14T23:26:32+06:00</lastmod>
   </url>
   <url>
     <loc>http://nixway.org/multimedia/skype-i-pulseaudio-nastroika-mikrofona/</loc>
@@ -71,12 +59,6 @@
     <loc>http://nixway.org/categories/multimedia/</loc>
   </url>
   <url>
-    <loc>http://nixway.org/categories/mans/</loc>
-  </url>
-  <url>
     <loc>http://nixway.org/categories/review/</loc>
-  </url>
-  <url>
-    <loc>http://nixway.org/posts/2/</loc>
   </url>
 </urlset>

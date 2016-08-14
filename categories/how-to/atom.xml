@@ -4,7 +4,7 @@
   <title><![CDATA[Категория: How-to | Путь юниксоида]]></title>
   <link href="http://nixway.org/categories/how-to/atom.xml" rel="self"/>
   <link href="http://nixway.org/"/>
-  <updated>2016-08-14T17:35:24+06:00</updated>
+  <updated>2016-08-14T17:39:12+06:00</updated>
   <id>http://nixway.org/</id>
   <author>
     <name><![CDATA[nihi1ist]]></name>
@@ -12,126 +12,6 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
-  
-  <entry>
-    <title type="html"><![CDATA[Установка и настройка PureFTPd с поддежкой MySQL]]></title>
-    <link href="http://nixway.org/how-to/ustanovka-i-nastoika-pure-ftpd-mysql/"/>
-    <updated>2016-05-26T10:11:27+06:00</updated>
-    <id>http://nixway.org/how-to/ustanovka-i-nastoika-pure-ftpd-mysql</id>
-    <content type="html"><![CDATA[<p><img src="/images/posts/2016-05-26/debian+pure-ftpd+mysql.png" alt="Установка и настройка PureFTPd с поддежкой MySQ" />
-В один прекрасный день мне понадобился FTP-сервер. Для начала попробовал ProFTPd, но он мне не подошел. Требовался простой в настройке и обслуживании и вместе с тем безопасный FTP-сервер. Также требовалась возможность работы через веб-интрефейс и поддержка виртуальных пользователей. Тогда то я и решил попробовать PureFTPd.</p>
-
-<!--more-->
-
-
-<h3>Установка PureFTPd</h3>
-
-<p>На выбор в репозитории предлагается 4 варианта возможной конфигурации:<br/>
--&nbsp;<code>pure-ftpd</code> - FTP-сервер, с аутентификацией через системных пользователей,<br/>
--&nbsp;<code>pure-ftpd-ldap</code> - FTP-сервер, с аутентификацией через пользователей LDAP,<br/>
--&nbsp;<code>pure-ftpd-mysql</code> - FTP-сервер, с аутентификацией через пользователей MySQL,<br/>
--&nbsp;<code>pure-ftpd-postgresql</code> - FTP-сервер, с аутентификацией через пользователей PostgreSQL.</p>
-
-<p>Небольшие пояснения:<br/>
--&nbsp;символ <code>#</code> (решётка)&nbsp;-&nbsp;означает выполнение команды от <strong>root</strong> (суперпользователя),<br/>
--&nbsp;<code>cat /path/to/some.file</code>&nbsp;-&nbsp;означает что ниже приведено полное содержимое файла <code>some.file</code>, расположенного в директории <code>/path/to</code>,<br/>
--&nbsp;<code>echo no &gt; /path/to/some.file</code>&nbsp;-&nbsp;означает, что в <code>some.file</code> вставлен текст <code>no</code>, с заменой содержимого. Если файл не существует, он будет создан.</p>
-
-<p>Я выбрал вариант с поддержкой MySQL:</p>
-
-<pre><code>apt-get install pure-ftpd-common pure-ftpd-mysql
-</code></pre>
-
-<h3>Настройка PureFTPd</h3>
-
-<p>Одной из особеннойстей PureFTPd является то, что каждый параметр конфигурации хранится в отдельном файле. И каждый файл имеет имя параметра, а в самом файле хранятся значения этих параметров. Файлы эти расположены в директории:</p>
-
-<pre><code>/etc/pure-ftpd/conf
-</code></pre>
-
-<p>Рассмотрим наиболее интересные файлы конфигурации предоставленные нам мейнтейнерами по умолчанию.</p>
-
-<p>Указан файл для логов трансфера, в формате Apache:</p>
-
-<pre><code># cat /etc/pure-ftpd/conf/AltLog
-clf:/var/log/pure-ftpd/transfer.log
-</code></pre>
-
-<p>Указан файл конфигурации для MySQL:</p>
-
-<pre><code># cat /etc/pure-ftpd/conf/MySQLConfigFile
-/etc/pure-ftpd/db/mysql.conf
-</code></pre>
-
-<p>Анонимным пользователям доступ запрещен:</p>
-
-<pre><code># cat /etc/pure-ftpd/conf/NoAnonymous
-yes
-</code></pre>
-
-<p>Теперь необходимо дополнить конфигурацию. Для начала запретим UNIX-аутентификацию:</p>
-
-<pre><code># echo no &gt; /etc/pure-ftpd/conf/UnixAuthentication
-</code></pre>
-
-<p>Затем запретим PAM-аутентификацию:</p>
-
-<pre><code># echo no &gt; /etc/pure-ftpd/conf/PAMAuthentication
-</code></pre>
-
-<p>Ограничим пользоватей их домашним каталогом:</p>
-
-<pre><code># echo "yes" &gt; /etc/pure-ftpd/conf/ChrootEveryone
-</code></pre>
-
-<p>Укажем диапазон портов для пассивных соединений:</p>
-
-<pre><code># echo "40110 40210" &gt; /etc/pure-ftpd/conf/PassivePortRange
-</code></pre>
-
-<p>Не забудьте потом открыть необходимые порты в брандмауэре.</p>
-
-<p>По <a href="/pureftpd-config-params/index.html">ссылке</a> доступна таблица со всеми возможными параметрами которые я нашел.</p>
-
-<p>* - Значения вы должны выбирать сами, в зависимости от того, какие параметны вам нужны, некоторые параметры несовместимы друг с другом.<br/>
-** - Поддержка UTF-8 для имён файлов (RFC 2640). Работает только если pure-ftpd скомпилирован с параметром <code>--with-rfc2640</code>.</p>
-
-<h3>Установка веб-интерфейса PureFTP WebUI.</h3>
-
-<p>Есть два веб-интерфейса, которые я нашел. Это <a href="https://pure-ftpd-webui.org">PureFTPd WebUI</a> и <a href="http://machiel.generaal.net/index.php?subject=user_manager_pureftpd">User Manager</a>. Для себя я выбрал PureFTPd WebUI. Ну-с, приступим к установке.</p>
-
-<p>Переходим в директорию файлов веб-сервера:</p>
-
-<pre><code># cd /var/www/sitename
-</code></pre>
-
-<p>Скачаем файлы веб-интерфейса с гитхаба:</p>
-
-<pre><code>git clone https://github.com/mazay/pure-ftpd-webui.git
-</code></pre>
-
-<p>Переходим в скачаный каталог <code>pure-ftpd-webui</code>:</p>
-
-<pre><code># cd pure-ftpd-webui
-</code></pre>
-
-<p>В одном из файлов я нашел ошибку в функции <code>create_table_settings()</code>. Неверно указано значение параметра <code>pureftpd_init_script_path</code> и отсутствует <code>параметр pureftpwho_path</code>. Надо заменить строку:</p>
-
-<pre><code>('pureftpd_init_script_path','/etc/init.d/pure-ftpd');";
-</code></pre>
-
-<p>На</p>
-
-<pre><code>('pureftpd_init_script_path','/etc/init.d/pure-ftpd-mysql'),
-('pureftpwho_path','/usr/sbin/pure-ftpwho');";
-</code></pre>
-
-<p>Сделаем мы это c помощью awk</p>
-
-<pre><code>some code
-</code></pre>
-]]></content>
-  </entry>
   
   <entry>
     <title type="html"><![CDATA[Резервное копирование баз данных PostgreSQL]]></title>
@@ -252,86 +132,6 @@ exit 0
 <p>Включает/выключает синхронную запись в лог файлы после каждой транзакции. Это защищает от возможной потери данных. Но это накладывает ограничение на пропускную способность сервера.</p>
 
 <p>Если вашей системе не критична потенциально низкая возможность потери небольшого количества изменений при крахе системы, но необходимо обеспечить в несколько раз большую производительность по количеству транзакций в секунду. В этом случае можно установить этот параметр в <code>off</code> (отключение синхронной записи).</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Установка и настройка phpPgAdmin]]></title>
-    <link href="http://nixway.org/how-to/ustanovka-i-nastoika-phppgadmin/"/>
-    <updated>2015-11-23T13:17:09+06:00</updated>
-    <id>http://nixway.org/how-to/ustanovka-i-nastoika-phppgadmin</id>
-    <content type="html"><![CDATA[<p><img src="/images/posts/2015-12-23/phpPgAdmin.png" alt="Логотип phpPgAdmin" />
-Искал альтернативу pgAdmin3 и наткнулся phpPgAdmin. На мой взгляд очень удобный иструмент для работы с PostgreSQL. Хотя может и отстает в функционале от pgAdmin3, но мне вполне хватает. Так же для меня важно, что phpPgAdmin достаточно установить и настроить один раз. В качестве веб-сервера используется Apache 2.4.</p>
-
-<!--more-->
-
-
-<p>S
-Процесс установки phpPgAdmin, для Debian и других ОС основанных на нем будет выглядеть так:</p>
-
-<pre><code>apt-get install phppgadmin
-</code></pre>
-
-<p>В случае CentOS должен быть установлен репозиторий <a href="https://fedoraproject.org/wiki/EPEL">EPEL</a>, а команда на установку будет выглядеть так:</p>
-
-<pre><code>yum -y install phpPgAdmin
-</code></pre>
-
-<p>И всё бы было замечательно, но конфигурация в пакете для Apache 2.2, а у меня Apache 2.4. Потому надо подправить конфигурационный файл.</p>
-
-<p>Конфигурационный файл в Debian:</p>
-
-<pre><code>/etc/apache2/conf-available/phppgadmin.conf
-</code></pre>
-
-<pre><code>/etc/httpd/conf.d/phpPgAdmin.conf
-</code></pre>
-
-<p>К следующему виду:</p>
-
-<pre><code>Alias /phppgadmin /usr/share/phppgadmin
-
-&lt;Directory /usr/share/phppgadmin&gt;
-
-DirectoryIndex index.php
-AllowOverride None
-
-# Only allow connections from localhost:
-Require ip 192.168.1
-#Require all granted
-
-&lt;IfModule mod_php5.c&gt;
-  php_flag magic_quotes_gpc Off
-  php_flag track_vars On
-  #php_value include_path .
-&lt;/IfModule&gt;
-&lt;IfModule !mod_php5.c&gt;
-  &lt;IfModule mod_actions.c&gt;
-    &lt;IfModule mod_cgi.c&gt;
-      AddType application/x-httpd-php .php
-      Action application/x-httpd-php /cgi-bin/php
-    &lt;/IfModule&gt;
-    &lt;IfModule mod_cgid.c&gt;
-      AddType application/x-httpd-php .php
-      Action application/x-httpd-php /cgi-bin/php
-    &lt;/IfModule&gt;
-  &lt;/IfModule&gt;
-&lt;/IfModule&gt;
-
-&lt;/Directory&gt;
-</code></pre>
-
-<p>В параметре <code>Require</code> мы задаем правила доступа к phpPgAdmin. В вышеуказанном примере, доступ разрешается по маске <code>192.168.1</code>, остальные доступа не имеют. Потому, если вы планируете подключатся например из дома, то за</p>
-
-<p>Debian</p>
-
-<pre><code>/etc/phppgadmin/config.inc.php
-</code></pre>
-
-<p>CentOS</p>
-
-<pre><code>/etc/phpPgAdmin/config.inc.php
-</code></pre>
 ]]></content>
   </entry>
   
@@ -1057,6 +857,340 @@ rtt min/avg/max/mdev = 0.212/0.273/0.315/0.045 ms
 <p>Напоминаю копипастерам, использование прямой ссылки на оригинальную статью обязательно.</p>
 
 <p><em>Статья обновлена 10 августа 2016 года.</em></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Установка и настройка Bind9 на Debian&nbsp;8&nbsp;&laquo;Jessie&raquo;]]></title>
+    <link href="http://nixway.org/how-to/ustanovka-i-nastroika-bind9-na-debian-jessie/"/>
+    <updated>2015-05-01T09:29:13+06:00</updated>
+    <id>http://nixway.org/how-to/ustanovka-i-nastroika-bind9-na-debian-jessie</id>
+    <content type="html"><![CDATA[<p><img src="/images/posts/2015-05-01/debian+bind9.png" alt="Bind9" /></p>
+
+<p>В сети очень много статей на тему установки и настройки DNS-сервера Bind9. Они разные. Некоторые написаны просто и доступно, но нет пояснений зачем и почему. В других материал подан очень подробно, но новичкам такой материал осилить сложно. Я же попытаюсь совместить достоинства способов подачи материала, нащупать ту золотую середину, которая подойден большинству. Но опять таки, я не претендую на истину в последней инстанции и готов принять конструктивную критику.</p>
+
+<!--more-->
+
+
+<p>Итак, вступление закончено, приступим к самой статье. Я как приверженнец Debian, буду описывать процесс установки и настройки именно на этой ОС. Дано Debian&nbsp;8&nbsp;&laquo;Jessie&raquo; установленный вот с такими параметрами <em>(Ну разве кроме пункта <strong>web server</strong>, он пригодится тем, кто в дальнейшем будет работать с веб-сервером Apache):</em><br/>
+<a href="/images/posts/2015-05-01/debian_preinstall_options.png"><img src="/images/posts/2015-05-01/debian_preinstall_options_preview.png" alt="Debian preinstall options" /></a></p>
+
+<h4>Настройки сети:</h4>
+
+<pre><code>IP адрес роутера 192.168.1.1
+IP адрес сервера 192.168.1.10
+Имя домена nixway.loc
+</code></pre>
+
+<p>Для решения данной задачи настроим сервер таким образом, чтобы при обращении по доменному имени внутри сети он отвечал по локальному адресу. Все комманды выполняются от имени суперпользователя (<strong>root</strong>).</p>
+
+<p>Сначала установим необходимые пакеты:
+<code>
+apt-get -y install bind9 dnsutils
+</code></p>
+
+<p>Теперь необходимо настроить файл конфигурации Bind9:
+<code>
+vim /etc/bind/named.conf.options
+</code></p>
+
+<p>Приведём его к следующему виду:
+<code>
+acl mynetwork {192.168.1.0/24; 127.0.0.1; };
+options {
+    directory "/var/cache/bind";
+    auth-nxdomain no;
+    forwarders {192.168.1.1; 8.8.8.8; };
+    listen-on-v6 { none; };
+    allow-query { mynetwork; };
+};
+</code></p>
+
+<p><strong>Расшифровка:</strong><br/>
+<code>acl</code> - создает <a href="https://ru.wikipedia.org/wiki/ACL">ACL</a> (<em>Access control list</em>) - так называемый список контроля доступа, с помощью которого мы ограничиваем диапазон адресов которые могут запрашивать зоны с нашего сервера. В данном примере это разрешено подсети <code>192.168.1.0/24</code>. и <a href="https://ru.wikipedia.org/wiki/Localhost">локальному хосту</a>.<br/>
+<code>allow-query { mynetwork; };</code> - список тех, кто имеет право запрашивать  информацию. Можно ограничить с помошью <em>acl</em> либо установить <code>allow-query { any; };</code> - что будет означать, что запросы разрешенмы всем.<br/>
+<code>forwarders {192.168.1.1; 8.8.8.8; };</code> - это DNS провайдера, или любые другие, у которых можно получить информацию о доменах неизвестных вашему серверу.<br/>
+<code>listen-on-v6 { none; }</code> - запрещает работать с IPv6.</p>
+
+<h3>Настройка зон</h3>
+
+<p>Для начала покорректируем файл локальной конфигурации Bind9:
+<code>
+vim /etc/bind/named.conf.local
+</code></p>
+
+<p>Этот файл содержит локальную конфигурацию DNS-сервера, в нем объявляются зоны, связанные с доменами этого сервера. Добавляем в него файлы наших зон (зону прямого просмотра и зону обратного просмотра):
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>zone &ldquo;nixway.loc&rdquo; {
+</span><span class='line'>    type master;
+</span><span class='line'>    file &ldquo;/etc/bind/zones/nixway/flz.nixway.zone&rdquo;;
+</span><span class='line'>};&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;zone &ldquo;1.168.192.in-addr.arpa&rdquo; {
+</span><span class='line'>    type master;
+</span><span class='line'>    file &ldquo;/etc/bind/zones/nixway/rlz.nixway.zone&rdquo;;
+</span><span class='line'>};&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;pre&gt;&lt;code&gt;
+</span><span class='line'>### Зона прямого просмотра
+</span><span class='line'>Зона в DNS — это часть пространства имён DNS, управляемая конкретным сервером или группой серверов DNS. Зона прямого просмотра - это тип зоны в которой доменное имя преобразуется в IP-адрес. Создадим файл для зоны прямого просмотра:
+</span><span class='line'>&lt;/code&gt;&lt;/pre&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;vim /etc/bind/zones/nixway/flz.nixway.zone</span></code></pre></td></tr></table></div></figure></p>
+
+<p>Со следующим содержимым:
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>;
+</span><span class='line'>; Зона прямого просмотра
+</span><span class='line'>;
+</span><span class='line'>$TTL 30
+</span><span class='line'>$ORIGIN nixway.loc.&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;@               IN      SOA     ns1.nixway.loc. admin.nixway.loc. (
+</span><span class='line'>        2015050101      ; Serial
+</span><span class='line'>                1d      ; Refresh
+</span><span class='line'>                1h      ; Retry
+</span><span class='line'>                1w      ; Expire
+</span><span class='line'>                2h      ; Negative Cache TTL
+</span><span class='line'>)&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;@               IN      NS      ns1.nixway.loc.
+</span><span class='line'>@               IN      NS      ns.provider.org.
+</span><span class='line'>@               IN      A       192.168.1.10&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;ns1             IN      A       192.168.1.10
+</span><span class='line'>nixway.loc      IN      A       192.168.1.10&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;www             IN      CNAME   nixway.loc.&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;pre&gt;&lt;code&gt;
+</span><span class='line'>В конце этого файла нужно обязательно оставить пустую строку!
+</span><span class='line'>
+</span><span class='line'>**Расшифровка:**  
+</span><span class='line'>`$ORIGIN` - оригинальное имя зоны  
+</span><span class='line'>`ns1.nixway.loc.`  - Наш DNS-сервер (точка в конце обязательна).  
+</span><span class='line'>`admin.nixway.loc.` - email администратора сервера, где вместо символа @ используется точка.  
+</span><span class='line'>`Serial` - серийный номер зоны в формате ГГГГММДД и номер текущего изменения за этот день. (Важно, при каждом изменении, нужно редактировать этот номер увеличивая его в большую сторону) Пример: `2015020301.`  
+</span><span class='line'>`Refresh` - период времени с которым вторичный сервер днс обращается к основному.  
+</span><span class='line'>`Retry` - период с которым вторичный сервер будет повторять попытки при неудачном обновлении.  
+</span><span class='line'>`Expire` - максимальное время использования данных на вторичном сервере, после которого делается обязательное обновление.  
+</span><span class='line'>`Negative Cache TTL` - время актуальности данных в кэше запросов.  
+</span><span class='line'>
+</span><span class='line'>Далее идут записи имён хостов с ip-адресами или псевдонимами.  
+</span><span class='line'>`ns.provider.org.` - вместо этой записи можете указать NS вашего регистратора либо Free DNS сервиса.
+</span><span class='line'>
+</span><span class='line'>### Зона обратного просмотра
+</span><span class='line'>Зона обратного просмотра, выполняет преобразование IP-адреса в доменное имя. Создадим файл для зоны обратного просмотра:
+</span><span class='line'>&lt;/code&gt;&lt;/pre&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;vim /etc/bind/zones/nixway/rlz.nixway.zone</span></code></pre></td></tr></table></div></figure></p>
+
+<p>И запишем туда следующее:
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>;
+</span><span class='line'>; Зона обратного просмотря для nixway.loc
+</span><span class='line'>;
+</span><span class='line'>$TTL 30
+</span><span class='line'>@               IN      SOA     ns1.nixway.loc. root.nixway.loc. (
+</span><span class='line'>         201505013      ; Serial
+</span><span class='line'>                1d      ; Refresh
+</span><span class='line'>                1h      ; Retry
+</span><span class='line'>                1w      ; Expire
+</span><span class='line'>                2h      ; Negative Cache TTL
+</span><span class='line'>)&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;@               IN      NS      nixway.loc.&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;10              IN      PTR     ns1.nixway.loc.&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;pre&gt;&lt;code&gt;
+</span><span class='line'>В этом файле должны быть только записи типа `PTR`. В конце этого файла так же должна быть пустая строка. Число `10` - это последний [октет](https://ru.wikipedia.org/wiki/%D0%9E%D0%BA%D1%82%D0%B5%D1%82_%28%D0%B8%D0%BD%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B8%D0%BA%D0%B0%29) в IP адресе нашего сервера.
+</span><span class='line'>
+</span><span class='line'>Например, можно добавить в файл зоны прямого просмотра строку:
+</span><span class='line'>&lt;/code&gt;&lt;/pre&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;router          IN      A       192.168.1.1</span></code></pre></td></tr></table></div></figure></p>
+
+<p>А в файл зоны обратного просмотра строку:
+<code>
+1               IN      PTR     router.nixway.loc.
+</code></p>
+
+<p>Тогда по адресу <code>router.nixway.loc</code> в браузере будет открываться web-интерфейс роутера (эквивалентно <em>192.168.1.1</em>), но только внутри локальной сети.</p>
+
+<h3>Проверка</h3>
+
+<p>Проверим файлы зон на наличие ошибок командой:
+<code>
+named-checkconf -z
+</code></p>
+
+<p>Если ошибок нет, обновим информацию о зонах:
+<code>
+rndc reload
+</code></p>
+
+<p>Теперь необходимо отредактировать <em>resolv.conf</em>:
+<code>
+vim /etc/resolv.conf
+</code></p>
+
+<p>Приводим его в следующий вид:
+<code>
+domain nixway.loc
+search nixway.loc
+nameserver 192.168.1.10
+nameserver 192.168.1.1
+</code></p>
+
+<p>Проверку можно сделать двумя командами:
+<code>
+nslookup nixway.loc
+nslookup 192.168.1.10
+</code></p>
+
+<p>Которые должны выдать cледующий результат:
+<code>
+Имя:   nixway.loc
+Address: 192.168.1.10
+</code></p>
+
+<h3>Последние штрихи</h3>
+
+<p>Если DHCP у вас раздает роутер, не забудьте установить выдаваемые по умолчанию DNS сервера 192.168.1.10 и 192.168.1.1
+Проверьте корректность работы, введя в консоли Windows-машины
+<code>
+tracert nixway.loc
+</code></p>
+
+<p>Если маршрут пошел сразу на адрес  192.168.1.10, значит все работает корректно. Если нет, пропробуйте очистить кэш DNS и посторить еще раз:
+<code>
+ipconfig /flushdns
+</code></p>
+
+<p>Не забудьте пробросить необходимые порты на роутере, если это необходимо конечно.</p>
+
+<p><a href="http://forum.nixway.org/viewtopic.php?id=27">Обсуждение</a> статьи на форуме.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Octopress – Troubleshooting]]></title>
+    <link href="http://nixway.org/how-to/octopress-troubleshooting/"/>
+    <updated>2015-04-09T21:38:00+06:00</updated>
+    <id>http://nixway.org/how-to/octopress-troubleshooting</id>
+    <content type="html"><![CDATA[<p><img src="/images/posts/2015-04-09/octopress-troubleshooting.png" alt="Troubleshooting" /></p>
+
+<p>В данный пост я буду собирать решения всех возможных проблем, которые я встречу знакомясь с Octopress.</p>
+
+<!--more-->
+
+
+<h2>Как исправить ошибку &ldquo;build warning Layout nil requested&rdquo;.</h2>
+
+<p>В случае если команда <code>rake generate</code> ошибку:
+<code>
+Build Warning: Layout 'nil' requested in blog/tags/git/atom.xml does not exist.
+</code></p>
+
+<p>Надо найти и исправить:
+<code>
+layout: nil
+</code></p>
+
+<p>На:
+<code>
+layout: null
+</code></p>
+
+<p>В следующих файлах:
+<code>
+source/atom.xml
+source/robots.txt
+source/_includes/custom/category_feed.xml
+</code></p>
+
+<p>Вышеуказанные файлы находятся в каталоге Octopress.</p>
 ]]></content>
   </entry>
   
