@@ -4,7 +4,7 @@
   <title><![CDATA[Путь юниксоида]]></title>
   <link href="http://nixway.org/atom.xml" rel="self"/>
   <link href="http://nixway.org/"/>
-  <updated>2016-08-15T10:46:25+06:00</updated>
+  <updated>2016-08-15T10:53:47+06:00</updated>
   <id>http://nixway.org/</id>
   <author>
     <name><![CDATA[nihi1ist]]></name>
@@ -23,6 +23,8 @@
 <p>Перед всеми системными администраторами возникает задача резервного копирования баз данных (<em>БД</em>). Поэтому хочу поделится с вами скриптом для резервного копирования БД&nbsp;PostgreSQL. И его довольно просто переделать для любой другой СУБД. Данный скрипт неплохо подойдет новичкам. На нашем <a href="https://community.nixway.org/viewtopic.php?id=78">форуме</a> есть вариант скрипта для резерного копирования БД&nbsp;MySQL.</p>
 
 <!-- more -->
+
+
 
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
