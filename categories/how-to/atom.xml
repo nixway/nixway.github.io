@@ -4,7 +4,7 @@
   <title><![CDATA[Категория: How-to | Путь юниксоида]]></title>
   <link href="http://nixway.org/categories/how-to/atom.xml" rel="self"/>
   <link href="http://nixway.org/"/>
-  <updated>2016-08-15T11:16:19+06:00</updated>
+  <updated>2016-08-15T11:59:37+06:00</updated>
   <id>http://nixway.org/</id>
   <author>
     <name><![CDATA[nihi1ist]]></name>
@@ -56,7 +56,7 @@ eval $FIND $BACKUPDIR $FINDPARAM1 $FINDPARAM2
 exit 0
 </code></pre>
 
-<p>Хочу напомнить, что данный скрипт нужно выполнять от имени пользователя postgres. Неиспользуемые переменные закомментированы, при желании можно их удалить.</p>
+<p>Хочу напомнить, что данный скрипт нужно выполнять от имени пользователя <strong>postgres</strong>. Неиспользуемые переменные закомментированы, при желании можно их удалить.</p>
 
 <p>Восстановить дамп можно командой:</p>
 
@@ -68,22 +68,30 @@ exit 0
 <pre><code>$ createdb dbname
 </code></pre>
 
-<p>Опять же, команду необходимо выполнять от имени postgres.</p>
+<p>Опять же, команду необходимо выполнять от имени <strong>postgres</strong>.</p>
 
 <p>Теперь осталось настроить время запуска скрипта. В этом нам поможет <a href="https://ru.wikipedia.org/wiki/Cron">cron</a>. Мне необходимо чтобы скрипт запускался:<br/>
 -&nbsp;ежедневно в 22:30, с понедельника по пятницу,<br/>
 -&nbsp;ежемесячно в 23:30, в первую субботу месяца.</p>
 
-<p>Кроме того, ежедневные и ежемесячные копии должны хранится отдельно. Теперь, с помощью <code>crontab</code>:</p>
+<p>Кроме того, ежедневные и ежемесячные копии должны хранится отдельно. Соответственно нам потребуются две копии скрипта, в каждной укажем необходимый путь для резерных копий:</p>
+
+<pre><code>/var/backups/psql/dayli
+/var/backups/psql/monthly
+</code></pre>
+
+<p>С помощью команды <code>crontab</code>:</p>
 
 <pre><code># crontab -e
 </code></pre>
 
 <p>Добавим в список заданий пару строк в самый конец файла:</p>
 
-<pre><code>30 22 * * 1-5 postgres /var/backups/psql/weekly                                  # Ежедневно, с пн. по пт.
-30 23 1-7 * [ "$(date '+\%u')" -eq 6 ] &amp;&amp; /var/backups/psql/monthly postgres     # Ежемесячно, в первую сб.
+<pre><code>30 22 * * 1-5 postgres /path/psql_dayli-backup.sh                                  # Ежедневно, с пн. по пт.
+30 23 1-7 * [ "$(date '+\%u')" -eq 6 ] &amp;&amp; /path/psql_monthly-backup.sh postgres    # Ежемесячно, в первую сб.
 </code></pre>
+
+<p>Где <code>postgres</code> - пользователь, от имени которого будет запускаться скрипт, <code>path</code> - путь до каталога со скриптами, а <code>psql_dayli-backup.sh</code> и <code>psql_monthly-backup.sh postgres</code> - имена файлов со скриптом.</p>
 ]]></content>
   </entry>
   

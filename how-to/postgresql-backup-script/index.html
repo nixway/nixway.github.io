@@ -179,7 +179,7 @@
 </span><span class='line'>exit 0</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Хочу напомнить, что данный скрипт нужно выполнять от имени пользователя postgres. Неиспользуемые переменные закомментированы, при желании можно их удалить.</p>
+<p>Хочу напомнить, что данный скрипт нужно выполнять от имени пользователя <strong>postgres</strong>. Неиспользуемые переменные закомментированы, при желании можно их удалить.</p>
 
 <p>Восстановить дамп можно командой:</p>
 
@@ -193,13 +193,21 @@
 </pre></td><td class='code'><pre><code class=''><span class='line'>$ createdb dbname</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Опять же, команду необходимо выполнять от имени postgres.</p>
+<p>Опять же, команду необходимо выполнять от имени <strong>postgres</strong>.</p>
 
 <p>Теперь осталось настроить время запуска скрипта. В этом нам поможет <a href="https://ru.wikipedia.org/wiki/Cron">cron</a>. Мне необходимо чтобы скрипт запускался:<br/>
 -&nbsp;ежедневно в 22:30, с понедельника по пятницу,<br/>
 -&nbsp;ежемесячно в 23:30, в первую субботу месяца.</p>
 
-<p>Кроме того, ежедневные и ежемесячные копии должны хранится отдельно. Теперь, с помощью <code>crontab</code>:</p>
+<p>Кроме того, ежедневные и ежемесячные копии должны хранится отдельно. Соответственно нам потребуются две копии скрипта, в каждной укажем необходимый путь для резерных копий:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>/var/backups/psql/dayli
+</span><span class='line'>/var/backups/psql/monthly</span></code></pre></td></tr></table></div></figure>
+
+
+<p>С помощью команды <code>crontab</code>:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'># crontab -e</span></code></pre></td></tr></table></div></figure>
@@ -209,9 +217,11 @@
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>30 22 * * 1-5 postgres /var/backups/psql/weekly                                  # Ежедневно, с пн. по пт.
-</span><span class='line'>30 23 1-7 * [ "$(date '+\%u')" -eq 6 ] && /var/backups/psql/monthly postgres     # Ежемесячно, в первую сб.</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'>30 22 * * 1-5 postgres /path/psql_dayli-backup.sh                                  # Ежедневно, с пн. по пт.
+</span><span class='line'>30 23 1-7 * [ "$(date '+\%u')" -eq 6 ] && /path/psql_monthly-backup.sh postgres    # Ежемесячно, в первую сб.</span></code></pre></td></tr></table></div></figure>
 
+
+<p>Где <code>postgres</code> - пользователь, от имени которого будет запускаться скрипт, <code>path</code> - путь до каталога со скриптами, а <code>psql_dayli-backup.sh</code> и <code>psql_monthly-backup.sh postgres</code> - имена файлов со скриптом.</p>
 </div>
 
 
