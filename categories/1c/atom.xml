@@ -4,7 +4,7 @@
   <title><![CDATA[Категория: 1c | Путь юниксоида]]></title>
   <link href="http://nixway.org/categories/1c/atom.xml" rel="self"/>
   <link href="http://nixway.org/"/>
-  <updated>2016-11-08T18:49:03+06:00</updated>
+  <updated>2016-11-08T19:08:10+06:00</updated>
   <id>http://nixway.org/</id>
   <author>
     <name><![CDATA[nihi1ist]]></name>
@@ -293,14 +293,7 @@ Non-Sync'ed 8kB writes:
 <ul>
 <li>Необходимость использования <a href="http://v8.1c.ru/overview/Term_000000642.htm">управляемых блокировок</a> при разработке прикладного решения. Если же у вас типовая конфигурация, то по возможности ее так же необходимо переводить на управляемые блокировки.</li>
 <li>Рекомендацию реализовать для PostgreSQL кэширование на <a href="https://ru.wikipedia.org/wiki/SSD">SSD-накопитель</a>. Сделать это можно с помощью <a href="https://ru.wikipedia.org/wiki/Flashcache">Flashcache</a> или <a href="https://en.wikipedia.org/wiki/Bcache">Bcache</a>. Подробнее вопрос организации системы кэширования я рассмотрю в другой статье.</li>
-<li>Довольно удобный <a href="http://pgtune.leopard.in.ua/">веб-сервис</a> для начальной
-настройки PostgreSQL. Его
-[порекомендовал](/how-to/1c-predpriyatie-8-3+postgresql-na-baze-debian-8-jessie/
-
-<h1>comment-2612892713) мне товарищ Vasiliy P. Melnik. Несмотря на то, что</h1>
-
-<p>интерфейс на английском, он простой и интуитивно понятный. Думаю каждый желающий
-сможет с ним разобраться.</p></li>
+<li>Довольно удобный <a href="http://pgtune.leopard.in.ua/">веб-сервис</a> для начальной настройки PostgreSQL. Его <a href="/how-to/1c-predpriyatie-8-3+postgresql-na-baze-debian-8-jessie/#comment-2612892713">порекомендовал</a> мне товарищ Vasiliy P. Melnik. Несмотря на то, что интерфейс на английском, он простой и интуитивно понятный. Думаю каждый желающий сможет с ним разобраться.</li>
 </ul>
 
 
