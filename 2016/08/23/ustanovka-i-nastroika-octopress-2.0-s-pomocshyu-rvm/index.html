@@ -1,0 +1,807 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="ru"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Установка и настройка Octopress 2.0 с помощью RVM - Путь юниксоида</title>
+  <meta name="author" content="nihi1ist">
+
+  
+  <meta name="description" content="По просьбе знакомого выкладываю инструкцию по установке и настройке Octopress. Octopress - это простой и удобный генератор статичных сайтов. Он &hellip;">
+  <meta name="keywords" content="Debian, Linux, Octopress, RVM, Ruby">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://nixway.org/2016/08/23/ustanovka-i-nastroika-octopress-2.0-s-pomocshyu-rvm/">
+  <link href="/favicon.ico" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Путь юниксоида" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<!--Twitter Bootstrap-->
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+<!--jQuery-->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-67931233-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body    class="collapse-sidebar sidebar-footer" >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Путь юниксоида</a></h1>
+  
+    <h2>Блог посвященный UNIX-подобным операционным системам.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="Подпишитесь через RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="nixway.org">
+    <input class="search" type="text" name="q" results="0" placeholder="Поиск"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Главная</a></li>
+  <li><a href="https://community.nixway.org/">Сообщество</a></li>
+  <li><a href="/blog/archives">Архив</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Установка и настройка Octopress 2.0 с помощью RVM</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 23 Августа 2016, 16:23, Вт
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://nixway.org">Комментарии</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p><img src="/images/posts/2016-08-23/octopress-install-and-configuring.png" alt="Octopress Install" /></p>
+
+<p>По просьбе знакомого выкладываю инструкцию по установке и настройке <a href="http://octopress.org/">Octopress</a>. Octopress - это простой и удобный генератор статичных сайтов. Он поддерживает выгрузку на <a href="https://ru.wikipedia.org/wiki/GitHub">GitHub</a>, <a href="https://ru.wikipedia.org/wiki/Bitbucket">Bitbucket</a>, <a href="https://ru.wikipedia.org/wiki/Heroku">Heroku</a> или на ваш сервер с помощью <a href="https://ru.wikipedia.org/wiki/Rsync">Rsync</a>.</p>
+
+<!-- more -->
+
+
+<h3>Формирование рабочей среды для Octopress. <a name="ruby"></a></h3>
+
+<p>В документации на официальном сайте указано, что для корректной работы Octopress требуется Ruby версии 1.9.3. Но у абсолютного большинства, в репозиториях предлагается версия от 2.1 и выше. В той же документации для того, чтобы установить версию&nbsp;1.9.3 предлагается использовать <a href="http://octopress.org/docs/setup/rbenv/">rbenv</a> или <a href="http://octopress.org/docs/setup/rvm">RVM</a>. Для себя я выбрал RVM <em>(Ruby Version Manager)</em>. На его примере мы и рассмотрим установку Octopress.</p>
+
+<p>Для начала установим в систему необходимые пакеты:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># apt-get install nodejs git curl</span></code></pre></td></tr></table></div></figure>
+
+
+<p><span style="color:#cd0021;"><strong>ПРИМЕЧАНИЕ!</strong></span> Для наглядности, перед каждой командой будет указан определенный символ, если это <code>#</code> - значит команда выполняется от имени суперпользователя <strong>root</strong>, если символ <code>$</code> - то команда выполняется от имени текущего пользователя.</p>
+
+<p>После чего установим RVM:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ curl -L https://get.rvm.io | bash -s stable</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Подскажем системе, где искать RVM:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ source "$HOME/.rvm/scripts/rvm"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Чтобы в дальнейшем каждый раз не указывать путь до каталога с RVM, добавим путь до него в <em>.bashrc:</em></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ echo '[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"' &gt;&gt; ~/.bashrc</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Установим необходимую версию Ruby:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ rvm install 1.9.3</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Перезапускаем RVM, и выбираем версию 1.9.3. С помощью ключа <code>--default</code> мы указываем, что будем использовать эту версию по умолчанию:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ rvm reload
+</span><span class='line'>RVM reloaded!
+</span><span class='line'>$ rvm use --default 1.9.3
+</span><span class='line'>Using /home/nihi1ist/.rvm/gems/ruby-1.9.3-p551</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Смотрим какая версия Ruby используется в данный момент:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ ruby -v
+</span><span class='line'>Using /home/nihi1ist/.rvm/gems/ruby-1.9.3-p551</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Отлично! Нужная версия Ruby установна и готова к использованию. Можно приступить к установке Octopress. Скачиваем с GitHub необходимые файлы:</p>
+
+<p><span style="color:#cd0021;"><strong>ПРИМЕЧАНИЕ!</strong></span> Установщик может в процессе установки может затребовать пароль, для того чтобы установить в систему необходимые зависимости.</p>
+
+<h3>Установка Octopress.</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git clone git://github.com/imathis/octopress.git octopress
+</span><span class='line'>$ cd octopress</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Установим gem с названием <strong>bundler</strong>:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ gem install bundler</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Вышеупомянутый gem позволит нам установить другие gem'ы, указанные в файле <em>Gemfile</em>. Запустим команду установки:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ bundle install
+</span><span class='line'>Fetching gem metadata from https://rubygems.org/.........
+</span><span class='line'>Fetching version metadata from https://rubygems.org/..
+</span><span class='line'>Fetching dependency metadata from https://rubygems.org/.
+</span><span class='line'>Installing rake 10.4.2
+</span><span class='line'>Installing RedCloth 4.2.9 with native extensions
+</span><span class='line'>Installing blankslate 2.1.2.4
+</span><span class='line'>Installing chunky_png 1.3.5
+</span><span class='line'>...
+</span><span class='line'>Installing listen 3.0.5
+</span><span class='line'>Installing sinatra 1.4.6
+</span><span class='line'>Installing jekyll-watch 1.3.0
+</span><span class='line'>Installing jekyll 2.5.3
+</span><span class='line'>Installing octopress-hooks 2.6.1
+</span><span class='line'>Installing octopress-date-format 2.0.2
+</span><span class='line'>Bundle complete! 14 Gemfile dependencies, 48 gems now installed.
+</span><span class='line'>Use `bundle show [gemname]` to see where a bundled gem is installed.
+</span><span class='line'>Post-install message from compass:
+</span><span class='line'>    Compass is charityware. If you love it, please donate on our behalf at http://umdf.org/compass Thanks!
+</span><span class='line'>Post-install message from haml:
+</span><span class='line'>
+</span><span class='line'>HEADS UP! Haml 4.0 has many improvements, but also has changes that may break
+</span><span class='line'>your application:
+</span><span class='line'>
+</span><span class='line'>* Support for Ruby 1.8.6 dropped
+</span><span class='line'>* Support for Rails 2 dropped
+</span><span class='line'>* Sass filter now always outputs &lt;style&gt; tags
+</span><span class='line'>* Data attributes are now hyphenated, not underscored
+</span><span class='line'>* html2haml utility moved to the html2haml gem
+</span><span class='line'>* Textile and Maruku filters moved to the haml-contrib gem
+</span><span class='line'>
+</span><span class='line'>For more info see:
+</span><span class='line'>
+</span><span class='line'>http://rubydoc.info/github/haml/haml/file/CHANGELOG.md</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Выхлоп сокращен.</p>
+
+<p>Установим стандартную тему:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ rake install</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Если вас не устраивает стандартная тема, то вы можете выбрать тему по вкусу <a href="https://github.com/imathis/octopress/wiki/3rd-Party-Octopress-Themes">здесь</a>. Процесс установки альтернативной темы несложен. Переходим в каталог Octopress:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ cd octopress</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Скачиваем нужную тему:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git submodule add GIT_URL .themes/THEME_NAME</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Где <code>GIT_URL</code> - имя репозитория темы, а <code>THEME_NAME</code> - имя темы. Теперь тема доступна для установки:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ rake install['THEME_NAME']</span></code></pre></td></tr></table></div></figure>
+
+
+<p>После чего заново генерируем сайт:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ rake generate</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Подготовка к развертыванию сайта на базе GitHub.</h3>
+
+<p>В качестве платформы для сайта я решил выбрать GitHub, тому есть два аргумента, которые оказались лично для меня важными:<br/>
+- бесплатный,<br/>
+- поддерживает <code>CNAME</code>*</p>
+
+<p>* Поддежка <code>CNAME</code> позволяет прикреплять произвольный домен к репозиторию.</p>
+
+<p>Описывать <a href="https://github.com/join?source=header-home">регистрацию</a> на GitHub я не буду. Но опишу процесс создания репозитория. После того как вы зарегистрируетесь, создайте репозиторий (рис. 1):</p>
+
+<p><a name="img1"></a><img src="/images/posts/2016-08-23/octopress-github-repository-create.png" alt="Create GitHub repository" />
+<strong><em><center>Рисунок 1.</center></em></strong></p>
+
+<p>Хочу обратить ваше внимание, что имя сайта должно быть идентично имени пользователя.</p>
+
+<p><a name="img2"></a><a href="/images/posts/2016-08-23/octopress-github-repository-create-options.png"><img src="/images/posts/2016-08-23/octopress-github-repository-create-options-preview.png" alt="GitHub repository options" /></a>
+<strong><em><center>Рисунок 2.</center></em></strong></p>
+
+<p>После того как вы создадите репозиторий, система перенаправит вас на страницу с репозиторием. Так как репозиторий пуст, система покажет небольшую инструкцию с вариантами заполнения репозитория. В случае с Octopress, процессом выгрузки управляет специальный скрипт. Потому мы можем переходить к следующему шагу.</p>
+
+<p><a name="img3"></a><a href="/images/posts/2016-08-23/octopress-github-repository-create-finish.png"><img src="/images/posts/2016-08-23/octopress-github-repository-create-finish-preview.png" alt="GitHub repository created" /></a>
+<strong><em><center>Рисунок 3.</center></em></strong></p>
+
+<p>Для выгрузки в репозиторий используется публичный SSH-ключ. Его можно добавить как в настройках репозитория (рис. 3, рис. 4), так и в настроках профиля. Если вы добавите ключ только для репозитория, он будет использоватся лишь для работы с указанным репозиторием.</p>
+
+<p><a name="img4"></a><a href="/images/posts/2016-08-23/octopress-github-repository-ssh-key-add.png"><img src="/images/posts/2016-08-23/octopress-github-repository-ssh-key-add-preview.png" alt="Add SSH-key to repository" /></a>
+<strong><em><center>Рисунок 4.</center></em></strong></p>
+
+<p>Если у вас ещё нет публичного SSH-ключа, самое время создать его. Как это сделать, вы можете посмотреть <a href="https://community.nixway.org/viewtopic.php?pid=694">здесь</a>.</p>
+
+<p>Теперь свяжем созданный выше репозиторий с каталогом Octopress. Для этого запустим команду <code>setup_github_pages</code>. В&nbsp;процессе команда запросит адрес репозитория, пример адреса показан на <a href="#img3">рис. 3</a>.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ rake setup_github_pages
+</span><span class='line'>Enter the read/write url for your repository
+</span><span class='line'>(For example, 'git@github.com:your_username/your_username.github.io.git)
+</span><span class='line'>           or 'https://github.com/your_username/your_username.github.io')
+</span><span class='line'>Repository url: git@github.com:nihi1ist/nihi1ist.github.io.git</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Если вы все сделали верно, значит у вас настроена выгрузка в ваш репозиторий на GitHub.</p>
+
+<h3>Настройка блога.</h3>
+
+<p>Основные настройки хранятся в файле <em>_config.yml</em>. Сам файл расположен в корневой папке Octopress. Ниже приведу содержимое этого файла с комментариями.</p>
+
+<div class="spoiler">
+<input id="spoilerid_1" type="checkbox"><label for="spoilerid_1">
+Пример файла конфигурации
+</label><div class="spoiler_body">
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># ----------------------- #
+</span><span class='line'>#      Main Configs       #
+</span><span class='line'># ----------------------- #
+</span><span class='line'>
+</span><span class='line'>url: http://yoursite.com
+</span><span class='line'>title: Название вашего блога
+</span><span class='line'>subtitle: Описание вашего блога
+</span><span class='line'>author: Ваш Ник/Имя
+</span><span class='line'>simple_search: https://www.google.com/search            # Поисковая система блога
+</span><span class='line'>description:
+</span><span class='line'>
+</span><span class='line'># Формат даты по умолчанию "ordinal" (Пример: "July 22nd 2007")
+</span><span class='line'># Как настроить формат даты показано на странице 
+</span><span class='line'># http://www.ruby-doc.org/core-1.9.2/Time.html#method-i-strftime
+</span><span class='line'># Кроме того, %o даст вам порядковый номер дня
+</span><span class='line'>date_format: "ordinal"
+</span><span class='line'>
+</span><span class='line'># RSS / Email (необязательно) ссылки для подписки
+</span><span class='line'># (изменится если использовать что нибудь вроде Feedburner)
+</span><span class='line'>subscribe_rss: /atom.xml
+</span><span class='line'>subscribe_email:
+</span><span class='line'># RSS feeds can list your email address if you like
+</span><span class='line'>email:
+</span><span class='line'>
+</span><span class='line'># ----------------------- #
+</span><span class='line'>#    Jekyll & Plugins     #
+</span><span class='line'># ----------------------- #
+</span><span class='line'>
+</span><span class='line'># Если вы хотите публиковать контент в подкаталог, например http://site.com/project
+</span><span class='line'># тогда установите параметре корня сайта - 'root: /project'
+</span><span class='line'>root: /
+</span><span class='line'># С помощью параметра ниже можно задать формат пути для статьи
+</span><span class='line'># можно так же использовать переменные :category 
+</span><span class='line'>permalink: /blog/:year/:month/:day/:title/
+</span><span class='line'>source: source
+</span><span class='line'>destination: public
+</span><span class='line'>plugins: plugins
+</span><span class='line'>code_dir: downloads/code
+</span><span class='line'>category_dir: blog/categories
+</span><span class='line'>markdown: rdiscount
+</span><span class='line'>rdiscount:
+</span><span class='line'>  extensions:
+</span><span class='line'>    - autolink
+</span><span class='line'>    - footnotes
+</span><span class='line'>    - smart
+</span><span class='line'>highlighter: pygments # default python pygments have been replaced by pygments.rb
+</span><span class='line'>
+</span><span class='line'>paginate: 10                    # Количество сообщений на главной странице
+</span><span class='line'>paginate_path: "posts/:num"     # Directory base for pagination URLs eg. /posts/2/
+</span><span class='line'>recent_posts: 5                 # Количество сообщений в разделе Recent Posts
+</span><span class='line'>excerpt_link: "Read on &rarr;"  # "Continue reading" Текст ссылки 
+</span><span class='line'>excerpt_separator: "&lt;!--more--&gt;"# Разделитель для статьи
+</span><span class='line'>
+</span><span class='line'>titlecase: true                 # Converts page and post titles to titlecase
+</span><span class='line'>
+</span><span class='line'># Перечислите модули которые вы хотите добавить на боковую панель, в том порядке который вам нужен
+</span><span class='line'># Для того чтобы добавить свой asides, создайте файл в директории /source/_includes/custom/asides/
+</span><span class='line'># И добавьте их к списку ниже как 'asides/custom_aside_name.html'
+</span><span class='line'>default_asides: [asides/recent_posts.html, asides/github.html, asides/delicious.html, asides/pinboard.html, asides/googleplus.html]
+</span><span class='line'>
+</span><span class='line'># Each layout uses the default asides, but they can have their own asides instead. Simply uncomment the lines below
+</span><span class='line'># and add an array with the asides you want to use.
+</span><span class='line'># blog_index_asides:
+</span><span class='line'># post_asides:
+</span><span class='line'># page_asides:</span></code></pre></td></tr></table></div></figure>
+
+</div></div>
+
+
+<p>Комментарии переведены не до конца. Пользуюсь машинным переводом, но он не всегда может помочь. Со временем перевод конечно же будет закончен. Но если найдутся желающие помочь с переводом, буду рад.</p>
+
+<h3>Создание страниц и сообщений.</h3>
+
+<p>Процедура создания новых сообщений/страниц, достаточна проста. Вы можете указывать имя на кириллице, скрипт автоматически переведет название в транслит и укажет полученное название в имени файла. Если в имени нового сообщения/статьи есть пробелы, необходимо использовать кавычки. Несмотря на то, что в справке это не упоминается.</p>
+
+<p>Новые сообщения создаются в каталоге <code>octopress/source/_posts</code> и имеют формат имени <code>YYYY-MM-DD-post-name.markdown</code>:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ rake new_post["Новое сообщение"]
+</span><span class='line'>mkdir -p source/_posts
+</span><span class='line'>Creating new post: source/_posts/2016-11-02-novoie-soobshchieniie.markdown</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Созданный файл имеет следующую структуру:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>---
+</span><span class='line'>layout: post
+</span><span class='line'>title: "Новое сообщение"
+</span><span class='line'>date: 2016-11-02 12:58:46 +0600
+</span><span class='line'>comments: true
+</span><span class='line'>categories:
+</span><span class='line'>---</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Это каркас сообщения. Настройки интуитивно понятны, можно разрешить/запретить комментарии, указать категорию (можно указать несколько категорий), функционал аналогичен функционалу тегов. Для разделения короткого и полного текста используется тег <code>&lt;!-- more --&gt;</code>.</p>
+
+<p>Для новых страниц создается новый каталог с именем создаваемой страницы. К примеру создаем новую страницу:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ rake new_page["Новая страниц"]
+</span><span class='line'>mkdir -p source/novaia-stranitsa
+</span><span class='line'>Creating new page: source/novaia-stranitsa/index.markdown</span></code></pre></td></tr></table></div></figure>
+
+
+<p>В результате будет создан каталог, а уже в этом каталоге будет создан файл <code>index.markdown</code> со следующим содержимым:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>---
+</span><span class='line'>layout: page
+</span><span class='line'>title: "Новая страница"
+</span><span class='line'>date: 2016-11-02 12:55
+</span><span class='line'>comments: true
+</span><span class='line'>sharing: true
+</span><span class='line'>footer: true
+</span><span class='line'>---</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Для создаваемых страниц я обычно отключаю комментарии, подвал и прочее. Для форматирования текста используется <a href="https://ru.wikipedia.org/wiki/Markdown">markdown</a>.</p>
+
+<h3>Справка по rake.</h3>
+
+<p>В документации Octopress на сайте разработчиков перечислены лишь несколько команд для rake: <code>generate</code>, <code>deploy</code>, <code>new_post</code>, <code>new_page</code> и др. На самом деле у <code>rake</code> для Octopress команд больше, посмотреть их список можно с помощью - <code>rake list</code>, а получить список с описанием команд можно вот так - <code>rake -T</code>:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ rake -T
+</span><span class='line'>rake clean                     # Очищает кэши: .pygments-cache, .gist-cache, .sass-cache
+</span><span class='line'>rake copydot[source,dest]      # Копирует dot-файлы для развертывания
+</span><span class='line'>rake deploy                    # Развертывает сгенерированный сайт на вашу платформу
+</span><span class='line'>rake gen_deploy                # Генерирует и развертывает сайт
+</span><span class='line'>rake generate                  # Генерирует сайт
+</span><span class='line'>rake install[theme_name]       # Устанавливает тему для сайта
+</span><span class='line'>rake integrate                 # Перемещает все посты, помещенные в stash командой isolate, обратно в
+</span><span class='line'>                               # posts-директорию, сайт при этом готов к генерации 
+</span><span class='line'>rake isolate[filename]         # Перемещает все посты, кроме того, над которым сейчас ведется работа,
+</span><span class='line'>                               # во временную директорию stash, что приводит к существенному ускорению
+</span><span class='line'>                               # генерации сайта
+</span><span class='line'>rake list                      # Показывает список доступных задач
+</span><span class='line'>rake new_page[filename]        # Создает новую страницу сайта в source/[filename]/index.markdown
+</span><span class='line'>rake new_post[title]           # Создает новый пост для сайта в source/_posts
+</span><span class='line'>rake preview                   # Предпросмотр сайта в браузере на локальной машине
+</span><span class='line'>rake push                      # Развертывает public-директорию через Git
+</span><span class='line'>rake rsync                     # Развертывает сайт через Rsync
+</span><span class='line'>rake set_root_dir[dir]         # Обновляет настройки для поддержки публикации в root или вложенную директорию
+</span><span class='line'>rake setup_github_pages[repo]  # Настраивает директорию _deploy и развертывает ветвь в Github Pages
+</span><span class='line'>rake update_source[theme]      # Перемещает source в source.old, устанавливает source theme updates,
+</span><span class='line'>                               # замещает source/_includes/navigation.html навигацией из source.old
+</span><span class='line'>rake update_style[theme]       # Перемещает sass в sass.old, устанавливает sass theme updates, заменяет
+</span><span class='line'>                               # sass/custom файлом sass.old/custom
+</span><span class='line'>rake watch                     # Предпросмотр сайта и автоматическая генерация при изменении файлов
+</span><span class='line'>                               # (не работает, хотя может я неправильно использую...)</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Перевел в меру своих сил, если встретите неточность, пишите в комментариях.</p>
+
+<h3>Локализация на русский язык</h3>
+
+<p>К сожалению, Octopress не имеет локализации на русском языке. Но этот недостаток легко можно исправить вручную. Я ищу текст который нужно перевести с помощью команды <code>grep</code>.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ grep -irl "comments" source</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Где <code>comments</code> - слово которое надо перевести, а <code>source</code> - каталог поиска.
+Поиск должен проводиться в каталоге с файлами Octopress. Вы так же можете
+переделать саму тему. И при последующей установке темы у вас уже будет сайт на
+русском языке.</p>
+
+<p>Для локализации дат, надо заменить содержимое файла:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>octopress/plugin/date.rb</span></code></pre></td></tr></table></div></figure>
+
+
+<p>на <a href="/files/date.rb.txt">это</a>. А содержимое файла:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>octopress/source/_includes/post/date.html</span></code></pre></td></tr></table></div></figure>
+
+
+<p>на <a href="/files/date.html.txt">это</a>.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Автор - <span class="fn">nihi1ist, </span></span>
+ опубликовано: 
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 23 Августа 2016, 16:23, Вт
+      
+
+<span class="categories">
+  
+    <a class='category' href='/categories/debian/'>debian</a>, <a class='category' href='/categories/linux/'>linux</a>, <a class='category' href='/categories/octopress/'>octopress</a>, <a class='category' href='/categories/ruby/'>ruby</a>, <a class='category' href='/categories/rvm/'>rvm</a>
+  
+</span>
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://nixway.org/2016/08/23/ustanovka-i-nastroika-octopress-2.0-s-pomocshyu-rvm/" data-via="starnixway" data-counturl="http://nixway.org/2016/08/23/ustanovka-i-nastroika-octopress-2.0-s-pomocshyu-rvm/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/2015/12/06/postgresql-backup-script/" title="Предыдущая статья">&laquo; Резервное копирование баз данных PostgreSQL</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Комментарии</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Последние темы</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/2016/08/23/ustanovka-i-nastroika-octopress-2.0-s-pomocshyu-rvm/">Установка и настройка Octopress 2.0 с помощью RVM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/12/06/postgresql-backup-script/">Резервное копирование баз данных PostgreSQL</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/12/06/optimizacija-postgresql-pod-server-1c-predpriyatiya/">Оптимизация PostgreSQL под сервер 1С:Предприятия</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/11/10/1c-predpriyatie-8-3+postgresql-na-baze-debian-8-jessie/">1С:Предприятие 8.3 + PostgreSQL 9.4 на базе Debian&nbsp;8&nbsp;&laquo;Jessie&raquo;</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/07/27/wps-kingsoft-office-review/">WPS Office от Kingsoft альтернатива MS Office</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section class="googleplus googleplus-hidden">
+  <h1>
+    <a href="https://plus.google.com/108092340290474381519?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  &copy; <a href="mailto:nihi1ist@nixway.org">nihi1ist</a>, 2016. 
+  <span class="credit">Создано на платформе <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'nixway';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://nixway.org/2016/08/23/ustanovka-i-nastroika-octopress-2.0-s-pomocshyu-rvm/';
+        var disqus_url = 'http://nixway.org/2016/08/23/ustanovka-i-nastroika-octopress-2.0-s-pomocshyu-rvm/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

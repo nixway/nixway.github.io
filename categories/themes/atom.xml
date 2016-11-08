@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Категория: Themes | Путь юниксоида]]></title>
+  <link href="http://nixway.org/categories/themes/atom.xml" rel="self"/>
+  <link href="http://nixway.org/"/>
+  <updated>2016-11-08T18:44:50+06:00</updated>
+  <id>http://nixway.org/</id>
+  <author>
+    <name><![CDATA[nihi1ist]]></name>
+    <email><![CDATA[nihi1ist@nixway.org]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Подборка тем Octopress]]></title>
+    <link href="http://nixway.org/2015/04/09/octopress-themes/"/>
+    <updated>2015-04-09T17:11:14+06:00</updated>
+    <id>http://nixway.org/2015/04/09/octopress-themes</id>
+    <content type="html"><![CDATA[<p><img src="/images/posts/2015-04-09/octopress-themes.png" alt="Octopress themes" /></p>
+
+<p>Решил сделать для себя поборку наиболее понравившихся тем Octopress. Надеюсь эта подборка понравится и вам. В комментариях можете делиться своим списком тем. Вполне возможно, я пропустил немало интересных тем.</p>
+
+<!--more-->
+
+
+<p>1. Приятная минималистичная тема <a href="https://github.com/tommy351/Octopress-Theme-Slash">Slash</a>, в серых тонах.<br/>
+<a href="/images/posts/2015-04-09/octopress-themes-slash.png"><img src="/images/posts/2015-04-09/octopress-themes-slash-preview.png" title="Превью темы Slash" alt="Тема Slash" /></a></p>
+
+<p>2. Строгая тема <a href="https://github.com/yang-wei/simplified">Simplified</a>, в оранжево-коричневых тонах. Яркая, но в то же время не режет глаза.<br/>
+<a href="/images/posts/2015-04-09/octopress-themes-simplified.png"><img src="/images/posts/2015-04-09/octopress-themes-simplified-preview.png" title="Превью темы Simplified" alt="Тема Slash" /></a></p>
+
+<p>3. Светлая тема <a href="https://github.com/lucaslew/whitespace">Whitespace</a>, в серых оттенках, не напрягает. Но в этой теме для меня есть существенный недостаток, а именно использование шрифтов не поддерживающих кириллицу.<br/>
+<a href="/images/posts/2015-04-09/octopress-themes-whitespace.png"><img src="/images/posts/2015-04-09/octopress-themes-whitespace-preview.png" title="Превью темы Whitespace" alt="Тема Slash" /></a></p>
+
+<p>4. Отличная серо-зеленая тема <a href="https://github.com/lijinma/jin">Jin</a>, автор lijinma.<br/>
+<a href="/images/posts/2015-04-09/octopress-themes-lijinma.png"><img src="/images/posts/2015-04-09/octopress-themes-lijinma-preview.png" title="Превью темы Jin" alt="Тема Slash" /></a></p>
+]]></content>
+  </entry>
+  
+</feed>

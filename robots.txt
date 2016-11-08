@@ -1,4 +1,4 @@
 User-agent: *
 Disallow: 
-
-Sitemap: http://nixway.org/sitemap.xml 
+Sitemap: http://nixway.org/sitemap.xml
+Host: nixway.org

@@ -1,0 +1,18 @@
+{% capture date_ru %}{{ page.date }}{{ post.date }}{% endcapture %}
+{% capture date_formatted %}{% if page.date %}{{ page.date | date_ru: site.date_format }}{% endif %}{% if post.date %}{{ post.date | date_ru: site.date_format }}{% endif %}{% endcapture %}
+{% capture has_date %}{{ date_ru | size }}{% endcapture %}
+
+
+{% capture updated %}{{ page.updated }}{{ post.updated }}{% endcapture %}
+{% capture updated_formatted %}{% if page.updated %}{{ page.updated | date_ru: site.date_format }}{% endif %}{% if post.updated %}{{ post.updated | date_ru: site.date_format }}{% endif %}{% endcapture %}
+{% capture was_updated %}{{ updated | size }}{% endcapture %}
+
+{% if has_date != '0' %}
+
+
+{% capture time %} {{ date_formatted }}{% endcapture %}
+{% endif %}
+
+{% if was_updated != '0' %}
+  {% capture updated %} Updated {{ updated_formatted }}{% endcapture %}
+{% else %}{% assign updated = false %}{% endif %}

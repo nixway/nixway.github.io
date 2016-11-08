@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Категория: Troubleshooting | Путь юниксоида]]></title>
+  <link href="http://nixway.org/categories/troubleshooting/atom.xml" rel="self"/>
+  <link href="http://nixway.org/"/>
+  <updated>2016-11-08T18:44:50+06:00</updated>
+  <id>http://nixway.org/</id>
+  <author>
+    <name><![CDATA[nihi1ist]]></name>
+    <email><![CDATA[nihi1ist@nixway.org]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Octopress – Troubleshooting]]></title>
+    <link href="http://nixway.org/2015/04/09/octopress-troubleshooting/"/>
+    <updated>2015-04-09T21:38:00+06:00</updated>
+    <id>http://nixway.org/2015/04/09/octopress-troubleshooting</id>
+    <content type="html"><![CDATA[<p><img src="/images/posts/2015-04-09/octopress-troubleshooting.png" alt="Troubleshooting" /></p>
+
+<p>В данный пост я буду собирать решения всех возможных проблем, которые я встречу знакомясь с Octopress.</p>
+
+<!--more-->
+
+
+<h2>Как исправить ошибку &ldquo;build warning Layout nil requested&rdquo;.</h2>
+
+<p>В случае если команда <code>rake generate</code> ошибку:
+<code>
+Build Warning: Layout 'nil' requested in blog/tags/git/atom.xml does not exist.
+</code></p>
+
+<p>Надо найти и исправить:
+<code>
+layout: nil
+</code></p>
+
+<p>На:
+<code>
+layout: null
+</code></p>
+
+<p>В следующих файлах:
+<code>
+source/atom.xml
+source/robots.txt
+source/_includes/custom/category_feed.xml
+</code></p>
+
+<p>Вышеуказанные файлы находятся в каталоге Octopress.</p>
+]]></content>
+  </entry>
+  
+</feed>

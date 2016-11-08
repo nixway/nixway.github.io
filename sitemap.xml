@@ -1,43 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>http://nixway.org/how-to/postgresql-backup-script/</loc>
+    <loc>http://nixway.org/2016/08/23/ustanovka-i-nastroika-octopress-2.0-s-pomocshyu-rvm/</loc>
+    <lastmod>2016-08-23T16:23:31+06:00</lastmod>
+  </url>
+  <url>
+    <loc>http://nixway.org/2015/12/06/postgresql-backup-script/</loc>
     <lastmod>2015-12-06T17:07:29+06:00</lastmod>
   </url>
   <url>
-    <loc>http://nixway.org/how-to/optimizacija-proizvoditelnosti-postgresql-dlja-servera-1c-predpriyatie/</loc>
+    <loc>http://nixway.org/2015/12/06/optimizacija-postgresql-pod-server-1c-predpriyatiya/</loc>
     <lastmod>2015-12-06T13:31:30+06:00</lastmod>
   </url>
   <url>
-    <loc>http://nixway.org/how-to/1c-predpriyatie-8-3+postgresql-na-baze-debian-8-jessie/</loc>
+    <loc>http://nixway.org/2015/11/10/1c-predpriyatie-8-3+postgresql-na-baze-debian-8-jessie/</loc>
     <lastmod>2015-11-10T16:33:46+06:00</lastmod>
   </url>
   <url>
-    <loc>http://nixway.org/review/wps-kingsoft-office-review/</loc>
+    <loc>http://nixway.org/2015/07/27/wps-kingsoft-office-review/</loc>
     <lastmod>2015-07-27T10:53:04+06:00</lastmod>
   </url>
   <url>
-    <loc>http://nixway.org/how-to/ustanovka-i-nastroika-bind9-na-debian-jessie/</loc>
+    <loc>http://nixway.org/2015/05/01/ustanovka-i-nastroika-bind9-na-debian-jessie/</loc>
     <lastmod>2015-05-01T09:29:13+06:00</lastmod>
   </url>
   <url>
-    <loc>http://nixway.org/multimedia/skype-i-pulseaudio-nastroika-mikrofona/</loc>
+    <loc>http://nixway.org/2015/04/11/skype-i-pulseaudio-nastroika-mikrofona/</loc>
     <lastmod>2015-04-11T16:36:28+06:00</lastmod>
   </url>
   <url>
-    <loc>http://nixway.org/how-to/octopress-troubleshooting/</loc>
+    <loc>http://nixway.org/2015/04/09/octopress-troubleshooting/</loc>
     <lastmod>2015-04-09T21:38:00+06:00</lastmod>
   </url>
   <url>
-    <loc>http://nixway.org/web/octopress-themes/</loc>
+    <loc>http://nixway.org/2015/04/09/octopress-themes/</loc>
     <lastmod>2015-04-09T17:11:14+06:00</lastmod>
   </url>
   <url>
-    <loc>http://nixway.org/how-to/ustanovka-i-nastroika-lnmp-na-centos-debian-gentoo/</loc>
+    <loc>http://nixway.org/2013/06/12/ustanovka-i-nastroika-lnmp-na-centos-debian-gentoo/</loc>
     <lastmod>2013-06-12T16:15:21+06:00</lastmod>
   </url>
   <url>
-    <loc>http://nixway.org/how-to/fastcgi_php_fpm_for_nginx/</loc>
+    <loc>http://nixway.org/2013/06/11/fastcgi_php_fpm_for_nginx/</loc>
     <lastmod>2013-06-11T18:54:03+06:00</lastmod>
   </url>
   <url>
@@ -50,15 +54,121 @@
     <loc>http://nixway.org/pureftpd-config-params/</loc>
   </url>
   <url>
-    <loc>http://nixway.org/categories/how-to/</loc>
+    <loc>http://nixway.org/categories/fastcgi/</loc>
+  </url>
+  <url>
+    <loc>http://nixway.org/categories/nginx/</loc>
+  </url>
+  <url>
+    <loc>http://nixway.org/categories/php-fpm/</loc>
+  </url>
+  <url>
+    <loc>http://nixway.org/categories/centos/</loc>
+  </url>
+  <url>
+    <loc>http://nixway.org/categories/debian/</loc>
+  </url>
+  <url>
+    <loc>http://nixway.org/categories/dns/</loc>
+  </url>
+  <url>
+    <loc>http://nixway.org/categories/gentoo/</loc>
+  </url>
+  <url>
+    <loc>http://nixway.org/categories/linux/</loc>
+  </url>
+  <url>
+    <loc>http://nixway.org/categories/lnmp/</loc>
+  </url>
+  <url>
+    <loc>http://nixway.org/categories/octopress/</loc>
+  </url>
+  <url>
+    <loc>http://nixway.org/categories/themes/</loc>
   </url>
   <url>
     <loc>http://nixway.org/categories/web/</loc>
   </url>
   <url>
+    <loc>http://nixway.org/categories/tiemy/</loc>
+  </url>
+  <url>
+    <loc>http://nixway.org/categories/troubleshooting/</loc>
+  </url>
+  <url>
+    <loc>http://nixway.org/categories/nix/</loc>
+  </url>
+  <url>
+    <loc>http://nixway.org/categories/microphone/</loc>
+  </url>
+  <url>
     <loc>http://nixway.org/categories/multimedia/</loc>
   </url>
   <url>
+    <loc>http://nixway.org/categories/pavucontrol/</loc>
+  </url>
+  <url>
+    <loc>http://nixway.org/categories/pulseaudio/</loc>
+  </url>
+  <url>
+    <loc>http://nixway.org/categories/mikrofon/</loc>
+  </url>
+  <url>
+    <loc>http://nixway.org/categories/bind9/</loc>
+  </url>
+  <url>
+    <loc>http://nixway.org/categories/kingsoft/</loc>
+  </url>
+  <url>
     <loc>http://nixway.org/categories/review/</loc>
+  </url>
+  <url>
+    <loc>http://nixway.org/categories/wps/</loc>
+  </url>
+  <url>
+    <loc>http://nixway.org/categories/office/</loc>
+  </url>
+  <url>
+    <loc>http://nixway.org/categories/obzor/</loc>
+  </url>
+  <url>
+    <loc>http://nixway.org/categories/1c/</loc>
+  </url>
+  <url>
+    <loc>http://nixway.org/categories/1c-enterprise/</loc>
+  </url>
+  <url>
+    <loc>http://nixway.org/categories/postgresql/</loc>
+  </url>
+  <url>
+    <loc>http://nixway.org/categories/1s-priedpriiatiie/</loc>
+  </url>
+  <url>
+    <loc>http://nixway.org/categories/tuning/</loc>
+  </url>
+  <url>
+    <loc>http://nixway.org/categories/optimizatsiia/</loc>
+  </url>
+  <url>
+    <loc>http://nixway.org/categories/backup/</loc>
+  </url>
+  <url>
+    <loc>http://nixway.org/categories/script/</loc>
+  </url>
+  <url>
+    <loc>http://nixway.org/categories/skript/</loc>
+  </url>
+  <url>
+    <loc>http://nixway.org/categories/stsienarii/</loc>
+  </url>
+  <url>
+    <loc>http://nixway.org/categories/rvm/</loc>
+  </url>
+  <url>
+    <loc>http://nixway.org/categories/ruby/</loc>
+  </url>
+  <url>
+    <loc>http://nixway.org/wmail_decc12870106f6ccce7b9e226f2b6c7b.html</loc>
+    <lastmod>2016-10-27T15:02:09+06:00</lastmod>
   </url>
 </urlset>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Категория: Микрофон | Путь юниксоида]]></title>
+  <link href="http://nixway.org/categories/mikrofon/atom.xml" rel="self"/>
+  <link href="http://nixway.org/"/>
+  <updated>2016-11-08T18:44:50+06:00</updated>
+  <id>http://nixway.org/</id>
+  <author>
+    <name><![CDATA[nihi1ist]]></name>
+    <email><![CDATA[nihi1ist@nixway.org]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Skype и PulseAudio. Настройка микрофона...]]></title>
+    <link href="http://nixway.org/2015/04/11/skype-i-pulseaudio-nastroika-mikrofona/"/>
+    <updated>2015-04-11T16:36:28+06:00</updated>
+    <id>http://nixway.org/2015/04/11/skype-i-pulseaudio-nastroika-mikrofona</id>
+    <content type="html"><![CDATA[<p><img src="/images/posts/2015-04-11/skype+pulseaudio+pavucontrol.png" alt="Skype &amp; PulseAudio" /></p>
+
+<p>После выпуска Skype версии 4.3 для Linux, многие поклонники Linux столкнулись с проблемой работы микрофона в вышеупомянутом Skype. Недавно нашел более-менее универсальное решение. Оно должно подойти всем, у кого микрофон в системе работает.</p>
+
+<!-- more -->
+
+
+<p>Нам понадобится Pavucontrol.</p>
+
+<blockquote><p>PulseAudio Volume Control (pavucontrol) - простая утилита управления звуком (микшер).
+В отличие от классического микшера, он позволяет управлять звуком для устройства и каждого потока воспроизведения раздельно.
+Также позволяет перенаправлять поток на другой выход не прерывая воспроизведение.</p></blockquote>
+
+<p>Не сомневаюсь, те у кого Pavucontrol не установлен, прекрасно справится с его установкой. :) Потому описывать процесс установку я не буду.</p>
+
+<ol>
+<li>Итак, открываем Pavucontrol, переходим на вкладку Запись (Recording):<br/>
+<a href="http://itmages.ru/image/view/2426287/8f1e27e9"><img src="http://storage3.static.itmages.ru/i/15/0404/s_1428122957_1207467_8f1e27e9ca.png" alt="Pavucontrol, recording tab" /></a><br/>
+Как мы видим, вкладка Запись (Recording) пуста.</li>
+<li>Запускаем тестовый звонок в Skype:<br/>
+<a href="http://itmages.ru/image/view/2426290/2200628e"><img src="http://storage3.static.itmages.ru/i/15/0404/s_1428122957_3453301_2200628eae.png" alt="Skype, Echo - Sound Test Service" /></a></li>
+<li>Переключаемся в окно Pavucontrol, там мы увидим ползунок настройки громкости для Skype:<br/>
+<a href="http://itmages.ru/image/view/2426288/2a1d02a6"><img src="http://storage3.static.itmages.ru/i/15/0404/s_1428122957_2227499_2a1d02a687.png" alt="Pavucontrol, recording tab, Skype stream" /></a></li>
+<li>А чуть выше ползунка настройки громкости, есть меню выбора устройства с которого Skype считывает звук. Именно в этом меню надо выбрать устройство, с которого Skype будет считывать звук:<br/>
+<a href="http://itmages.ru/image/view/2426291/8576133d"><img src="http://storage4.static.itmages.ru/i/15/0404/s_1428122958_9178295_8576133d07.png" alt="Pavucontrol, recording tab, Skype stream, recording device" /></a><br/>
+В моем случае это HP Webcam HD-4110. Его я и выбрал:<br/>
+<img src="http://storage4.static.itmages.ru/i/15/0404/h_1428122958_6709430_eaee045f1c.png" alt="Pavucontrol, recording tab, recording device selection menu" /><br/>
+После этой простенькой настройки, микрофон в Skype начал вполне сносно работать.</li>
+</ol>
+
+]]></content>
+  </entry>
+  
+</feed>

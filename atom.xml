@@ -4,7 +4,7 @@
   <title><![CDATA[Путь юниксоида]]></title>
   <link href="http://nixway.org/atom.xml" rel="self"/>
   <link href="http://nixway.org/"/>
-  <updated>2016-08-15T13:45:23+06:00</updated>
+  <updated>2016-11-08T18:44:50+06:00</updated>
   <id>http://nixway.org/</id>
   <author>
     <name><![CDATA[nihi1ist]]></name>
@@ -14,10 +14,545 @@
 
   
   <entry>
+    <title type="html"><![CDATA[Установка и настройка Octopress 2.0 с помощью RVM]]></title>
+    <link href="http://nixway.org/2016/08/23/ustanovka-i-nastroika-octopress-2.0-s-pomocshyu-rvm/"/>
+    <updated>2016-08-23T16:23:31+06:00</updated>
+    <id>http://nixway.org/2016/08/23/ustanovka-i-nastroika-octopress-2.0-s-pomocshyu-rvm</id>
+    <content type="html"><![CDATA[<p><img src="http://nixway.org/images/posts/2016-08-23/octopress-install-and-configuring.png" alt="Octopress Install" /></p>
+
+<p>По просьбе знакомого выкладываю инструкцию по установке и настройке <a href="http://octopress.org/">Octopress</a>. Octopress - это простой и удобный генератор статичных сайтов. Он поддерживает выгрузку на <a href="https://ru.wikipedia.org/wiki/GitHub">GitHub</a>, <a href="https://ru.wikipedia.org/wiki/Bitbucket">Bitbucket</a>, <a href="https://ru.wikipedia.org/wiki/Heroku">Heroku</a> или на ваш сервер с помощью <a href="https://ru.wikipedia.org/wiki/Rsync">Rsync</a>.</p>
+
+<!-- more -->
+
+
+<h3>Формирование рабочей среды для Octopress. <a name="ruby"></a></h3>
+
+<p>В документации на официальном сайте указано, что для корректной работы Octopress требуется Ruby версии 1.9.3. Но у абсолютного большинства, в репозиториях предлагается версия от 2.1 и выше. В той же документации для того, чтобы установить версию&nbsp;1.9.3 предлагается использовать <a href="http://octopress.org/docs/setup/rbenv/">rbenv</a> или <a href="http://octopress.org/docs/setup/rvm">RVM</a>. Для себя я выбрал RVM <em>(Ruby Version Manager)</em>. На его примере мы и рассмотрим установку Octopress.</p>
+
+<p>Для начала установим в систему необходимые пакеты:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># apt-get install nodejs git curl</span></code></pre></td></tr></table></div></figure>
+
+
+<p><span style="color:#cd0021;"><strong>ПРИМЕЧАНИЕ!</strong></span> Для наглядности, перед каждой командой будет указан определенный символ, если это <code>#</code> - значит команда выполняется от имени суперпользователя <strong>root</strong>, если символ <code>$</code> - то команда выполняется от имени текущего пользователя.</p>
+
+<p>После чего установим RVM:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ curl -L https://get.rvm.io | bash -s stable</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Подскажем системе, где искать RVM:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ source "$HOME/.rvm/scripts/rvm"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Чтобы в дальнейшем каждый раз не указывать путь до каталога с RVM, добавим путь до него в <em>.bashrc:</em></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ echo '[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"' &gt;&gt; ~/.bashrc</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Установим необходимую версию Ruby:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ rvm install 1.9.3</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Перезапускаем RVM, и выбираем версию 1.9.3. С помощью ключа <code>--default</code> мы указываем, что будем использовать эту версию по умолчанию:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ rvm reload
+</span><span class='line'>RVM reloaded!
+</span><span class='line'>$ rvm use --default 1.9.3
+</span><span class='line'>Using /home/nihi1ist/.rvm/gems/ruby-1.9.3-p551</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Смотрим какая версия Ruby используется в данный момент:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ ruby -v
+</span><span class='line'>Using /home/nihi1ist/.rvm/gems/ruby-1.9.3-p551</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Отлично! Нужная версия Ruby установна и готова к использованию. Можно приступить к установке Octopress. Скачиваем с GitHub необходимые файлы:</p>
+
+<p><span style="color:#cd0021;"><strong>ПРИМЕЧАНИЕ!</strong></span> Установщик может в процессе установки может затребовать пароль, для того чтобы установить в систему необходимые зависимости.</p>
+
+<h3>Установка Octopress.</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git clone git://github.com/imathis/octopress.git octopress
+</span><span class='line'>$ cd octopress</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Установим gem с названием <strong>bundler</strong>:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ gem install bundler</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Вышеупомянутый gem позволит нам установить другие gem'ы, указанные в файле <em>Gemfile</em>. Запустим команду установки:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ bundle install
+</span><span class='line'>Fetching gem metadata from https://rubygems.org/.........
+</span><span class='line'>Fetching version metadata from https://rubygems.org/..
+</span><span class='line'>Fetching dependency metadata from https://rubygems.org/.
+</span><span class='line'>Installing rake 10.4.2
+</span><span class='line'>Installing RedCloth 4.2.9 with native extensions
+</span><span class='line'>Installing blankslate 2.1.2.4
+</span><span class='line'>Installing chunky_png 1.3.5
+</span><span class='line'>...
+</span><span class='line'>Installing listen 3.0.5
+</span><span class='line'>Installing sinatra 1.4.6
+</span><span class='line'>Installing jekyll-watch 1.3.0
+</span><span class='line'>Installing jekyll 2.5.3
+</span><span class='line'>Installing octopress-hooks 2.6.1
+</span><span class='line'>Installing octopress-date-format 2.0.2
+</span><span class='line'>Bundle complete! 14 Gemfile dependencies, 48 gems now installed.
+</span><span class='line'>Use `bundle show [gemname]` to see where a bundled gem is installed.
+</span><span class='line'>Post-install message from compass:
+</span><span class='line'>    Compass is charityware. If you love it, please donate on our behalf at http://umdf.org/compass Thanks!
+</span><span class='line'>Post-install message from haml:
+</span><span class='line'>
+</span><span class='line'>HEADS UP! Haml 4.0 has many improvements, but also has changes that may break
+</span><span class='line'>your application:
+</span><span class='line'>
+</span><span class='line'>* Support for Ruby 1.8.6 dropped
+</span><span class='line'>* Support for Rails 2 dropped
+</span><span class='line'>* Sass filter now always outputs &lt;style&gt; tags
+</span><span class='line'>* Data attributes are now hyphenated, not underscored
+</span><span class='line'>* html2haml utility moved to the html2haml gem
+</span><span class='line'>* Textile and Maruku filters moved to the haml-contrib gem
+</span><span class='line'>
+</span><span class='line'>For more info see:
+</span><span class='line'>
+</span><span class='line'>http://rubydoc.info/github/haml/haml/file/CHANGELOG.md</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Выхлоп сокращен.</p>
+
+<p>Установим стандартную тему:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ rake install</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Если вас не устраивает стандартная тема, то вы можете выбрать тему по вкусу <a href="https://github.com/imathis/octopress/wiki/3rd-Party-Octopress-Themes">здесь</a>. Процесс установки альтернативной темы несложен. Переходим в каталог Octopress:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ cd octopress</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Скачиваем нужную тему:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git submodule add GIT_URL .themes/THEME_NAME</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Где <code>GIT_URL</code> - имя репозитория темы, а <code>THEME_NAME</code> - имя темы. Теперь тема доступна для установки:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ rake install['THEME_NAME']</span></code></pre></td></tr></table></div></figure>
+
+
+<p>После чего заново генерируем сайт:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ rake generate</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Подготовка к развертыванию сайта на базе GitHub.</h3>
+
+<p>В качестве платформы для сайта я решил выбрать GitHub, тому есть два аргумента, которые оказались лично для меня важными:<br/>
+- бесплатный,<br/>
+- поддерживает <code>CNAME</code>*</p>
+
+<p>* Поддежка <code>CNAME</code> позволяет прикреплять произвольный домен к репозиторию.</p>
+
+<p>Описывать <a href="https://github.com/join?source=header-home">регистрацию</a> на GitHub я не буду. Но опишу процесс создания репозитория. После того как вы зарегистрируетесь, создайте репозиторий (рис. 1):</p>
+
+<p><a name="img1"></a><img src="http://nixway.org/images/posts/2016-08-23/octopress-github-repository-create.png" alt="Create GitHub repository" />
+<strong><em><center>Рисунок 1.</center></em></strong></p>
+
+<p>Хочу обратить ваше внимание, что имя сайта должно быть идентично имени пользователя.</p>
+
+<p><a name="img2"></a><a href="http://nixway.org/images/posts/2016-08-23/octopress-github-repository-create-options.png"><img src="http://nixway.org/images/posts/2016-08-23/octopress-github-repository-create-options-preview.png" alt="GitHub repository options" /></a>
+<strong><em><center>Рисунок 2.</center></em></strong></p>
+
+<p>После того как вы создадите репозиторий, система перенаправит вас на страницу с репозиторием. Так как репозиторий пуст, система покажет небольшую инструкцию с вариантами заполнения репозитория. В случае с Octopress, процессом выгрузки управляет специальный скрипт. Потому мы можем переходить к следующему шагу.</p>
+
+<p><a name="img3"></a><a href="http://nixway.org/images/posts/2016-08-23/octopress-github-repository-create-finish.png"><img src="http://nixway.org/images/posts/2016-08-23/octopress-github-repository-create-finish-preview.png" alt="GitHub repository created" /></a>
+<strong><em><center>Рисунок 3.</center></em></strong></p>
+
+<p>Для выгрузки в репозиторий используется публичный SSH-ключ. Его можно добавить как в настройках репозитория (рис. 3, рис. 4), так и в настроках профиля. Если вы добавите ключ только для репозитория, он будет использоватся лишь для работы с указанным репозиторием.</p>
+
+<p><a name="img4"></a><a href="http://nixway.org/images/posts/2016-08-23/octopress-github-repository-ssh-key-add.png"><img src="http://nixway.org/images/posts/2016-08-23/octopress-github-repository-ssh-key-add-preview.png" alt="Add SSH-key to repository" /></a>
+<strong><em><center>Рисунок 4.</center></em></strong></p>
+
+<p>Если у вас ещё нет публичного SSH-ключа, самое время создать его. Как это сделать, вы можете посмотреть <a href="https://community.nixway.org/viewtopic.php?pid=694">здесь</a>.</p>
+
+<p>Теперь свяжем созданный выше репозиторий с каталогом Octopress. Для этого запустим команду <code>setup_github_pages</code>. В&nbsp;процессе команда запросит адрес репозитория, пример адреса показан на <a href="#img3">рис. 3</a>.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ rake setup_github_pages
+</span><span class='line'>Enter the read/write url for your repository
+</span><span class='line'>(For example, 'git@github.com:your_username/your_username.github.io.git)
+</span><span class='line'>           or 'https://github.com/your_username/your_username.github.io')
+</span><span class='line'>Repository url: git@github.com:nihi1ist/nihi1ist.github.io.git</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Если вы все сделали верно, значит у вас настроена выгрузка в ваш репозиторий на GitHub.</p>
+
+<h3>Настройка блога.</h3>
+
+<p>Основные настройки хранятся в файле <em>_config.yml</em>. Сам файл расположен в корневой папке Octopress. Ниже приведу содержимое этого файла с комментариями.</p>
+
+<div class="spoiler">
+<input id="spoilerid_1" type="checkbox"><label for="spoilerid_1">
+Пример файла конфигурации
+</label><div class="spoiler_body">
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># ----------------------- #
+</span><span class='line'>#      Main Configs       #
+</span><span class='line'># ----------------------- #
+</span><span class='line'>
+</span><span class='line'>url: http://yoursite.com
+</span><span class='line'>title: Название вашего блога
+</span><span class='line'>subtitle: Описание вашего блога
+</span><span class='line'>author: Ваш Ник/Имя
+</span><span class='line'>simple_search: https://www.google.com/search            # Поисковая система блога
+</span><span class='line'>description:
+</span><span class='line'>
+</span><span class='line'># Формат даты по умолчанию "ordinal" (Пример: "July 22nd 2007")
+</span><span class='line'># Как настроить формат даты показано на странице 
+</span><span class='line'># http://www.ruby-doc.org/core-1.9.2/Time.html#method-i-strftime
+</span><span class='line'># Кроме того, %o даст вам порядковый номер дня
+</span><span class='line'>date_format: "ordinal"
+</span><span class='line'>
+</span><span class='line'># RSS / Email (необязательно) ссылки для подписки
+</span><span class='line'># (изменится если использовать что нибудь вроде Feedburner)
+</span><span class='line'>subscribe_rss: /atom.xml
+</span><span class='line'>subscribe_email:
+</span><span class='line'># RSS feeds can list your email address if you like
+</span><span class='line'>email:
+</span><span class='line'>
+</span><span class='line'># ----------------------- #
+</span><span class='line'>#    Jekyll & Plugins     #
+</span><span class='line'># ----------------------- #
+</span><span class='line'>
+</span><span class='line'># Если вы хотите публиковать контент в подкаталог, например http://site.com/project
+</span><span class='line'># тогда установите параметре корня сайта - 'root: /project'
+</span><span class='line'>root: /
+</span><span class='line'># С помощью параметра ниже можно задать формат пути для статьи
+</span><span class='line'># можно так же использовать переменные :category 
+</span><span class='line'>permalink: /blog/:year/:month/:day/:title/
+</span><span class='line'>source: source
+</span><span class='line'>destination: public
+</span><span class='line'>plugins: plugins
+</span><span class='line'>code_dir: downloads/code
+</span><span class='line'>category_dir: blog/categories
+</span><span class='line'>markdown: rdiscount
+</span><span class='line'>rdiscount:
+</span><span class='line'>  extensions:
+</span><span class='line'>    - autolink
+</span><span class='line'>    - footnotes
+</span><span class='line'>    - smart
+</span><span class='line'>highlighter: pygments # default python pygments have been replaced by pygments.rb
+</span><span class='line'>
+</span><span class='line'>paginate: 10                    # Количество сообщений на главной странице
+</span><span class='line'>paginate_path: "posts/:num"     # Directory base for pagination URLs eg. /posts/2/
+</span><span class='line'>recent_posts: 5                 # Количество сообщений в разделе Recent Posts
+</span><span class='line'>excerpt_link: "Read on &rarr;"  # "Continue reading" Текст ссылки 
+</span><span class='line'>excerpt_separator: "&lt;!--more--&gt;"# Разделитель для статьи
+</span><span class='line'>
+</span><span class='line'>titlecase: true                 # Converts page and post titles to titlecase
+</span><span class='line'>
+</span><span class='line'># Перечислите модули которые вы хотите добавить на боковую панель, в том порядке который вам нужен
+</span><span class='line'># Для того чтобы добавить свой asides, создайте файл в директории /source/_includes/custom/asides/
+</span><span class='line'># И добавьте их к списку ниже как 'asides/custom_aside_name.html'
+</span><span class='line'>default_asides: [asides/recent_posts.html, asides/github.html, asides/delicious.html, asides/pinboard.html, asides/googleplus.html]
+</span><span class='line'>
+</span><span class='line'># Each layout uses the default asides, but they can have their own asides instead. Simply uncomment the lines below
+</span><span class='line'># and add an array with the asides you want to use.
+</span><span class='line'># blog_index_asides:
+</span><span class='line'># post_asides:
+</span><span class='line'># page_asides:</span></code></pre></td></tr></table></div></figure>
+
+</div></div>
+
+
+<p>Комментарии переведены не до конца. Пользуюсь машинным переводом, но он не всегда может помочь. Со временем перевод конечно же будет закончен. Но если найдутся желающие помочь с переводом, буду рад.</p>
+
+<h3>Создание страниц и сообщений.</h3>
+
+<p>Процедура создания новых сообщений/страниц, достаточна проста. Вы можете указывать имя на кириллице, скрипт автоматически переведет название в транслит и укажет полученное название в имени файла. Если в имени нового сообщения/статьи есть пробелы, необходимо использовать кавычки. Несмотря на то, что в справке это не упоминается.</p>
+
+<p>Новые сообщения создаются в каталоге <code>octopress/source/_posts</code> и имеют формат имени <code>YYYY-MM-DD-post-name.markdown</code>:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ rake new_post["Новое сообщение"]
+</span><span class='line'>mkdir -p source/_posts
+</span><span class='line'>Creating new post: source/_posts/2016-11-02-novoie-soobshchieniie.markdown</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Созданный файл имеет следующую структуру:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>---
+</span><span class='line'>layout: post
+</span><span class='line'>title: "Новое сообщение"
+</span><span class='line'>date: 2016-11-02 12:58:46 +0600
+</span><span class='line'>comments: true
+</span><span class='line'>categories:
+</span><span class='line'>---</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Это каркас сообщения. Настройки интуитивно понятны, можно разрешить/запретить комментарии, указать категорию (можно указать несколько категорий), функционал аналогичен функционалу тегов. Для разделения короткого и полного текста используется тег <code>&lt;!-- more --&gt;</code>.</p>
+
+<p>Для новых страниц создается новый каталог с именем создаваемой страницы. К примеру создаем новую страницу:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ rake new_page["Новая страниц"]
+</span><span class='line'>mkdir -p source/novaia-stranitsa
+</span><span class='line'>Creating new page: source/novaia-stranitsa/index.markdown</span></code></pre></td></tr></table></div></figure>
+
+
+<p>В результате будет создан каталог, а уже в этом каталоге будет создан файл <code>index.markdown</code> со следующим содержимым:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>---
+</span><span class='line'>layout: page
+</span><span class='line'>title: "Новая страница"
+</span><span class='line'>date: 2016-11-02 12:55
+</span><span class='line'>comments: true
+</span><span class='line'>sharing: true
+</span><span class='line'>footer: true
+</span><span class='line'>---</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Для создаваемых страниц я обычно отключаю комментарии, подвал и прочее. Для форматирования текста используется <a href="https://ru.wikipedia.org/wiki/Markdown">markdown</a>.</p>
+
+<h3>Справка по rake.</h3>
+
+<p>В документации Octopress на сайте разработчиков перечислены лишь несколько команд для rake: <code>generate</code>, <code>deploy</code>, <code>new_post</code>, <code>new_page</code> и др. На самом деле у <code>rake</code> для Octopress команд больше, посмотреть их список можно с помощью - <code>rake list</code>, а получить список с описанием команд можно вот так - <code>rake -T</code>:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ rake -T
+</span><span class='line'>rake clean                     # Очищает кэши: .pygments-cache, .gist-cache, .sass-cache
+</span><span class='line'>rake copydot[source,dest]      # Копирует dot-файлы для развертывания
+</span><span class='line'>rake deploy                    # Развертывает сгенерированный сайт на вашу платформу
+</span><span class='line'>rake gen_deploy                # Генерирует и развертывает сайт
+</span><span class='line'>rake generate                  # Генерирует сайт
+</span><span class='line'>rake install[theme_name]       # Устанавливает тему для сайта
+</span><span class='line'>rake integrate                 # Перемещает все посты, помещенные в stash командой isolate, обратно в
+</span><span class='line'>                               # posts-директорию, сайт при этом готов к генерации 
+</span><span class='line'>rake isolate[filename]         # Перемещает все посты, кроме того, над которым сейчас ведется работа,
+</span><span class='line'>                               # во временную директорию stash, что приводит к существенному ускорению
+</span><span class='line'>                               # генерации сайта
+</span><span class='line'>rake list                      # Показывает список доступных задач
+</span><span class='line'>rake new_page[filename]        # Создает новую страницу сайта в source/[filename]/index.markdown
+</span><span class='line'>rake new_post[title]           # Создает новый пост для сайта в source/_posts
+</span><span class='line'>rake preview                   # Предпросмотр сайта в браузере на локальной машине
+</span><span class='line'>rake push                      # Развертывает public-директорию через Git
+</span><span class='line'>rake rsync                     # Развертывает сайт через Rsync
+</span><span class='line'>rake set_root_dir[dir]         # Обновляет настройки для поддержки публикации в root или вложенную директорию
+</span><span class='line'>rake setup_github_pages[repo]  # Настраивает директорию _deploy и развертывает ветвь в Github Pages
+</span><span class='line'>rake update_source[theme]      # Перемещает source в source.old, устанавливает source theme updates,
+</span><span class='line'>                               # замещает source/_includes/navigation.html навигацией из source.old
+</span><span class='line'>rake update_style[theme]       # Перемещает sass в sass.old, устанавливает sass theme updates, заменяет
+</span><span class='line'>                               # sass/custom файлом sass.old/custom
+</span><span class='line'>rake watch                     # Предпросмотр сайта и автоматическая генерация при изменении файлов
+</span><span class='line'>                               # (не работает, хотя может я неправильно использую...)</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Перевел в меру своих сил, если встретите неточность, пишите в комментариях.</p>
+
+<h3>Локализация на русский язык</h3>
+
+<p>К сожалению, Octopress не имеет локализации на русском языке. Но этот недостаток легко можно исправить вручную. Я ищу текст который нужно перевести с помощью команды <code>grep</code>.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ grep -irl "comments" source</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Где <code>comments</code> - слово которое надо перевести, а <code>source</code> - каталог поиска.
+Поиск должен проводиться в каталоге с файлами Octopress. Вы так же можете
+переделать саму тему. И при последующей установке темы у вас уже будет сайт на
+русском языке.</p>
+
+<p>Для локализации дат, надо заменить содержимое файла:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>octopress/plugin/date.rb</span></code></pre></td></tr></table></div></figure>
+
+
+<p>на <a href="http://nixway.org/files/date.rb.txt">это</a>. А содержимое файла:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>octopress/source/_includes/post/date.html</span></code></pre></td></tr></table></div></figure>
+
+
+<p>на <a href="http://nixway.org/files/date.html.txt">это</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
     <title type="html"><![CDATA[Резервное копирование баз данных PostgreSQL]]></title>
-    <link href="http://nixway.org/how-to/postgresql-backup-script/"/>
+    <link href="http://nixway.org/2015/12/06/postgresql-backup-script/"/>
     <updated>2015-12-06T17:07:29+06:00</updated>
-    <id>http://nixway.org/how-to/postgresql-backup-script</id>
+    <id>http://nixway.org/2015/12/06/postgresql-backup-script</id>
     <content type="html"><![CDATA[<p><img src="http://nixway.org/images/posts/2015-12-06/postgresql-backup.png" alt="Резервное копирование баз данных PostgreSQL" /></p>
 
 <p>Перед всеми системными администраторами возникает задача резервного копирования баз данных (<em>БД</em>). Поэтому хочу поделится с вами скриптом для резервного копирования БД&nbsp;PostgreSQL. И его довольно просто переделать для любой другой СУБД. Данный скрипт неплохо подойдет новичкам. На нашем <a href="https://community.nixway.org/viewtopic.php?id=78">форуме</a> есть вариант скрипта для резерного копирования БД&nbsp;MySQL.</p>
@@ -129,63 +664,379 @@
 </span><span class='line'>30 23 1-7 * [ "$(date '+\%u')" -eq 6 ] && /path/psql_monthly-backup.sh postgres    # Ежемесячно, в первую сб.</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Где <code>postgres</code> - пользователь, от имени которого будет запускаться скрипт, <code>path</code> - путь до каталога со скриптами, а <code>psql_dayli-backup.sh</code> и <code>psql_monthly-backup.sh postgres</code> - имена файлов со скриптом.</p>
+<p>Где <code>postgres</code> - пользователь, от имени которого будет запускаться скрипт, <code>path</code> - путь до каталога со скриптами, а <code>psql_dayli-backup.sh</code> и <code>psql_monthly-backup.sh</code> - имена файлов со скриптом.</p>
 ]]></content>
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[Оптимизация производительности PostgreSQL для сервера 1С:Предприятие]]></title>
-    <link href="http://nixway.org/how-to/optimizacija-proizvoditelnosti-postgresql-dlja-servera-1c-predpriyatie/"/>
+    <title type="html"><![CDATA[Оптимизация PostgreSQL под сервер 1С:Предприятия]]></title>
+    <link href="http://nixway.org/2015/12/06/optimizacija-postgresql-pod-server-1c-predpriyatiya/"/>
     <updated>2015-12-06T13:31:30+06:00</updated>
-    <id>http://nixway.org/how-to/optimizacija-proizvoditelnosti-postgresql-dlja-servera-1c-predpriyatie</id>
-    <content type="html"><![CDATA[<p><img src="http://nixway.org/images/posts/2015-12-06/postgresql_for_1c.png" alt="Оптимизация производительности PostgreSQL" /></p>
+    <id>http://nixway.org/2015/12/06/optimizacija-postgresql-pod-server-1c-predpriyatiya</id>
+    <content type="html"><![CDATA[<p><img src="http://nixway.org/images/posts/2015-12-06/postgresql_for_1c.png" alt="Оптимизация PostgreSQL под сервер 1С:Предприятие" /></p>
 
-<p>На данный момент производительность PostgreSQL в связке с 1С:Предприятием в сравнении с тем же MS&nbsp;SQL оставляет желать лучшего. Эта статья продолжение моих попыток добиться таки достойной производительности на PostgreSQL. И хотя пока не добились производительности сопоставимой MS&nbsp;SQL, но думаю стоит продолжать попытки.</p>
+<p>На данный момент производительность PostgreSQL в связке с сервером 1С:Предприятия в сравнении с тем же MS&nbsp;SQL оставляет желать лучшего. Эта статья продолжение попыток добиться достойной производительности на PostgreSQL. Хотя на данный момент у меня не получилось добиться производительности сопоставимой MS&nbsp;SQL, но думаю в недалеком будущем эта проблема будет решена.</p>
 
-<p>Ниже (под катом) перечислены основные параметры, на  которые следует обратить внимание при оптимизации производительности PostgreSQL.</p>
+<p>Далее в статье перечислены основные параметы и особенности, на  которые следует обратить внимание при оптимизации PostgreSQL.</p>
 
 <!-- more -->
 
 
-<h4>shared_buffers</h4>
+<h2><span style="color:#cd0021;">Основные параметры PostgreSQL.</span></h2>
 
-<p>Объём совместно используемой памяти, выделяемой PostgreSQL для кэширования данных, определяется числом страниц <code>shared_buffers</code> по 8 килобайт каждая. Следует учитывать, что операционная система сама кеширует данные, поэтому нет необходимости отводить под кэш всю наличную оперативную память. Размер <code>shared_buffers</code> зависит от многих факторов, для начала можно принять следующие значения:</p>
+<h3>shared_buffers</h3>
 
-<p>-&nbsp;8–16&nbsp;Мб&nbsp;–&nbsp;Обычный настольный компьютер с 512&nbsp;Мб и небольшой базой данных<br/>
--&nbsp;80–160&nbsp;Мб&nbsp;–&nbsp;Небольшой сервер, предназначенный для обслуживания базы данных с объёмом оперативной памяти 1&nbsp;Гб и базой данных около 10&nbsp;Гб.<br/>
--&nbsp;400&nbsp;Мб&nbsp;–&nbsp;Сервер с несколькими процессорами, с объёмом памяти в 8&nbsp;Гб и базой данных занимающей свыше 100&nbsp;Гб обслуживающий несколько сотен активных соединений одновременно.</p>
+<p>Объём совместно используемой памяти, выделяемой PostgreSQL для кэширования данных, определяется числом страниц <code>shared_buffers</code> по 8 килобайт каждая. Следует учитывать, что операционная система сама кэширует данные, поэтому нет необходимости отводить под кэш всю наличную оперативную память. Размер <code>shared_buffers</code> зависит от многих факторов, для начала можно принять следующие значения:</p>
 
-<h4>work_mem</h4>
+<ul>
+<li><strong>8–16&nbsp;Мб</strong>&nbsp;–&nbsp;Обычный настольный компьютер с 512&nbsp;Мб и небольшой базой данных,</li>
+<li><strong>80–160&nbsp;Мб</strong>&nbsp;–&nbsp;Небольшой сервер, предназначенный для обслуживания базы данных с объёмом оперативной памяти 1&nbsp;Гб и базой данных около 10&nbsp;Гб,</li>
+<li><strong>400&nbsp;Мб</strong>&nbsp;–&nbsp;Сервер с несколькими процессорами, с объёмом памяти в 8&nbsp;Гб и базой данных занимающей свыше 100&nbsp;Гб обслуживающий несколько сотен активных соединений одновременно.</li>
+</ul>
 
-<p>Под каждый запрос выделяется ограниченный объём памяти для работы. Этот объём используется для сортировки, объединения и других подобных операций. При превышении этого объёма сервер начинает использовать временные файлы на диске, что может существенно снизить производительность. Оценить необходимое значение для work_mem можно разделив объём доступной памяти (физическая память минус объём занятый под другие программы и под совместно используемые страницы <code>shared_buffers</code>) на максимальное число одновременно используемых активных соединений.</p>
 
-<h4>maintenance_work_mem</h4>
+<h3>work_mem</h3>
 
-<p>Эта память используется для выполнения операций по сбору статистики <code>ANALYZE</code>, сборке мусора <code>VACUUM</code>, создания индексов <code>CREATE INDEX</code> и добавления внешних ключей. Размер выделяемой под эти операции памяти должен быть сравним с физическим размером самого большого индекса на диске.</p>
+<p>Под каждый запрос выделяется ограниченный объём памяти. Этот объём используется для сортировки, объединения и других подобных операций. При превышении этого объёма сервер начинает использовать временные файлы на диске, что может существенно снизить производительность. Оценить необходимое значение для <code>work_mem</code> можно разделив объём доступной памяти (физическая память минус объём занятый под другие программы и под совместно используемые страницы <code>shared_buffers</code>) на максимальное число одновременно используемых активных соединений.</p>
 
-<h4>effective_cache_size</h4>
+<h3>maintenance_work_mem</h3>
+
+<p>Эта память используется для выполнения операций по сбору статистики <code>ANALYZE</code>, сборке мусора <code>VACUUM</code>, создания индексов <code>CREATE INDEX</code> и добавления внешних ключей. Размер памяти выделяемой под эти операции должен быть сравним с физическим размером самого большого индекса на диске.</p>
+
+<h3>effective_cache_size</h3>
 
 <p>PostgreSQL в своих планах опирается на кэширование файлов, осуществляемое операционной системой. Этот параметр соответствует максимальному размеру объекта, который может поместиться в системный кэш. Это значение используется только для оценки. <code>effective_cache_size</code> можно установить в &frac12;&nbsp;- 2/3 от объёма имеющейся в наличии оперативной памяти, если вся она отдана в распоряжение PostgreSQL.</p>
 
-<p>Следующие параметры могут существенно увеличить производительность работы PostgreSQL. Однако их рекомендуется использовать только если имеются надежные ИБП и программное обеспечение, завершающее работу системы при низком заряде батарей.</p>
+<p><span style="color:#cd0021;"><strong>ВНИМАНИЕ!</strong></span> Следующие параметры могут существенно увеличить производительность работы PostgreSQL. Однако их рекомендуется использовать только если имеются надежные <a href="https://ru.wikipedia.org/wiki/%D0%98%D1%81%D1%82%D0%BE%D1%87%D0%BD%D0%B8%D0%BA_%D0%B1%D0%B5%D1%81%D0%BF%D0%B5%D1%80%D0%B5%D0%B1%D0%BE%D0%B9%D0%BD%D0%BE%D0%B3%D0%BE_%D0%BF%D0%B8%D1%82%D0%B0%D0%BD%D0%B8%D1%8F">ИБП</a> и программное обеспечение, завершающее работу системы при низком заряде батарей.</p>
 
-<h4>fsync</h4>
+<h3>fsync</h3>
 
-<p>Данный параметр отвечает за сброс данных из кэша на диск при завершении транзакций. Если установить его значение <code>off</code> то данные не будут записываться на дисковые накопители сразу после завершения операций. Это может существенно повысить скорость операций <code>insert</code> и <code>update</code>, но есть риск повредить базу, если произойдет сбой (неожиданное отключение питания, сбой ОС, сбой дисковой подсистемы).</p>
+<p>Данный параметр отвечает за сброс данных из кэша на диск при завершении транзакций. Если установить в этом параметре значение <code>off</code>, то данные не будут записываться на дисковые накопители сразу после завершения операций. Это может существенно повысить скорость операций <code>insert</code> и <code>update</code>, но есть риск повредить базу, если произойдет сбой (неожиданное отключение питания, сбой ОС, сбой дисковой подсистемы).</p>
 
-<h4>synchronous_commit</h4>
+<p>Отрицательное влияние включенного <code>fsync</code> можно уменьшить, отключив его, положившись на надежность вашего оборудования, или правильно подобрав параметр <code>wal_sync_method</code> - метод, который используется для принудительной записи данных на диск.</p>
 
-<p>Включает/выключает синхронную запись в лог файлы после каждой транзакции. Это защищает от возможной потери данных. Но это накладывает ограничение на пропускную способность сервера.</p>
+<p><strong>Возможные значения:</strong></p>
 
-<p>Если вашей системе не критична потенциально низкая возможность потери небольшого количества изменений при крахе системы, но необходимо обеспечить в несколько раз большую производительность по количеству транзакций в секунду. В этом случае можно установить этот параметр в <code>off</code> (отключение синхронной записи).</p>
+<ul>
+<li><strong>open_datasync</strong>&nbsp;–&nbsp;запись данных методом <code>open()</code> с параметром <code>O_DSYNC</code>,</li>
+<li><strong>fdatasync</strong>&nbsp;–&nbsp;вызов метода <code>fdatasync()</code> после каждого <code>commit</code>,</li>
+<li><strong>fsync_writethrough</strong>&nbsp;–&nbsp;вызывать <code>fsync()</code> после каждого <code>commit</code> игнорирую параллельные процессы,</li>
+<li><strong>fsync</strong>&nbsp;–&nbsp;вызов <code>fsync()</code> после каждого <code>commit</code>,</li>
+<li><strong>open_sync</strong>&nbsp;–&nbsp;запись данных методом <code>open()</code> с параметром <code>O_SYNC</code>.</li>
+</ul>
+
+
+<p><span style="color:#cd0021;"><strong>ПРИМЕЧАНИЕ!</strong></span> Не все методы доступны на определенных платформах. Выбор метода зависит от операционной системы под управлением, которой работает PostgreSQL.</p>
+
+<p>В состав PostgreSQL входит утилита <strong>pg_test_fsync</strong>, с помощью которой можно определить оптимальное значение параметра <code>wal_sync_method</code>.</p>
+
+<p>Она выполняет серию дисковых тестов с использованием различных методов синхронизации. В результате этого теста получаются оценки производительности дисковой системы, по которым можно определить оптимальный метод синхронизации для данной операционной системы.</p>
+
+<p>Я решил провести вышеуказанный тест на своем рабочем имеющем следующие характеристики:</p>
+
+<ul>
+<li><strong>CPU:</strong> Intel Core i3-3220 @ 3.30GHz x 2</li>
+<li><strong>RAM:</strong> 4GB</li>
+<li><strong>HDD:</strong> Seagate ST3320418AS 320GB</li>
+</ul>
+
+
+<p><strong>Тест на Windows:</strong></p>
+
+<ul>
+<li><strong>ОС:</strong> Windows 7 Максимальная x64</li>
+<li><strong>ФС:</strong> NTFS</li>
+<li><strong>СУБД:</strong> PostgreSQL 9.4.2-1.1C x64</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>C:\PROGRA~1\POSTGR~1\9.4.2-1.1C\bin&gt;pg_test_fsync
+</span><span class='line'>5 seconds per test
+</span><span class='line'>O_DIRECT supported on this platform for open_datasync and open_sync.
+</span><span class='line'>
+</span><span class='line'>Compare file sync methods using one 8kB write:
+</span><span class='line'>(in wal_sync_method preference order, except fdatasync
+</span><span class='line'>is Linux's default)
+</span><span class='line'>        open_datasync                     48817.440 ops/sec      20 usecs/op
+</span><span class='line'>        fdatasync                                       n/a
+</span><span class='line'>        fsync                                79.688 ops/sec   12549 usecs/op
+</span><span class='line'>        fsync_writethrough                   80.072 ops/sec   12489 usecs/op
+</span><span class='line'>        open_sync                                       n/a
+</span><span class='line'>
+</span><span class='line'>Compare file sync methods using two 8kB writes:
+</span><span class='line'>(in wal_sync_method preference order, except fdatasync
+</span><span class='line'>is Linux's default)
+</span><span class='line'>        open_datasync                     24713.634 ops/sec      40 usecs/op
+</span><span class='line'>        fdatasync                                       n/a
+</span><span class='line'>        fsync                                78.690 ops/sec   12708 usecs/op
+</span><span class='line'>        fsync_writethrough                   79.073 ops/sec   12646 usecs/op
+</span><span class='line'>        open_sync                                       n/a
+</span><span class='line'>
+</span><span class='line'>Compare open_sync with different write sizes:
+</span><span class='line'>(This is designed to compare the cost of writing 16kB
+</span><span class='line'>in different write open_sync sizes.)
+</span><span class='line'>         1 * 16kB open_sync write                       n/a
+</span><span class='line'>         2 *  8kB open_sync writes                      n/a
+</span><span class='line'>         4 *  4kB open_sync writes                      n/a
+</span><span class='line'>         8 *  2kB open_sync writes                      n/a
+</span><span class='line'>        16 *  1kB open_sync writes                      n/a
+</span><span class='line'>
+</span><span class='line'>Test if fsync on non-write file descriptor is honored:
+</span><span class='line'>(If the times are similar, fsync() can sync data written
+</span><span class='line'>on a different descriptor.)
+</span><span class='line'>        write, fsync, close                  76.493 ops/sec   13073 usecs/op
+</span><span class='line'>        write, close, fsync                  77.676 ops/sec   12874 usecs/op
+</span><span class='line'>
+</span><span class='line'>Non-Sync'ed 8kB writes:
+</span><span class='line'>        write                              1800.319 ops/sec     555 usecs/op</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Из результатов теста можно определить, что для Windows оптимальным решением будет использование <code>open_datasync</code>.</p>
+
+<p><strong>Тест на Linux:</strong></p>
+
+<ul>
+<li><strong>ОС:</strong> Debian 8.6 Jessie</li>
+<li><strong>Ядро:</strong> x86_64 Linux 3.16.0-4-amd64</li>
+<li><strong>ФС:</strong> ext4</li>
+<li><strong>СУБД:</strong> PostgreSQL 9.4.2-1.1C amd64</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>/usr/lib/postgresql/9.4/bin# ./pg_test_fsync
+</span><span class='line'>5 seconds per test
+</span><span class='line'>O_DIRECT supported on this platform for open_datasync and open_sync.
+</span><span class='line'>
+</span><span class='line'>Compare file sync methods using one 8kB write:
+</span><span class='line'>(in wal_sync_method preference order, except fdatasync
+</span><span class='line'>is Linux's default)
+</span><span class='line'>        open_datasync                        80.215 ops/sec   12467 usecs/op
+</span><span class='line'>        fdatasync                            80.349 ops/sec   12446 usecs/op
+</span><span class='line'>        fsync                                39.384 ops/sec   25391 usecs/op
+</span><span class='line'>        fsync_writethrough                              n/a
+</span><span class='line'>        open_sync                            40.013 ops/sec   24992 usecs/op
+</span><span class='line'>
+</span><span class='line'>Compare file sync methods using two 8kB writes:
+</span><span class='line'>(in wal_sync_method preference order, except fdatasync
+</span><span class='line'>is Linux's default)
+</span><span class='line'>        open_datasync                        40.033 ops/sec   24980 usecs/op
+</span><span class='line'>        fdatasync                            77.264 ops/sec   12943 usecs/op
+</span><span class='line'>        fsync                                36.325 ops/sec   27529 usecs/op
+</span><span class='line'>        fsync_writethrough                              n/a
+</span><span class='line'>        open_sync                            19.659 ops/sec   50866 usecs/op
+</span><span class='line'>
+</span><span class='line'>Compare open_sync with different write sizes:
+</span><span class='line'>(This is designed to compare the cost of writing 16kB
+</span><span class='line'>in different write open_sync sizes.)
+</span><span class='line'>         1 * 16kB open_sync write            38.697 ops/sec   25842 usecs/op
+</span><span class='line'>         2 *  8kB open_sync writes           17.356 ops/sec   57616 usecs/op
+</span><span class='line'>         4 *  4kB open_sync writes            8.996 ops/sec  111156 usecs/op
+</span><span class='line'>         8 *  2kB open_sync writes            4.552 ops/sec  219686 usecs/op
+</span><span class='line'>        16 *  1kB open_sync writes            2.218 ops/sec  450930 usecs/op
+</span><span class='line'>
+</span><span class='line'>Test if fsync on non-write file descriptor is honored:
+</span><span class='line'>(If the times are similar, fsync() can sync data written
+</span><span class='line'>on a different descriptor.)
+</span><span class='line'>        write, fsync, close                  34.341 ops/sec   29120 usecs/op
+</span><span class='line'>        write, close, fsync                  35.753 ops/sec   27970 usecs/op
+</span><span class='line'>
+</span><span class='line'>Non-Sync'ed 8kB writes:
+</span><span class='line'>        write                            484193.516 ops/sec       2 usecs/op</span></code></pre></td></tr></table></div></figure>
+
+
+<p>По результатам теста мы видим, что результаты тестирования на Linux лучше результатов того же тестирования на Windows. При этом результаты <code>open_datasync</code> и <code>fdatasync</code> сопоставимы.</p>
+
+<p>Следует учитывать, что в данных тестах использовалась дисковая система, состоящая из одного диска. При использовании RAID массива с большим количеством дисков картина может быть другой.</p>
+
+<h3>wal_buffers</h3>
+
+<p>Количество памяти используемое в <code>SHARED MEMORY</code> для ведения транзакционных логов. При доступной памяти 1-4&nbsp;Гб рекомендуется устанавливать 256-1024&nbsp;Кб. Этот параметр стоит увеличивать в системах с большим количеством модификаций таблиц базы данных.</p>
+
+<h3>checkpoint_segments</h3>
+
+<p>Oпределяет количество сегментов (каждый по 16&nbsp;МБ) лога транзакций между контрольными точками.  Для баз данных с множеством модифицирующих данные транзакций рекомендуется увеличение этого параметра. Критерием достаточности количества сегментов является отсутствие в логе  предупреждений (warning) о том, что контрольные точки происходят слишком часто.</p>
+
+<h3>full_page_writes</h3>
+
+<p>Включение этого параметра гарантирует корректное восстановление, ценой увеличения записываемых данных в журнал транзакций. Отключение этого параметра ускоряет работу, но может привести  к повреждению базы данных в случае системного сбоя или отключения питания.</p>
+
+<h3>synchronous_commit</h3>
+
+<p>Включает/выключает синхронную запись в лог-файлы после каждой транзакции. Включение синхронной записи защищает от возможной потери данных. Но, накладывает ограничение на пропускную способность сервера. Вы можете отключить синхронную запись, если вам необходимо обеспечить более высокую производительность по количеству транзакций. А&nbsp;потенциально низкая возможность потери небольшого количества изменений при крахе системы не критична. Для отключения синхронной записи установите значение <code>off</code> в этом параметре.</p>
+
+<p>Еще одним способом увеличения производительности работы PostgreSQL является перенос журнала транзакций (pg_xlog) на другой диск. Выделение для журнала транзакций  отдельного дискового ресурса позволяет получить получить при этом существенный выигрыш в производительности  10%-12% для нагруженных <a href="https://ru.wikipedia.org/wiki/OLTP">OLTP</a> систем.</p>
+
+<p>В Linux это делается с помощью создания символьной ссылки на новое положение каталога с журналом транзакций.</p>
+
+<p>В Windows можно использовать для этих целей утилиту <strong><a href="https://technet.microsoft.com/en-us/bb896768">Junction</a></strong>. Для этого надо:</p>
+
+<ol>
+<li>Остановить PostgreSQL.</li>
+<li>Сделать бэкап <code>C:\Program Files\PostgreSQL\X.X.X\data\pg_xlog</code>.</li>
+<li>Скопировать <code>C:\Program Files\PostgreSQL\X.X.X\data\pg_xlog</code> в <code>D:\pg_xlog</code> и удалить <code>C:\Program Files\PostgreSQL\X.X.X\data\pg_xlog</code>.</li>
+<li>Распаковать программу <strong>Junction</strong> в <code>C:\Program Files\PostgreSQL\X.X.X\data</code>.</li>
+<li>Открыть окно <strong>CMD</strong>, перейти в <code>C:\Program Files\PostgreSQL\X.X.X\data</code> и выполнить <code>junction -s pg_xlog D:\pg_xlog</code>.</li>
+<li>Установить права на папку <code>D:\pg_xlog</code> пользователю postgres.</li>
+<li>Запустить PostgreSQL.</li>
+</ol>
+
+
+<h2><span style="color:#cd0021;"> Особенности и ограничения в 1С:Предприятие при работе с PostgreSQL.</span></h2>
+
+<h3>Использование конструкции ПОЛНОЕ ВНЕШНЕЕ СОЕДИНЕНИЕ.</h3>
+
+<p>В СУБД PostgreSQL реализована только частичная поддержка  <code>FULL OUTER JOIN</code> (ERROR: &ldquo;FULL JOIN is only supported with mergejoinable join conditions&rdquo;). Для реализации полной поддержки <code>FULL OUTER JOIN</code> при работе 1С:Предприятия 8 с PostgreSQL подобный запрос трансформируется в другую форму с эквивалентным результатом, однако эффективность использования конструкции <code>ПОЛНОЕ ВНЕШНЕЕ СОЕДИНЕНИЕ</code> снижается.</p>
+
+<p>В связи с этим не рекомендуется использовать <code>ПОЛНОЕ ВНЕШНЕЕ СОЕДИНЕНИЕ</code> при работе с PostgreSQL. В большинстве случаев без использования этой конструкции можно обойтись, переписав исходный запрос.</p>
+
+<h3>Оптимизация использования виртуальной таблицы СрезПоследних при работе с PostgreSQL.</h3>
+
+<p><strong>Проблема:</strong> При работе с PostgreSQL использование соединения с виртуальной таблицей <code>СрезПоследних</code> может приводить к существенному снижению производительности. Из-за ошибки оптимизатора может быть выбран неоптимальный план выполнения запроса.</p>
+
+<p><strong>Решение:</strong> Если в запросе используется соединение с виртуальной таблицей языка запросов 1С:Предприятия <code>СрезПоследних</code> и запрос работает с неудовлетворительной производительностью, то рекомендуется вынести обращение к виртуальной таблице в отдельный запрос с сохранением результатов во временной таблице.</p>
+
+<h3>Решение проблемы с зависанием PostgreSQL.</h3>
+
+<p>При выполнения некоторых регламентных операций (Закрытие месяца, Расчет себестоимости и т.п.), где используются сложные запросы с большим количеством соединений больших таблиц, возможно существенное увеличение времени выполнения операции. В основном, эти проблемы связаны с работой оптимизатора PostgreSQL и отсутствием актуальной статистики по таблицам, участвующим в запросе.</p>
+
+<p><strong>Варианты решения проблемы:</strong></p>
+
+<ul>
+<li>Увеличить количество записей, просматриваемых при сборе статистики по таблицам. Большие значения могут повысить время выполнения команды <code>ANALYZE</code>, но улучшат построение плана запроса:
+
+<ul>
+<li>Файл <em>postgresql.conf</em> - <code>default_statistics_target = 1000 -10000</code>.</li>
+</ul>
+</li>
+<li>Отключение оптимизатору возможности использования <code>NESTED LOOP</code> при выборе плана выполнения запроса в конфигурации PostgreSQL:
+
+<ul>
+<li>Файл <em>postgresql.conf</em> - <code>enable_nestloop = off</code>.</li>
+<li>Отрицательным эффектом этого способа является возможное замедление некоторых запросов, поскольку при их выполении будут использоваться другие, более затратные, методы соединения (<code>HASH JOIN</code>).</li>
+</ul>
+</li>
+<li>Отключение оптимизатору возможности изменения порядка соединений таблиц в запросе:
+
+<ul>
+<li>Файл <em>postgresql.conf</em> - <code>join_collapse_limit=1</code>.</li>
+<li>Следует использовать этот метод, если вы уверены в правильности порядка соединений таблиц в проблемном запросе.</li>
+</ul>
+</li>
+<li>Изменение параметров настройки оптимизатора:
+
+<ul>
+<li>Файл <em>postgresql.conf:</em>
+
+<ul>
+<li><code>seq_page_cost = 0.1</code></li>
+<li><code>random_page_cost = 0.4</code></li>
+<li><code>cpu_operator_cost = 0.00025</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Использование версии PostgreSQL 9.1.2-1.1.C и выше, в которой реализован независимый от <code>AUTOVACUUM</code> сбор статистики, на основе информации об изменении данных в таблице. По умолчанию включен сбор статистики только для временных таблиц и во многих ситуациях этого достаточно. При возникновении проблем с производительностью выполнения регламентных операций, можно включить сбор статистики для всех  или отдельных проблемных таблиц изменив значение параметра конфигурации PostgreSQL (файл <em>postgresql.conf</em>) <code>online_analyze.table_type = "temporary"</code>  на <code>online_analyze.table_type = "all"</code>.</li>
+</ul>
+
+
+<p>После изменения этих параметров, следует оценить возможное влияние этих изменений на работу системы и выбрать наиболее приемлимый вариант для ваших задач.</p>
+
+<h2><span style="color:#cd0021;">Послесловие.</span></h2>
+
+<p>Ко всему вышеперечисленному можно так же добавить:</p>
+
+<ul>
+<li>Необходимость использования <a href="http://v8.1c.ru/overview/Term_000000642.htm">управляемых блокировок</a> при разработке прикладного решения. Если же у вас типовая конфигурация, то по возможности ее так же необходимо переводить на управляемые блокировки.</li>
+<li>Рекомендацию реализовать для PostgreSQL кэширование на <a href="https://ru.wikipedia.org/wiki/SSD">SSD-накопитель</a>. Сделать это можно с помощью <a href="https://ru.wikipedia.org/wiki/Flashcache">Flashcache</a> или <a href="https://en.wikipedia.org/wiki/Bcache">Bcache</a>. Подробнее вопрос организации системы кэширования я рассмотрю в другой статье.</li>
+<li>Довольно удобный <a href="http://pgtune.leopard.in.ua/">веб-сервис</a> для начальной настройки PostgreSQL его <a href="http://nixway.org/how-to/1c-predpriyatie-8-3+postgresql-na-baze-debian-8-jessie/#comment-2612892713">порекомендовал</a> мне товарищ Vasiliy P. Melnik. Несмотря на то, что интерфейс на английском, он простой и интуитивно понятный. Думаю каждый желающий сможет с ним разобраться.</li>
+</ul>
+
 ]]></content>
   </entry>
   
   <entry>
     <title type="html"><![CDATA[1С:Предприятие 8.3 + PostgreSQL 9.4 на базе Debian&nbsp;8&nbsp;&laquo;Jessie&raquo;]]></title>
-    <link href="http://nixway.org/how-to/1c-predpriyatie-8-3+postgresql-na-baze-debian-8-jessie/"/>
+    <link href="http://nixway.org/2015/11/10/1c-predpriyatie-8-3+postgresql-na-baze-debian-8-jessie/"/>
     <updated>2015-11-10T16:33:46+06:00</updated>
-    <id>http://nixway.org/how-to/1c-predpriyatie-8-3+postgresql-na-baze-debian-8-jessie</id>
+    <id>http://nixway.org/2015/11/10/1c-predpriyatie-8-3+postgresql-na-baze-debian-8-jessie</id>
     <content type="html"><![CDATA[<p><img src="http://nixway.org/images/posts/2015-11-10/debian+1c+postgresql.png" alt="Debian + 1C + PostgreSQL" /></p>
 
 <p>В конце мая 2013 года компания 1С представила первый стабильный релиз платформы 1С:Предприятие версии&nbsp;8.3. Главная особенность ветки&nbsp;8.3 - это выпуск нативного клиента под *nix-подобные операционные системы. И вот спустя два года я решил написать новую статью посвященную этой теме. Я помню, что большая часть тех, кому была интересна моя <a href="http://linuxforum.ru/topic/11116">прошлая статья</a> просили и дальше брать в основу Ubuntu. Тем не менее, я решил взять за основу Debian&nbsp;8&nbsp;&laquo;Jessie&raquo;. Основная причина в том, что производительность серверов 1С:Предприятие на Ubuntu оставляет желать лучшего. В то время как Debian и CentOS показывают более высокую производительность <span style="color:gray;font-style:italic">(CentOS даже опережает Debian, но я постараюсь исправить это положение)</span>. Сравнительные таблицы производительности серверов 1С:Предприятие вы можете поискать в интернете. Сам я пока ничего толкового не нашел.</p>
@@ -210,7 +1061,7 @@
 
 <h2>Подготовка сервера.<a name="lead-up"></a> <a href="#content" title="К содержанию">↑</a></h2>
 
-<p>Основное отличие Debian от Ubuntu с которым очень часто сталкиваются пользователи Ubuntu, это отсутствие в стандартной конфигурации команды повышения привилегий <code>sudo</code>. Операции требующие прав <strong>root</strong>, выполняются от суперпользователя <strong>root</strong>. Тем же кто не хочет изменять своей привычке работать с <code>sudo</code>, достаточно при установке не задавать пароль суперпользователю <strong>root</strong> и пакет <strong><em>sudo</em></strong> будет установлен и настроен. Для наглядности, перед каждой командой будет указан определенный знак, если это <code>#</code> - значит команда выполняется от имени суперпользователя <strong>root</strong>, если знак <code>$</code> - то команда выполняется от имени простого пользователя.</p>
+<p>Основное отличие Debian от Ubuntu с которым очень часто сталкиваются пользователи Ubuntu, это отсутствие в стандартной конфигурации команды повышения привилегий <code>sudo</code>. Операции требующие прав <strong>root</strong>, выполняются от суперпользователя <strong>root</strong>. Тем же кто не хочет изменять своей привычке работать с <code>sudo</code>, достаточно при установке ОС не задавать пароль суперпользователю <strong>root</strong> и пакет <strong><em>sudo</em></strong> будет установлен и настроен. Для наглядности, перед каждой командой будет указан определенный символ, если это <code>#</code> - значит команда выполняется от имени суперпользователя <strong>root</strong>, если символ <code>$</code> - то команда выполняется от имени текущего пользователя.</p>
 
 <p>1. Итак у вас имеется установленный Debian 8. Если установка только предстоит, рекомендую выбрать пункты:<br/>
 -&nbsp;Сервер SSH<br/>
@@ -300,10 +1151,7 @@
 </span><span class='line'>hasp</span></code></pre></td></tr></table></div></figure>
 
 
-
-
-<div class="infoDiv"><img src="http://nixway.org/images/info.png" alt="Примечание" width="48" height="48" class="infoImg">Если вы ставите 1С:Предприятие на удаленную машину, то для передачи файлов можете воспользоваться утилитой <a href="http://ru.wikipedia.org/wiki/SCP">scp</a>, которая входит в состав пакета <span style="font-weight:bold">openssh-client</span>.</div>
-
+<p><span style="color:#cd0021;"><strong>ПРИМЕЧАНИЕ!</strong></span> Если вы ставите 1С:Предприятие на удаленную машину, то для передачи файлов можете воспользоваться утилитой <a href="http://ru.wikipedia.org/wiki/SCP">SCP</a>, которая входит в состав пакета <strong>openssh-client</strong>.</p>
 
 <h2>Установка PostgreSQL 9.4<a name="postgre"></a> <a href="#content" title="К содержанию">↑</a></h2>
 
@@ -839,15 +1687,9 @@
 </span><span class='line'>дек 03 19:37:12 hst1 aksusbd[3848]: Starting HASPLM daemon: .</span></code></pre></td></tr></table></div></figure>
 
 
+<p>  <span style="color:#cd0021;"><strong>ПРЕДУПРЕЖДЕНИЕ!</strong></span> Для 64-битного сервера 1С:Предприятие, нужен 64-битный серверный HASP-ключ. 32-битный серверный HASP-ключ с 64-битным сервером 1С:Предприятие работать не будет!</p>
 
-
-<div class="warnDiv"><img src="http://nixway.org/images/warn.png" alt="Предупреждение" width="48" height="48" class="warnImg">Для 64-битного сервера 1С:Предприятие, нужен 64-битный серверный HASP-ключ. 32-битный серверный HASP-ключ с 64-битным сервером 1С:Предприятие работать не будет!</div>
-
-
-
-
-<div class="infoDiv"><img src="http://nixway.org/images/info.png" alt="Примечание" width="48" height="48" class="infoImg">Сервер 1С:Предприятие под *nix-подобные операционные системы не требует наличия серверного ключа, если число пользользователей не превышает 12. В этом случае требуется наличие только клиентских лицензий. Однако, согласно правилам лицензирования, организация должна приобрести серверный ключ.</div>
-
+<p>  <span style="color:#cd0021;"><strong>ПРИМЕЧАНИЕ!</strong></span> Сервер 1С:Предприятие под *nix-подобные операционные системы не требует наличия серверного ключа, если число пользользователей не превышает 12. В этом случае требуется наличие только клиентских лицензий. Однако, согласно правилам лицензирования, организация должна приобрести серверный ключ.</p>
 
 <p>На этом установка драйвера закончена.</p>
 
@@ -1087,9 +1929,9 @@
   
   <entry>
     <title type="html"><![CDATA[WPS Office от Kingsoft альтернатива MS Office]]></title>
-    <link href="http://nixway.org/review/wps-kingsoft-office-review/"/>
+    <link href="http://nixway.org/2015/07/27/wps-kingsoft-office-review/"/>
     <updated>2015-07-27T10:53:04+06:00</updated>
-    <id>http://nixway.org/review/wps-kingsoft-office-review</id>
+    <id>http://nixway.org/2015/07/27/wps-kingsoft-office-review</id>
     <content type="html"><![CDATA[<p><img src="http://nixway.org/images/posts/2015-07-27/wps-office.png" alt="Debian + 1C + PostgreSQL" /><br/>
 Наконец дошли руки до тестирования <a href="https://www.wps.com/?lang=ru">WPS Office</a>. Это - пакет офисных программ, созданный китайским разработчиком программного обеспечения <a href="https://www.wps.com/about-us">Kingsoft</a>, как бесплатная альтернатива <a href="https://ru.wikipedia.org/wiki/Microsoft_Office">Microsoft Office</a>. Пакет состоит из текстового процессора - <em>WPS&nbsp;Writer</em>, табличного процессора - <em>WPS&nbsp;Spreadsheets</em> и программы создания презентаций - <em>WPS&nbsp;Presentation</em>. Несмотря на то, что продукт с закрытым исходным кодом, он на данный момент бесплатен, потому я решился написать небольшой обзор об этом продукте.</p>
 
@@ -1143,9 +1985,9 @@
   
   <entry>
     <title type="html"><![CDATA[Установка и настройка Bind9 на Debian&nbsp;8&nbsp;&laquo;Jessie&raquo;]]></title>
-    <link href="http://nixway.org/how-to/ustanovka-i-nastroika-bind9-na-debian-jessie/"/>
+    <link href="http://nixway.org/2015/05/01/ustanovka-i-nastroika-bind9-na-debian-jessie/"/>
     <updated>2015-05-01T09:29:13+06:00</updated>
-    <id>http://nixway.org/how-to/ustanovka-i-nastroika-bind9-na-debian-jessie</id>
+    <id>http://nixway.org/2015/05/01/ustanovka-i-nastroika-bind9-na-debian-jessie</id>
     <content type="html"><![CDATA[<p><img src="http://nixway.org/images/posts/2015-05-01/debian+bind9.png" alt="Bind9" /></p>
 
 <p>В сети очень много статей на тему установки и настройки DNS-сервера Bind9. Они разные. Некоторые написаны просто и доступно, но нет пояснений зачем и почему. В других материал подан очень подробно, но новичкам такой материал осилить сложно. Я же попытаюсь совместить достоинства способов подачи материала, нащупать ту золотую середину, которая подойден большинству. Но опять таки, я не претендую на истину в последней инстанции и готов принять конструктивную критику.</p>
@@ -1442,9 +2284,9 @@
   
   <entry>
     <title type="html"><![CDATA[Skype и PulseAudio. Настройка микрофона...]]></title>
-    <link href="http://nixway.org/multimedia/skype-i-pulseaudio-nastroika-mikrofona/"/>
+    <link href="http://nixway.org/2015/04/11/skype-i-pulseaudio-nastroika-mikrofona/"/>
     <updated>2015-04-11T16:36:28+06:00</updated>
-    <id>http://nixway.org/multimedia/skype-i-pulseaudio-nastroika-mikrofona</id>
+    <id>http://nixway.org/2015/04/11/skype-i-pulseaudio-nastroika-mikrofona</id>
     <content type="html"><![CDATA[<p><img src="http://nixway.org/images/posts/2015-04-11/skype+pulseaudio+pavucontrol.png" alt="Skype &amp; PulseAudio" /></p>
 
 <p>После выпуска Skype версии 4.3 для Linux, многие поклонники Linux столкнулись с проблемой работы микрофона в вышеупомянутом Skype. Недавно нашел более-менее универсальное решение. Оно должно подойти всем, у кого микрофон в системе работает.</p>
@@ -1480,9 +2322,9 @@
   
   <entry>
     <title type="html"><![CDATA[Octopress – Troubleshooting]]></title>
-    <link href="http://nixway.org/how-to/octopress-troubleshooting/"/>
+    <link href="http://nixway.org/2015/04/09/octopress-troubleshooting/"/>
     <updated>2015-04-09T21:38:00+06:00</updated>
-    <id>http://nixway.org/how-to/octopress-troubleshooting</id>
+    <id>http://nixway.org/2015/04/09/octopress-troubleshooting</id>
     <content type="html"><![CDATA[<p><img src="http://nixway.org/images/posts/2015-04-09/octopress-troubleshooting.png" alt="Troubleshooting" /></p>
 
 <p>В данный пост я буду собирать решения всех возможных проблем, которые я встречу знакомясь с Octopress.</p>
@@ -1526,9 +2368,9 @@
   
   <entry>
     <title type="html"><![CDATA[Подборка тем Octopress]]></title>
-    <link href="http://nixway.org/web/octopress-themes/"/>
+    <link href="http://nixway.org/2015/04/09/octopress-themes/"/>
     <updated>2015-04-09T17:11:14+06:00</updated>
-    <id>http://nixway.org/web/octopress-themes</id>
+    <id>http://nixway.org/2015/04/09/octopress-themes</id>
     <content type="html"><![CDATA[<p><img src="http://nixway.org/images/posts/2015-04-09/octopress-themes.png" alt="Octopress themes" /></p>
 
 <p>Решил сделать для себя поборку наиболее понравившихся тем Octopress. Надеюсь эта подборка понравится и вам. В комментариях можете делиться своим списком тем. Вполне возможно, я пропустил немало интересных тем.</p>
@@ -1552,9 +2394,9 @@
   
   <entry>
     <title type="html"><![CDATA[Установка и настройка LNMP на CentOS, Debian и Gentoo]]></title>
-    <link href="http://nixway.org/how-to/ustanovka-i-nastroika-lnmp-na-centos-debian-gentoo/"/>
+    <link href="http://nixway.org/2013/06/12/ustanovka-i-nastroika-lnmp-na-centos-debian-gentoo/"/>
     <updated>2013-06-12T16:15:21+06:00</updated>
-    <id>http://nixway.org/how-to/ustanovka-i-nastroika-lnmp-na-centos-debian-gentoo</id>
+    <id>http://nixway.org/2013/06/12/ustanovka-i-nastroika-lnmp-na-centos-debian-gentoo</id>
     <content type="html"><![CDATA[<p><img src="http://nixway.org/images/posts/2013-06-12/nginx_to_centos_debian_and_gentoo.png" alt="nginx to CentOS, Debian and Gentoo" /></p>
 
 <p>Это руководство открывает серию материалов по установке известных систем управления содержимым (<a href="http://ru.wikipedia.org/wiki/CMS">CMS</a>) на веб-сервер <a href="https://ru.wikipedia.org/wiki/Nginx">nginx</a>. В отдельную статью необходимо выделить общую часть, которая будет одинаковой для всех CMS, написанных на PHP (грубо говоря мы сделаем тот же <a href="http://ru.wikipedia.org/wiki/LAMP">LAMP</a>, только вместо громоздкого и неповоротливого веб-сервера <a href="https://ru.wikipedia.org/wiki/Apache_HTTP_Server">Apache</a> у нас будет nginx). Задача данного руководства – установка веб-сервера nginx, системы управления базами данных MySQL и менеджера процессов FastCGI (FPM), а также их настройка.</p>
@@ -2010,9 +2852,9 @@ MySQL: <a href="http://www.mysql.com/">http://www.mysql.com/</a></p>
   
   <entry>
     <title type="html"><![CDATA[Настройка FastCGI (PHP FPM) для Nginx]]></title>
-    <link href="http://nixway.org/how-to/fastcgi_php_fpm_for_nginx/"/>
+    <link href="http://nixway.org/2013/06/11/fastcgi_php_fpm_for_nginx/"/>
     <updated>2013-06-11T18:54:03+06:00</updated>
-    <id>http://nixway.org/how-to/fastcgi_php_fpm_for_nginx</id>
+    <id>http://nixway.org/2013/06/11/fastcgi_php_fpm_for_nginx</id>
     <content type="html"><![CDATA[<p><img src="http://nixway.org/images/posts/2013-06-11/fastcgi_php-fpm_tuning.png" alt="Nginx to CentOS, Debian and Gentoo" /></p>
 
 <p><a href="https://ru.wikipedia.org/wiki/FastCGI">FastCGI</a> это высокопроизводительный и масштабируемый интерфейс для взаимодействия веб-сервера и приложений, дальнейшее развитие технологии CGI, однако CGI-скрипты перезапускаются с каждым запросом сервера, что существенно снижает производительность; FastCGI оставляет процессы запущенными и только передает им новые запросы.</p>

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Категория: Nix | Путь юниксоида]]></title>
+  <link href="http://nixway.org/categories/nix/atom.xml" rel="self"/>
+  <link href="http://nixway.org/"/>
+  <updated>2016-11-08T18:44:50+06:00</updated>
+  <id>http://nixway.org/</id>
+  <author>
+    <name><![CDATA[nihi1ist]]></name>
+    <email><![CDATA[nihi1ist@nixway.org]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Резервное копирование баз данных PostgreSQL]]></title>
+    <link href="http://nixway.org/2015/12/06/postgresql-backup-script/"/>
+    <updated>2015-12-06T17:07:29+06:00</updated>
+    <id>http://nixway.org/2015/12/06/postgresql-backup-script</id>
+    <content type="html"><![CDATA[<p><img src="/images/posts/2015-12-06/postgresql-backup.png" alt="Резервное копирование баз данных PostgreSQL" /></p>
+
+<p>Перед всеми системными администраторами возникает задача резервного копирования баз данных (<em>БД</em>). Поэтому хочу поделится с вами скриптом для резервного копирования БД&nbsp;PostgreSQL. И его довольно просто переделать для любой другой СУБД. Данный скрипт неплохо подойдет новичкам. На нашем <a href="https://community.nixway.org/viewtopic.php?id=78">форуме</a> есть вариант скрипта для резерного копирования БД&nbsp;MySQL.</p>
+
+<!-- more -->
+
+
+<pre><code>#!/bin/bash
+
+HOST="hostname"                         # Имя хоста на котором будем выполнять скрипт, можно и не использовать
+DUMPER="/usr/bin/pg_dump"               # Указываем утилиту резервного копирования (дампа).
+#DUMPPARAM1="-Q -c -e"                  # -Q оборачивает имена обратными кавычками,
+                                        # -c делает полную вставку, включая имена колонок,
+                                        # -e делает расширенную вставку.
+                                        # Итоговый файл получается меньше и создается он чуть быстрее.
+
+#DBUSER="dbuser"                        # Внутренний пользователь сервера БД от имени которого будет выполнятся бэкап
+#DBPASS="passwd"                        # Пароль внутреннего пользователя mysql
+DBNAME="dbname"                         # Имя БД с которой будет создана резервная копия
+DATE=`date +%F_%H.%M`                   # Задаем дату и время бекапа
+FIND="/usr/bin/find"                    # Указываем утилиту для поиска
+FINDPARAM1="-type f -ctime +7"          # Где +7 - архивы старше семи дней
+FINDPARAM2="-delete"                    # Параметры удаления
+BACKUPDIR="/var/backups/psql/"          # Директория, где будут хранится резервные копии
+
+# Дамп БД, где DBUSER - имя пользователя, DBNAME - имя базы данных, архив имеет следующий формат.
+# Имя базы данных, имя хоста, дата и время, расширение gz: $DBNAME-2016-02-29_14.30.sql.gz
+$DUMPER $DBNAME | gzip &gt; $BACKUPDIR$DBNAME.$HOST-$DATE.sql.gz
+
+# Пауза
+sleep 3
+
+# Удаляем старые архивы, а точней файлы старше 7 дней, так же удаляем  пустые каталоги.
+eval $FIND $BACKUPDIR $FINDPARAM1 $FINDPARAM2
+
+exit 0
+</code></pre>
+
+<p>Хочу напомнить, что данный скрипт нужно выполнять от имени пользователя <strong>postgres</strong>. Неиспользуемые переменные закомментированы, при желании можно их удалить.</p>
+
+<p>Восстановить дамп можно командой:</p>
+
+<pre><code>$ gunzip &lt; /var/backups/psql/archname.sql.gz | psql dbname
+</code></pre>
+
+<p>Где <code>archname</code> - имя резервной копии (дампа), а <code>dbname</code> - имя существующей БД в PostgreSQL. Если хотите восстановить дамп в новую БД, то создать ее можно командой:</p>
+
+<pre><code>$ createdb dbname
+</code></pre>
+
+<p>Опять же, команду необходимо выполнять от имени <strong>postgres</strong>.</p>
+
+<p>Теперь осталось настроить время запуска скрипта. В этом нам поможет <a href="https://ru.wikipedia.org/wiki/Cron">cron</a>. Мне необходимо чтобы скрипт запускался:<br/>
+-&nbsp;ежедневно в 22:30, с понедельника по пятницу,<br/>
+-&nbsp;ежемесячно в 23:30, в первую субботу месяца.</p>
+
+<p>Кроме того, ежедневные и ежемесячные копии должны хранится отдельно. Соответственно нам потребуются две копии скрипта, в каждной укажем необходимый путь для резерных копий:</p>
+
+<pre><code>/var/backups/psql/dayli
+/var/backups/psql/monthly
+</code></pre>
+
+<p>С помощью команды <code>crontab</code>:</p>
+
+<pre><code># crontab -e
+</code></pre>
+
+<p>Добавим в список заданий пару строк в самый конец файла:</p>
+
+<pre><code>30 22 * * 1-5 postgres /path/psql_dayli-backup.sh                                  # Ежедневно, с пн. по пт.
+30 23 1-7 * [ "$(date '+\%u')" -eq 6 ] &amp;&amp; /path/psql_monthly-backup.sh postgres    # Ежемесячно, в первую сб.
+</code></pre>
+
+<p>Где <code>postgres</code> - пользователь, от имени которого будет запускаться скрипт, <code>path</code> - путь до каталога со скриптами, а <code>psql_dayli-backup.sh</code> и <code>psql_monthly-backup.sh</code> - имена файлов со скриптом.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Skype и PulseAudio. Настройка микрофона...]]></title>
+    <link href="http://nixway.org/2015/04/11/skype-i-pulseaudio-nastroika-mikrofona/"/>
+    <updated>2015-04-11T16:36:28+06:00</updated>
+    <id>http://nixway.org/2015/04/11/skype-i-pulseaudio-nastroika-mikrofona</id>
+    <content type="html"><![CDATA[<p><img src="/images/posts/2015-04-11/skype+pulseaudio+pavucontrol.png" alt="Skype &amp; PulseAudio" /></p>
+
+<p>После выпуска Skype версии 4.3 для Linux, многие поклонники Linux столкнулись с проблемой работы микрофона в вышеупомянутом Skype. Недавно нашел более-менее универсальное решение. Оно должно подойти всем, у кого микрофон в системе работает.</p>
+
+<!-- more -->
+
+
+<p>Нам понадобится Pavucontrol.</p>
+
+<blockquote><p>PulseAudio Volume Control (pavucontrol) - простая утилита управления звуком (микшер).
+В отличие от классического микшера, он позволяет управлять звуком для устройства и каждого потока воспроизведения раздельно.
+Также позволяет перенаправлять поток на другой выход не прерывая воспроизведение.</p></blockquote>
+
+<p>Не сомневаюсь, те у кого Pavucontrol не установлен, прекрасно справится с его установкой. :) Потому описывать процесс установку я не буду.</p>
+
+<ol>
+<li>Итак, открываем Pavucontrol, переходим на вкладку Запись (Recording):<br/>
+<a href="http://itmages.ru/image/view/2426287/8f1e27e9"><img src="http://storage3.static.itmages.ru/i/15/0404/s_1428122957_1207467_8f1e27e9ca.png" alt="Pavucontrol, recording tab" /></a><br/>
+Как мы видим, вкладка Запись (Recording) пуста.</li>
+<li>Запускаем тестовый звонок в Skype:<br/>
+<a href="http://itmages.ru/image/view/2426290/2200628e"><img src="http://storage3.static.itmages.ru/i/15/0404/s_1428122957_3453301_2200628eae.png" alt="Skype, Echo - Sound Test Service" /></a></li>
+<li>Переключаемся в окно Pavucontrol, там мы увидим ползунок настройки громкости для Skype:<br/>
+<a href="http://itmages.ru/image/view/2426288/2a1d02a6"><img src="http://storage3.static.itmages.ru/i/15/0404/s_1428122957_2227499_2a1d02a687.png" alt="Pavucontrol, recording tab, Skype stream" /></a></li>
+<li>А чуть выше ползунка настройки громкости, есть меню выбора устройства с которого Skype считывает звук. Именно в этом меню надо выбрать устройство, с которого Skype будет считывать звук:<br/>
+<a href="http://itmages.ru/image/view/2426291/8576133d"><img src="http://storage4.static.itmages.ru/i/15/0404/s_1428122958_9178295_8576133d07.png" alt="Pavucontrol, recording tab, Skype stream, recording device" /></a><br/>
+В моем случае это HP Webcam HD-4110. Его я и выбрал:<br/>
+<img src="http://storage4.static.itmages.ru/i/15/0404/h_1428122958_6709430_eaee045f1c.png" alt="Pavucontrol, recording tab, recording device selection menu" /><br/>
+После этой простенькой настройки, микрофон в Skype начал вполне сносно работать.</li>
+</ol>
+
+]]></content>
+  </entry>
+  
+</feed>

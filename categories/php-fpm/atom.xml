@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Категория: Php-fpm | Путь юниксоида]]></title>
+  <link href="http://nixway.org/categories/php-fpm/atom.xml" rel="self"/>
+  <link href="http://nixway.org/"/>
+  <updated>2016-11-08T18:44:50+06:00</updated>
+  <id>http://nixway.org/</id>
+  <author>
+    <name><![CDATA[nihi1ist]]></name>
+    <email><![CDATA[nihi1ist@nixway.org]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Настройка FastCGI (PHP FPM) для Nginx]]></title>
+    <link href="http://nixway.org/2013/06/11/fastcgi_php_fpm_for_nginx/"/>
+    <updated>2013-06-11T18:54:03+06:00</updated>
+    <id>http://nixway.org/2013/06/11/fastcgi_php_fpm_for_nginx</id>
+    <content type="html"><![CDATA[<p><img src="/images/posts/2013-06-11/fastcgi_php-fpm_tuning.png" alt="Nginx to CentOS, Debian and Gentoo" /></p>
+
+<p><a href="https://ru.wikipedia.org/wiki/FastCGI">FastCGI</a> это высокопроизводительный и масштабируемый интерфейс для взаимодействия веб-сервера и приложений, дальнейшее развитие технологии CGI, однако CGI-скрипты перезапускаются с каждым запросом сервера, что существенно снижает производительность; FastCGI оставляет процессы запущенными и только передает им новые запросы.</p>
+
+<p>nginx имеет собственную поддержку технологии FastCGI для работы с внешними серверами и утилитами. PHP тоже поддерживает FastCGI и может быть использован для обработки FastCGI-запросов от nginx.</p>
+
+<!--more-->
+
+
+<p>В данном примере мы рассмотрим связку nginx и PHP-FPM. Для начала необходимо их установить, в большинстве дистрибутивах для установки есть пакеты с одноимёнными названиями. Или, например в Gentoo, для установки необходим <code>USE</code> флаг <code>fpm</code>, более подробно смотрите в документации к своему дистрибутиву.</p>
+
+<p>Есть много руководств по настройке nginx для работы с PHP FPM, но многие из них являются неполными (неправильно обрабатывается переменная <code>PATH_INFO</code>) или содержат ошибки в обработке сценариев безопасности (отсутствует проверка наличия PHP кода в php файле).</p>
+
+<p>Настроить подключение nginx и PHP-FPM можно двумя способами - либо через TCP&#8209;порт (<code>127.0.0.1:9000</code>), либо unix сокет (<code>/var/run/php-fpm.sock</code>).</p>
+
+<h4>FastCGI параметры</h4>
+
+<p>Первая рекомендация - храните все типовые настройки FastCGI в отдельном файле и, при необходимости, импортируйте их.</p>
+
+<p>Например для Debian и Ubuntu настройки по умолчанию находятся в файле <code>/etc/nginx/fastcgi_params</code>, который должен выглядеть следующим образом:</p>
+
+<pre><code>fastcgi_param   QUERY_STRING            $query_string;
+fastcgi_param   REQUEST_METHOD          $request_method;
+fastcgi_param   CONTENT_TYPE            $content_type;
+fastcgi_param   CONTENT_LENGTH          $content_length;
+
+fastcgi_param   SCRIPT_FILENAME         $document_root$fastcgi_script_name;
+fastcgi_param   SCRIPT_NAME             $fastcgi_script_name;
+fastcgi_param   PATH_INFO               $fastcgi_path_info;
+fastcgi_param   REQUEST_URI             $request_uri;
+fastcgi_param   DOCUMENT_URI            $document_uri;
+fastcgi_param   DOCUMENT_ROOT           $document_root;
+fastcgi_param   SERVER_PROTOCOL         $server_protocol;
+
+fastcgi_param   GATEWAY_INTERFACE       CGI/1.1;
+fastcgi_param   SERVER_SOFTWARE         nginx/$nginx_version;
+
+fastcgi_param   REMOTE_ADDR             $remote_addr;
+fastcgi_param   REMOTE_PORT             $remote_port;
+fastcgi_param   SERVER_ADDR             $server_addr;
+fastcgi_param   SERVER_PORT             $server_port;
+fastcgi_param   SERVER_NAME             $server_name;
+
+fastcgi_param   HTTPS                   $https;
+
+# PHP only, required if PHP was built with --enable-force-cgi-redirect
+fastcgi_param   REDIRECT_STATUS         200;
+</code></pre>
+
+<h4>Подключаем Nginx к PHP FPM</h4>
+
+<p>Тут мы должны сказать Nginx`у, чтобы проксировал запросы к PHP FPM через протокол FCGI:</p>
+
+<pre><code>location ~ [^/]\.php(/|$) {
+    fastcgi_split_path_info ^(.+?\.php)(/.*)$;
+    if (!-f $document_root$fastcgi_script_name) {
+         return 404;
+    }
+
+    fastcgi_pass 127.0.0.1:9000;
+    fastcgi_index index.php;
+    include fastcgi_params;
+}
+</code></pre>
+
+<p>В параметрах <code>php-fpm.conf</code> за подключение отвечает параметр <code>listen</code>.</p>
+
+<pre><code># /etc/php/fpm-php5.X/php-fpm.conf
+...
+listen = 127.0.0.1:9000
+...
+</code></pre>
+
+<p>В варианте подключения через unix сокет <code>fastcgi_pass</code> будет таким:</p>
+
+<pre><code>fastcgi_pass unix:/var/run/php5-fpm.sock;
+</code></pre>
+
+<p>А параметр <code>listen</code> вот так:</p>
+
+<pre><code># /etc/php/fpm-php5.X/php-fpm.conf
+...
+listen = /var/run/php5-fpm.sock
+...
+</code></pre>
+
+<p>После изменения настроек перезапустите nginx.</p>
+
+<h4>Тестирование</h4>
+
+<p>Создайте файл <code>test.php</code> в корневом каталоге nginx следующего содержания:</p>
+
+<pre><code>&lt;?php var_export($_SERVER)?&gt;
+</code></pre>
+
+<p>В браузере сделайте запрос:</p>
+
+<pre><code>/test.php
+/test.php/
+/test.php/foo
+/test.php/foo/bar.php
+/test.php/foo/bar.php?v=1
+</code></pre>
+
+<p>Обратите внимание на значение <code>REQUEST_URI</code>, <code>SCRIPT_NAME</code>, <code>PATH_INFO</code> и <code>PHP_SELF</code>.</p>
+
+<p>Вот правильный вывод для</p>
+
+<pre><code>http://example.domain/test.php/foo/bar.php?v=1 :
+</code></pre>
+
+<pre><code>array (
+  'USER' =&gt; 'www-data',
+  'HOME' =&gt; '/var/www',
+  'FCGI_ROLE' =&gt; 'RESPONDER',
+  'QUERY_STRING' =&gt; 'v=1',
+  'REQUEST_METHOD' =&gt; 'GET',
+  'CONTENT_TYPE' =&gt; '',
+  'CONTENT_LENGTH' =&gt; '',
+  'SCRIPT_FILENAME' =&gt; '/var/www/test.php',
+  'SCRIPT_NAME' =&gt; '/test.php',
+  'PATH_INFO' =&gt; '/foo/bar.php',
+  'REQUEST_URI' =&gt; '/test.php/foo/bar.php?v=1',
+  'DOCUMENT_URI' =&gt; '/test.php/foo/bar.php',
+  'DOCUMENT_ROOT' =&gt; '/var/www',
+  'SERVER_PROTOCOL' =&gt; 'HTTP/1.1',
+  'GATEWAY_INTERFACE' =&gt; 'CGI/1.1',
+  'SERVER_SOFTWARE' =&gt; 'nginx/1.4.0',
+  'REMOTE_ADDR' =&gt; '192.168.56.1',
+  'REMOTE_PORT' =&gt; '44644',
+  'SERVER_ADDR' =&gt; '192.168.56.3',
+  'SERVER_PORT' =&gt; '80',
+  'SERVER_NAME' =&gt; '',
+  'HTTPS' =&gt; '',
+  'REDIRECT_STATUS' =&gt; '200',
+  'HTTP_HOST' =&gt; 'lemp.test',
+  'HTTP_USER_AGENT' =&gt; 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:20.0) Gecko/20100101 Firefox/20.0',
+  'HTTP_ACCEPT' =&gt; 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+  'HTTP_ACCEPT_LANGUAGE' =&gt; 'en-US,en;q=0.5',
+  'HTTP_ACCEPT_ENCODING' =&gt; 'gzip, deflate',
+  'HTTP_CONNECTION' =&gt; 'keep-alive',
+  'PHP_SELF' =&gt; '/test.php/foo/bar.php',
+  'REQUEST_TIME' =&gt; 1367829847,
+)
+</code></pre>
+
+<p><strong>Необходимые условия:</strong><br/>
+-&nbsp;Требования к PHP - версия 5.3.3 или выше.<br/>
+-&nbsp;В php.ini значение <code>cgi.fix_pathinfo = 1</code> (в некоторых мануалах советуют <code>cgi.fix_pathinfo = 0</code> что может привести к не правильной обработке переменной <code>PHP_SELF</code> не равной <code>DOCUMENT_URI</code>).<br/>
+-&nbsp;Регулярное выражение <code>fastcgi_split_path_info</code> должно корректно обрабатывать запросы, такие как <code>/test.php/foo/blah.php</code> или <code>/test.php/</code>.<br/>
+-&nbsp;Необходимо разрешить nginx'у проверку <code>*.php</code> файлов чтобы предотвратить возможность передачи любых других файлов через PHP-FPM (например загруженные картинки).</p>
+
+<p>Ознакомиться с более подробной информацией о FastCGI вы можете на официальном <a href="http://www.fastcgi.com/">сайте</a>.</p>
+
+<p><a href="http://wiki.nginx.org/phpfcgiexample">Оригинал</a>.</p>
+]]></content>
+  </entry>
+  
+</feed>

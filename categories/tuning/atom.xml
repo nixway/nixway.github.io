@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Категория: Tuning | Путь юниксоида]]></title>
+  <link href="http://nixway.org/categories/tuning/atom.xml" rel="self"/>
+  <link href="http://nixway.org/"/>
+  <updated>2016-11-08T18:44:50+06:00</updated>
+  <id>http://nixway.org/</id>
+  <author>
+    <name><![CDATA[nihi1ist]]></name>
+    <email><![CDATA[nihi1ist@nixway.org]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Оптимизация PostgreSQL под сервер 1С:Предприятия]]></title>
+    <link href="http://nixway.org/2015/12/06/optimizacija-postgresql-pod-server-1c-predpriyatiya/"/>
+    <updated>2015-12-06T13:31:30+06:00</updated>
+    <id>http://nixway.org/2015/12/06/optimizacija-postgresql-pod-server-1c-predpriyatiya</id>
+    <content type="html"><![CDATA[<p><img src="/images/posts/2015-12-06/postgresql_for_1c.png" alt="Оптимизация PostgreSQL под сервер 1С:Предприятие" /></p>
+
+<p>На данный момент производительность PostgreSQL в связке с сервером 1С:Предприятия в сравнении с тем же MS&nbsp;SQL оставляет желать лучшего. Эта статья продолжение попыток добиться достойной производительности на PostgreSQL. Хотя на данный момент у меня не получилось добиться производительности сопоставимой MS&nbsp;SQL, но думаю в недалеком будущем эта проблема будет решена.</p>
+
+<p>Далее в статье перечислены основные параметы и особенности, на  которые следует обратить внимание при оптимизации PostgreSQL.</p>
+
+<!-- more -->
+
+
+<h2><span style="color:#cd0021;">Основные параметры PostgreSQL.</span></h2>
+
+<h3>shared_buffers</h3>
+
+<p>Объём совместно используемой памяти, выделяемой PostgreSQL для кэширования данных, определяется числом страниц <code>shared_buffers</code> по 8 килобайт каждая. Следует учитывать, что операционная система сама кэширует данные, поэтому нет необходимости отводить под кэш всю наличную оперативную память. Размер <code>shared_buffers</code> зависит от многих факторов, для начала можно принять следующие значения:</p>
+
+<ul>
+<li><strong>8–16&nbsp;Мб</strong>&nbsp;–&nbsp;Обычный настольный компьютер с 512&nbsp;Мб и небольшой базой данных,</li>
+<li><strong>80–160&nbsp;Мб</strong>&nbsp;–&nbsp;Небольшой сервер, предназначенный для обслуживания базы данных с объёмом оперативной памяти 1&nbsp;Гб и базой данных около 10&nbsp;Гб,</li>
+<li><strong>400&nbsp;Мб</strong>&nbsp;–&nbsp;Сервер с несколькими процессорами, с объёмом памяти в 8&nbsp;Гб и базой данных занимающей свыше 100&nbsp;Гб обслуживающий несколько сотен активных соединений одновременно.</li>
+</ul>
+
+
+<h3>work_mem</h3>
+
+<p>Под каждый запрос выделяется ограниченный объём памяти. Этот объём используется для сортировки, объединения и других подобных операций. При превышении этого объёма сервер начинает использовать временные файлы на диске, что может существенно снизить производительность. Оценить необходимое значение для <code>work_mem</code> можно разделив объём доступной памяти (физическая память минус объём занятый под другие программы и под совместно используемые страницы <code>shared_buffers</code>) на максимальное число одновременно используемых активных соединений.</p>
+
+<h3>maintenance_work_mem</h3>
+
+<p>Эта память используется для выполнения операций по сбору статистики <code>ANALYZE</code>, сборке мусора <code>VACUUM</code>, создания индексов <code>CREATE INDEX</code> и добавления внешних ключей. Размер памяти выделяемой под эти операции должен быть сравним с физическим размером самого большого индекса на диске.</p>
+
+<h3>effective_cache_size</h3>
+
+<p>PostgreSQL в своих планах опирается на кэширование файлов, осуществляемое операционной системой. Этот параметр соответствует максимальному размеру объекта, который может поместиться в системный кэш. Это значение используется только для оценки. <code>effective_cache_size</code> можно установить в &frac12;&nbsp;- 2/3 от объёма имеющейся в наличии оперативной памяти, если вся она отдана в распоряжение PostgreSQL.</p>
+
+<p><span style="color:#cd0021;"><strong>ВНИМАНИЕ!</strong></span> Следующие параметры могут существенно увеличить производительность работы PostgreSQL. Однако их рекомендуется использовать только если имеются надежные <a href="https://ru.wikipedia.org/wiki/%D0%98%D1%81%D1%82%D0%BE%D1%87%D0%BD%D0%B8%D0%BA_%D0%B1%D0%B5%D1%81%D0%BF%D0%B5%D1%80%D0%B5%D0%B1%D0%BE%D0%B9%D0%BD%D0%BE%D0%B3%D0%BE_%D0%BF%D0%B8%D1%82%D0%B0%D0%BD%D0%B8%D1%8F">ИБП</a> и программное обеспечение, завершающее работу системы при низком заряде батарей.</p>
+
+<h3>fsync</h3>
+
+<p>Данный параметр отвечает за сброс данных из кэша на диск при завершении транзакций. Если установить в этом параметре значение <code>off</code>, то данные не будут записываться на дисковые накопители сразу после завершения операций. Это может существенно повысить скорость операций <code>insert</code> и <code>update</code>, но есть риск повредить базу, если произойдет сбой (неожиданное отключение питания, сбой ОС, сбой дисковой подсистемы).</p>
+
+<p>Отрицательное влияние включенного <code>fsync</code> можно уменьшить, отключив его, положившись на надежность вашего оборудования, или правильно подобрав параметр <code>wal_sync_method</code> - метод, который используется для принудительной записи данных на диск.</p>
+
+<p><strong>Возможные значения:</strong></p>
+
+<ul>
+<li><strong>open_datasync</strong>&nbsp;–&nbsp;запись данных методом <code>open()</code> с параметром <code>O_DSYNC</code>,</li>
+<li><strong>fdatasync</strong>&nbsp;–&nbsp;вызов метода <code>fdatasync()</code> после каждого <code>commit</code>,</li>
+<li><strong>fsync_writethrough</strong>&nbsp;–&nbsp;вызывать <code>fsync()</code> после каждого <code>commit</code> игнорирую параллельные процессы,</li>
+<li><strong>fsync</strong>&nbsp;–&nbsp;вызов <code>fsync()</code> после каждого <code>commit</code>,</li>
+<li><strong>open_sync</strong>&nbsp;–&nbsp;запись данных методом <code>open()</code> с параметром <code>O_SYNC</code>.</li>
+</ul>
+
+
+<p><span style="color:#cd0021;"><strong>ПРИМЕЧАНИЕ!</strong></span> Не все методы доступны на определенных платформах. Выбор метода зависит от операционной системы под управлением, которой работает PostgreSQL.</p>
+
+<p>В состав PostgreSQL входит утилита <strong>pg_test_fsync</strong>, с помощью которой можно определить оптимальное значение параметра <code>wal_sync_method</code>.</p>
+
+<p>Она выполняет серию дисковых тестов с использованием различных методов синхронизации. В результате этого теста получаются оценки производительности дисковой системы, по которым можно определить оптимальный метод синхронизации для данной операционной системы.</p>
+
+<p>Я решил провести вышеуказанный тест на своем рабочем имеющем следующие характеристики:</p>
+
+<ul>
+<li><strong>CPU:</strong> Intel Core i3-3220 @ 3.30GHz x 2</li>
+<li><strong>RAM:</strong> 4GB</li>
+<li><strong>HDD:</strong> Seagate ST3320418AS 320GB</li>
+</ul>
+
+
+<p><strong>Тест на Windows:</strong></p>
+
+<ul>
+<li><strong>ОС:</strong> Windows 7 Максимальная x64</li>
+<li><strong>ФС:</strong> NTFS</li>
+<li><strong>СУБД:</strong> PostgreSQL 9.4.2-1.1C x64</li>
+</ul>
+
+
+<pre><code>C:\PROGRA~1\POSTGR~1\9.4.2-1.1C\bin&gt;pg_test_fsync
+5 seconds per test
+O_DIRECT supported on this platform for open_datasync and open_sync.
+
+Compare file sync methods using one 8kB write:
+(in wal_sync_method preference order, except fdatasync
+is Linux's default)
+        open_datasync                     48817.440 ops/sec      20 usecs/op
+        fdatasync                                       n/a
+        fsync                                79.688 ops/sec   12549 usecs/op
+        fsync_writethrough                   80.072 ops/sec   12489 usecs/op
+        open_sync                                       n/a
+
+Compare file sync methods using two 8kB writes:
+(in wal_sync_method preference order, except fdatasync
+is Linux's default)
+        open_datasync                     24713.634 ops/sec      40 usecs/op
+        fdatasync                                       n/a
+        fsync                                78.690 ops/sec   12708 usecs/op
+        fsync_writethrough                   79.073 ops/sec   12646 usecs/op
+        open_sync                                       n/a
+
+Compare open_sync with different write sizes:
+(This is designed to compare the cost of writing 16kB
+in different write open_sync sizes.)
+         1 * 16kB open_sync write                       n/a
+         2 *  8kB open_sync writes                      n/a
+         4 *  4kB open_sync writes                      n/a
+         8 *  2kB open_sync writes                      n/a
+        16 *  1kB open_sync writes                      n/a
+
+Test if fsync on non-write file descriptor is honored:
+(If the times are similar, fsync() can sync data written
+on a different descriptor.)
+        write, fsync, close                  76.493 ops/sec   13073 usecs/op
+        write, close, fsync                  77.676 ops/sec   12874 usecs/op
+
+Non-Sync'ed 8kB writes:
+        write                              1800.319 ops/sec     555 usecs/op
+</code></pre>
+
+<p>Из результатов теста можно определить, что для Windows оптимальным решением будет использование <code>open_datasync</code>.</p>
+
+<p><strong>Тест на Linux:</strong></p>
+
+<ul>
+<li><strong>ОС:</strong> Debian 8.6 Jessie</li>
+<li><strong>Ядро:</strong> x86_64 Linux 3.16.0-4-amd64</li>
+<li><strong>ФС:</strong> ext4</li>
+<li><strong>СУБД:</strong> PostgreSQL 9.4.2-1.1C amd64</li>
+</ul>
+
+
+<pre><code>/usr/lib/postgresql/9.4/bin# ./pg_test_fsync
+5 seconds per test
+O_DIRECT supported on this platform for open_datasync and open_sync.
+
+Compare file sync methods using one 8kB write:
+(in wal_sync_method preference order, except fdatasync
+is Linux's default)
+        open_datasync                        80.215 ops/sec   12467 usecs/op
+        fdatasync                            80.349 ops/sec   12446 usecs/op
+        fsync                                39.384 ops/sec   25391 usecs/op
+        fsync_writethrough                              n/a
+        open_sync                            40.013 ops/sec   24992 usecs/op
+
+Compare file sync methods using two 8kB writes:
+(in wal_sync_method preference order, except fdatasync
+is Linux's default)
+        open_datasync                        40.033 ops/sec   24980 usecs/op
+        fdatasync                            77.264 ops/sec   12943 usecs/op
+        fsync                                36.325 ops/sec   27529 usecs/op
+        fsync_writethrough                              n/a
+        open_sync                            19.659 ops/sec   50866 usecs/op
+
+Compare open_sync with different write sizes:
+(This is designed to compare the cost of writing 16kB
+in different write open_sync sizes.)
+         1 * 16kB open_sync write            38.697 ops/sec   25842 usecs/op
+         2 *  8kB open_sync writes           17.356 ops/sec   57616 usecs/op
+         4 *  4kB open_sync writes            8.996 ops/sec  111156 usecs/op
+         8 *  2kB open_sync writes            4.552 ops/sec  219686 usecs/op
+        16 *  1kB open_sync writes            2.218 ops/sec  450930 usecs/op
+
+Test if fsync on non-write file descriptor is honored:
+(If the times are similar, fsync() can sync data written
+on a different descriptor.)
+        write, fsync, close                  34.341 ops/sec   29120 usecs/op
+        write, close, fsync                  35.753 ops/sec   27970 usecs/op
+
+Non-Sync'ed 8kB writes:
+        write                            484193.516 ops/sec       2 usecs/op
+</code></pre>
+
+<p>По результатам теста мы видим, что результаты тестирования на Linux лучше результатов того же тестирования на Windows. При этом результаты <code>open_datasync</code> и <code>fdatasync</code> сопоставимы.</p>
+
+<p>Следует учитывать, что в данных тестах использовалась дисковая система, состоящая из одного диска. При использовании RAID массива с большим количеством дисков картина может быть другой.</p>
+
+<h3>wal_buffers</h3>
+
+<p>Количество памяти используемое в <code>SHARED MEMORY</code> для ведения транзакционных логов. При доступной памяти 1-4&nbsp;Гб рекомендуется устанавливать 256-1024&nbsp;Кб. Этот параметр стоит увеличивать в системах с большим количеством модификаций таблиц базы данных.</p>
+
+<h3>checkpoint_segments</h3>
+
+<p>Oпределяет количество сегментов (каждый по 16&nbsp;МБ) лога транзакций между контрольными точками.  Для баз данных с множеством модифицирующих данные транзакций рекомендуется увеличение этого параметра. Критерием достаточности количества сегментов является отсутствие в логе  предупреждений (warning) о том, что контрольные точки происходят слишком часто.</p>
+
+<h3>full_page_writes</h3>
+
+<p>Включение этого параметра гарантирует корректное восстановление, ценой увеличения записываемых данных в журнал транзакций. Отключение этого параметра ускоряет работу, но может привести  к повреждению базы данных в случае системного сбоя или отключения питания.</p>
+
+<h3>synchronous_commit</h3>
+
+<p>Включает/выключает синхронную запись в лог-файлы после каждой транзакции. Включение синхронной записи защищает от возможной потери данных. Но, накладывает ограничение на пропускную способность сервера. Вы можете отключить синхронную запись, если вам необходимо обеспечить более высокую производительность по количеству транзакций. А&nbsp;потенциально низкая возможность потери небольшого количества изменений при крахе системы не критична. Для отключения синхронной записи установите значение <code>off</code> в этом параметре.</p>
+
+<p>Еще одним способом увеличения производительности работы PostgreSQL является перенос журнала транзакций (pg_xlog) на другой диск. Выделение для журнала транзакций  отдельного дискового ресурса позволяет получить получить при этом существенный выигрыш в производительности  10%-12% для нагруженных <a href="https://ru.wikipedia.org/wiki/OLTP">OLTP</a> систем.</p>
+
+<p>В Linux это делается с помощью создания символьной ссылки на новое положение каталога с журналом транзакций.</p>
+
+<p>В Windows можно использовать для этих целей утилиту <strong><a href="https://technet.microsoft.com/en-us/bb896768">Junction</a></strong>. Для этого надо:</p>
+
+<ol>
+<li>Остановить PostgreSQL.</li>
+<li>Сделать бэкап <code>C:\Program Files\PostgreSQL\X.X.X\data\pg_xlog</code>.</li>
+<li>Скопировать <code>C:\Program Files\PostgreSQL\X.X.X\data\pg_xlog</code> в <code>D:\pg_xlog</code> и удалить <code>C:\Program Files\PostgreSQL\X.X.X\data\pg_xlog</code>.</li>
+<li>Распаковать программу <strong>Junction</strong> в <code>C:\Program Files\PostgreSQL\X.X.X\data</code>.</li>
+<li>Открыть окно <strong>CMD</strong>, перейти в <code>C:\Program Files\PostgreSQL\X.X.X\data</code> и выполнить <code>junction -s pg_xlog D:\pg_xlog</code>.</li>
+<li>Установить права на папку <code>D:\pg_xlog</code> пользователю postgres.</li>
+<li>Запустить PostgreSQL.</li>
+</ol>
+
+
+<h2><span style="color:#cd0021;"> Особенности и ограничения в 1С:Предприятие при работе с PostgreSQL.</span></h2>
+
+<h3>Использование конструкции ПОЛНОЕ ВНЕШНЕЕ СОЕДИНЕНИЕ.</h3>
+
+<p>В СУБД PostgreSQL реализована только частичная поддержка  <code>FULL OUTER JOIN</code> (ERROR: &ldquo;FULL JOIN is only supported with mergejoinable join conditions&rdquo;). Для реализации полной поддержки <code>FULL OUTER JOIN</code> при работе 1С:Предприятия 8 с PostgreSQL подобный запрос трансформируется в другую форму с эквивалентным результатом, однако эффективность использования конструкции <code>ПОЛНОЕ ВНЕШНЕЕ СОЕДИНЕНИЕ</code> снижается.</p>
+
+<p>В связи с этим не рекомендуется использовать <code>ПОЛНОЕ ВНЕШНЕЕ СОЕДИНЕНИЕ</code> при работе с PostgreSQL. В большинстве случаев без использования этой конструкции можно обойтись, переписав исходный запрос.</p>
+
+<h3>Оптимизация использования виртуальной таблицы СрезПоследних при работе с PostgreSQL.</h3>
+
+<p><strong>Проблема:</strong> При работе с PostgreSQL использование соединения с виртуальной таблицей <code>СрезПоследних</code> может приводить к существенному снижению производительности. Из-за ошибки оптимизатора может быть выбран неоптимальный план выполнения запроса.</p>
+
+<p><strong>Решение:</strong> Если в запросе используется соединение с виртуальной таблицей языка запросов 1С:Предприятия <code>СрезПоследних</code> и запрос работает с неудовлетворительной производительностью, то рекомендуется вынести обращение к виртуальной таблице в отдельный запрос с сохранением результатов во временной таблице.</p>
+
+<h3>Решение проблемы с зависанием PostgreSQL.</h3>
+
+<p>При выполнения некоторых регламентных операций (Закрытие месяца, Расчет себестоимости и т.п.), где используются сложные запросы с большим количеством соединений больших таблиц, возможно существенное увеличение времени выполнения операции. В основном, эти проблемы связаны с работой оптимизатора PostgreSQL и отсутствием актуальной статистики по таблицам, участвующим в запросе.</p>
+
+<p><strong>Варианты решения проблемы:</strong></p>
+
+<ul>
+<li>Увеличить количество записей, просматриваемых при сборе статистики по таблицам. Большие значения могут повысить время выполнения команды <code>ANALYZE</code>, но улучшат построение плана запроса:
+
+<ul>
+<li>Файл <em>postgresql.conf</em> - <code>default_statistics_target = 1000 -10000</code>.</li>
+</ul>
+</li>
+<li>Отключение оптимизатору возможности использования <code>NESTED LOOP</code> при выборе плана выполнения запроса в конфигурации PostgreSQL:
+
+<ul>
+<li>Файл <em>postgresql.conf</em> - <code>enable_nestloop = off</code>.</li>
+<li>Отрицательным эффектом этого способа является возможное замедление некоторых запросов, поскольку при их выполении будут использоваться другие, более затратные, методы соединения (<code>HASH JOIN</code>).</li>
+</ul>
+</li>
+<li>Отключение оптимизатору возможности изменения порядка соединений таблиц в запросе:
+
+<ul>
+<li>Файл <em>postgresql.conf</em> - <code>join_collapse_limit=1</code>.</li>
+<li>Следует использовать этот метод, если вы уверены в правильности порядка соединений таблиц в проблемном запросе.</li>
+</ul>
+</li>
+<li>Изменение параметров настройки оптимизатора:
+
+<ul>
+<li>Файл <em>postgresql.conf:</em>
+
+<ul>
+<li><code>seq_page_cost = 0.1</code></li>
+<li><code>random_page_cost = 0.4</code></li>
+<li><code>cpu_operator_cost = 0.00025</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Использование версии PostgreSQL 9.1.2-1.1.C и выше, в которой реализован независимый от <code>AUTOVACUUM</code> сбор статистики, на основе информации об изменении данных в таблице. По умолчанию включен сбор статистики только для временных таблиц и во многих ситуациях этого достаточно. При возникновении проблем с производительностью выполнения регламентных операций, можно включить сбор статистики для всех  или отдельных проблемных таблиц изменив значение параметра конфигурации PostgreSQL (файл <em>postgresql.conf</em>) <code>online_analyze.table_type = "temporary"</code>  на <code>online_analyze.table_type = "all"</code>.</li>
+</ul>
+
+
+<p>После изменения этих параметров, следует оценить возможное влияние этих изменений на работу системы и выбрать наиболее приемлимый вариант для ваших задач.</p>
+
+<h2><span style="color:#cd0021;">Послесловие.</span></h2>
+
+<p>Ко всему вышеперечисленному можно так же добавить:</p>
+
+<ul>
+<li>Необходимость использования <a href="http://v8.1c.ru/overview/Term_000000642.htm">управляемых блокировок</a> при разработке прикладного решения. Если же у вас типовая конфигурация, то по возможности ее так же необходимо переводить на управляемые блокировки.</li>
+<li>Рекомендацию реализовать для PostgreSQL кэширование на <a href="https://ru.wikipedia.org/wiki/SSD">SSD-накопитель</a>. Сделать это можно с помощью <a href="https://ru.wikipedia.org/wiki/Flashcache">Flashcache</a> или <a href="https://en.wikipedia.org/wiki/Bcache">Bcache</a>. Подробнее вопрос организации системы кэширования я рассмотрю в другой статье.</li>
+<li>Довольно удобный <a href="http://pgtune.leopard.in.ua/">веб-сервис</a> для начальной настройки PostgreSQL его <a href="/how-to/1c-predpriyatie-8-3+postgresql-na-baze-debian-8-jessie/#comment-2612892713">порекомендовал</a> мне товарищ Vasiliy P. Melnik. Несмотря на то, что интерфейс на английском, он простой и интуитивно понятный. Думаю каждый желающий сможет с ним разобраться.</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>

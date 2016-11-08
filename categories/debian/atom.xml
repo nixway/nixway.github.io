@@ -1,0 +1,1050 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Категория: Debian | Путь юниксоида]]></title>
+  <link href="http://nixway.org/categories/debian/atom.xml" rel="self"/>
+  <link href="http://nixway.org/"/>
+  <updated>2016-11-08T18:44:50+06:00</updated>
+  <id>http://nixway.org/</id>
+  <author>
+    <name><![CDATA[nihi1ist]]></name>
+    <email><![CDATA[nihi1ist@nixway.org]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Установка и настройка Octopress 2.0 с помощью RVM]]></title>
+    <link href="http://nixway.org/2016/08/23/ustanovka-i-nastroika-octopress-2.0-s-pomocshyu-rvm/"/>
+    <updated>2016-08-23T16:23:31+06:00</updated>
+    <id>http://nixway.org/2016/08/23/ustanovka-i-nastroika-octopress-2.0-s-pomocshyu-rvm</id>
+    <content type="html"><![CDATA[<p><img src="/images/posts/2016-08-23/octopress-install-and-configuring.png" alt="Octopress Install" /></p>
+
+<p>По просьбе знакомого выкладываю инструкцию по установке и настройке <a href="http://octopress.org/">Octopress</a>. Octopress - это простой и удобный генератор статичных сайтов. Он поддерживает выгрузку на <a href="https://ru.wikipedia.org/wiki/GitHub">GitHub</a>, <a href="https://ru.wikipedia.org/wiki/Bitbucket">Bitbucket</a>, <a href="https://ru.wikipedia.org/wiki/Heroku">Heroku</a> или на ваш сервер с помощью <a href="https://ru.wikipedia.org/wiki/Rsync">Rsync</a>.</p>
+
+<!-- more -->
+
+
+<h3>Формирование рабочей среды для Octopress. <a name="ruby"></a></h3>
+
+<p>В документации на официальном сайте указано, что для корректной работы Octopress требуется Ruby версии 1.9.3. Но у абсолютного большинства, в репозиториях предлагается версия от 2.1 и выше. В той же документации для того, чтобы установить версию&nbsp;1.9.3 предлагается использовать <a href="http://octopress.org/docs/setup/rbenv/">rbenv</a> или <a href="http://octopress.org/docs/setup/rvm">RVM</a>. Для себя я выбрал RVM <em>(Ruby Version Manager)</em>. На его примере мы и рассмотрим установку Octopress.</p>
+
+<p>Для начала установим в систему необходимые пакеты:</p>
+
+<pre><code># apt-get install nodejs git curl
+</code></pre>
+
+<p><span style="color:#cd0021;"><strong>ПРИМЕЧАНИЕ!</strong></span> Для наглядности, перед каждой командой будет указан определенный символ, если это <code>#</code> - значит команда выполняется от имени суперпользователя <strong>root</strong>, если символ <code>$</code> - то команда выполняется от имени текущего пользователя.</p>
+
+<p>После чего установим RVM:</p>
+
+<pre><code>$ curl -L https://get.rvm.io | bash -s stable
+</code></pre>
+
+<p>Подскажем системе, где искать RVM:</p>
+
+<pre><code>$ source "$HOME/.rvm/scripts/rvm"
+</code></pre>
+
+<p>Чтобы в дальнейшем каждый раз не указывать путь до каталога с RVM, добавим путь до него в <em>.bashrc:</em></p>
+
+<pre><code>$ echo '[[ -s "$HOME/.rvm/scripts/rvm" ]] &amp;&amp; source "$HOME/.rvm/scripts/rvm"' &gt;&gt; ~/.bashrc
+</code></pre>
+
+<p>Установим необходимую версию Ruby:</p>
+
+<pre><code>$ rvm install 1.9.3
+</code></pre>
+
+<p>Перезапускаем RVM, и выбираем версию 1.9.3. С помощью ключа <code>--default</code> мы указываем, что будем использовать эту версию по умолчанию:
+<code>
+$ rvm reload
+RVM reloaded!
+$ rvm use --default 1.9.3
+Using /home/nihi1ist/.rvm/gems/ruby-1.9.3-p551
+</code></p>
+
+<p>Смотрим какая версия Ruby используется в данный момент:</p>
+
+<pre><code>$ ruby -v
+Using /home/nihi1ist/.rvm/gems/ruby-1.9.3-p551
+</code></pre>
+
+<p>Отлично! Нужная версия Ruby установна и готова к использованию. Можно приступить к установке Octopress. Скачиваем с GitHub необходимые файлы:</p>
+
+<p><span style="color:#cd0021;"><strong>ПРИМЕЧАНИЕ!</strong></span> Установщик может в процессе установки может затребовать пароль, для того чтобы установить в систему необходимые зависимости.</p>
+
+<h3>Установка Octopress.</h3>
+
+<pre><code>$ git clone git://github.com/imathis/octopress.git octopress
+$ cd octopress
+</code></pre>
+
+<p>Установим gem с названием <strong>bundler</strong>:</p>
+
+<pre><code>$ gem install bundler
+</code></pre>
+
+<p>Вышеупомянутый gem позволит нам установить другие gem'ы, указанные в файле <em>Gemfile</em>. Запустим команду установки:</p>
+
+<pre><code>$ bundle install
+Fetching gem metadata from https://rubygems.org/.........
+Fetching version metadata from https://rubygems.org/..
+Fetching dependency metadata from https://rubygems.org/.
+Installing rake 10.4.2
+Installing RedCloth 4.2.9 with native extensions
+Installing blankslate 2.1.2.4
+Installing chunky_png 1.3.5
+...
+Installing listen 3.0.5
+Installing sinatra 1.4.6
+Installing jekyll-watch 1.3.0
+Installing jekyll 2.5.3
+Installing octopress-hooks 2.6.1
+Installing octopress-date-format 2.0.2
+Bundle complete! 14 Gemfile dependencies, 48 gems now installed.
+Use `bundle show [gemname]` to see where a bundled gem is installed.
+Post-install message from compass:
+    Compass is charityware. If you love it, please donate on our behalf at http://umdf.org/compass Thanks!
+Post-install message from haml:
+
+HEADS UP! Haml 4.0 has many improvements, but also has changes that may break
+your application:
+
+* Support for Ruby 1.8.6 dropped
+* Support for Rails 2 dropped
+* Sass filter now always outputs &lt;style&gt; tags
+* Data attributes are now hyphenated, not underscored
+* html2haml utility moved to the html2haml gem
+* Textile and Maruku filters moved to the haml-contrib gem
+
+For more info see:
+
+http://rubydoc.info/github/haml/haml/file/CHANGELOG.md
+</code></pre>
+
+<p>Выхлоп сокращен.</p>
+
+<p>Установим стандартную тему:</p>
+
+<pre><code>$ rake install
+</code></pre>
+
+<p>Если вас не устраивает стандартная тема, то вы можете выбрать тему по вкусу <a href="https://github.com/imathis/octopress/wiki/3rd-Party-Octopress-Themes">здесь</a>. Процесс установки альтернативной темы несложен. Переходим в каталог Octopress:</p>
+
+<pre><code>$ cd octopress
+</code></pre>
+
+<p>Скачиваем нужную тему:</p>
+
+<pre><code>$ git submodule add GIT_URL .themes/THEME_NAME
+</code></pre>
+
+<p>Где <code>GIT_URL</code> - имя репозитория темы, а <code>THEME_NAME</code> - имя темы. Теперь тема доступна для установки:</p>
+
+<pre><code>$ rake install['THEME_NAME']
+</code></pre>
+
+<p>После чего заново генерируем сайт:</p>
+
+<pre><code>$ rake generate
+</code></pre>
+
+<h3>Подготовка к развертыванию сайта на базе GitHub.</h3>
+
+<p>В качестве платформы для сайта я решил выбрать GitHub, тому есть два аргумента, которые оказались лично для меня важными:<br/>
+- бесплатный,<br/>
+- поддерживает <code>CNAME</code>*</p>
+
+<p>* Поддежка <code>CNAME</code> позволяет прикреплять произвольный домен к репозиторию.</p>
+
+<p>Описывать <a href="https://github.com/join?source=header-home">регистрацию</a> на GitHub я не буду. Но опишу процесс создания репозитория. После того как вы зарегистрируетесь, создайте репозиторий (рис. 1):</p>
+
+<p><a name="img1"></a><img src="/images/posts/2016-08-23/octopress-github-repository-create.png" alt="Create GitHub repository" />
+<strong><em><center>Рисунок 1.</center></em></strong></p>
+
+<p>Хочу обратить ваше внимание, что имя сайта должно быть идентично имени пользователя.</p>
+
+<p><a name="img2"></a><a href="/images/posts/2016-08-23/octopress-github-repository-create-options.png"><img src="/images/posts/2016-08-23/octopress-github-repository-create-options-preview.png" alt="GitHub repository options" /></a>
+<strong><em><center>Рисунок 2.</center></em></strong></p>
+
+<p>После того как вы создадите репозиторий, система перенаправит вас на страницу с репозиторием. Так как репозиторий пуст, система покажет небольшую инструкцию с вариантами заполнения репозитория. В случае с Octopress, процессом выгрузки управляет специальный скрипт. Потому мы можем переходить к следующему шагу.</p>
+
+<p><a name="img3"></a><a href="/images/posts/2016-08-23/octopress-github-repository-create-finish.png"><img src="/images/posts/2016-08-23/octopress-github-repository-create-finish-preview.png" alt="GitHub repository created" /></a>
+<strong><em><center>Рисунок 3.</center></em></strong></p>
+
+<p>Для выгрузки в репозиторий используется публичный SSH-ключ. Его можно добавить как в настройках репозитория (рис. 3, рис. 4), так и в настроках профиля. Если вы добавите ключ только для репозитория, он будет использоватся лишь для работы с указанным репозиторием.</p>
+
+<p><a name="img4"></a><a href="/images/posts/2016-08-23/octopress-github-repository-ssh-key-add.png"><img src="/images/posts/2016-08-23/octopress-github-repository-ssh-key-add-preview.png" alt="Add SSH-key to repository" /></a>
+<strong><em><center>Рисунок 4.</center></em></strong></p>
+
+<p>Если у вас ещё нет публичного SSH-ключа, самое время создать его. Как это сделать, вы можете посмотреть <a href="https://community.nixway.org/viewtopic.php?pid=694">здесь</a>.</p>
+
+<p>Теперь свяжем созданный выше репозиторий с каталогом Octopress. Для этого запустим команду <code>setup_github_pages</code>. В&nbsp;процессе команда запросит адрес репозитория, пример адреса показан на <a href="#img3">рис. 3</a>.</p>
+
+<pre><code>$ rake setup_github_pages
+Enter the read/write url for your repository
+(For example, 'git@github.com:your_username/your_username.github.io.git)
+           or 'https://github.com/your_username/your_username.github.io')
+Repository url: git@github.com:nihi1ist/nihi1ist.github.io.git
+</code></pre>
+
+<p>Если вы все сделали верно, значит у вас настроена выгрузка в ваш репозиторий на GitHub.</p>
+
+<h3>Настройка блога.</h3>
+
+<p>Основные настройки хранятся в файле <em>_config.yml</em>. Сам файл расположен в корневой папке Octopress. Ниже приведу содержимое этого файла с комментариями.</p>
+
+<div class="spoiler">
+<input id="spoilerid_1" type="checkbox"><label for="spoilerid_1">
+Пример файла конфигурации
+</label><div class="spoiler_body">
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># ----------------------- #
+</span><span class='line'>#      Main Configs       #
+</span><span class='line'># ----------------------- #
+</span><span class='line'>
+</span><span class='line'>url: http://yoursite.com
+</span><span class='line'>title: Название вашего блога
+</span><span class='line'>subtitle: Описание вашего блога
+</span><span class='line'>author: Ваш Ник/Имя
+</span><span class='line'>simple_search: https://www.google.com/search            # Поисковая система блога
+</span><span class='line'>description:
+</span><span class='line'>
+</span><span class='line'># Формат даты по умолчанию "ordinal" (Пример: "July 22nd 2007")
+</span><span class='line'># Как настроить формат даты показано на странице 
+</span><span class='line'># http://www.ruby-doc.org/core-1.9.2/Time.html#method-i-strftime
+</span><span class='line'># Кроме того, %o даст вам порядковый номер дня
+</span><span class='line'>date_format: "ordinal"
+</span><span class='line'>
+</span><span class='line'># RSS / Email (необязательно) ссылки для подписки
+</span><span class='line'># (изменится если использовать что нибудь вроде Feedburner)
+</span><span class='line'>subscribe_rss: /atom.xml
+</span><span class='line'>subscribe_email:
+</span><span class='line'># RSS feeds can list your email address if you like
+</span><span class='line'>email:
+</span><span class='line'>
+</span><span class='line'># ----------------------- #
+</span><span class='line'>#    Jekyll & Plugins     #
+</span><span class='line'># ----------------------- #
+</span><span class='line'>
+</span><span class='line'># Если вы хотите публиковать контент в подкаталог, например http://site.com/project
+</span><span class='line'># тогда установите параметре корня сайта - 'root: /project'
+</span><span class='line'>root: /
+</span><span class='line'># С помощью параметра ниже можно задать формат пути для статьи
+</span><span class='line'># можно так же использовать переменные :category 
+</span><span class='line'>permalink: /blog/:year/:month/:day/:title/
+</span><span class='line'>source: source
+</span><span class='line'>destination: public
+</span><span class='line'>plugins: plugins
+</span><span class='line'>code_dir: downloads/code
+</span><span class='line'>category_dir: blog/categories
+</span><span class='line'>markdown: rdiscount
+</span><span class='line'>rdiscount:
+</span><span class='line'>  extensions:
+</span><span class='line'>    - autolink
+</span><span class='line'>    - footnotes
+</span><span class='line'>    - smart
+</span><span class='line'>highlighter: pygments # default python pygments have been replaced by pygments.rb
+</span><span class='line'>
+</span><span class='line'>paginate: 10                    # Количество сообщений на главной странице
+</span><span class='line'>paginate_path: "posts/:num"     # Directory base for pagination URLs eg. /posts/2/
+</span><span class='line'>recent_posts: 5                 # Количество сообщений в разделе Recent Posts
+</span><span class='line'>excerpt_link: "Read on &rarr;"  # "Continue reading" Текст ссылки 
+</span><span class='line'>excerpt_separator: "&lt;!--more--&gt;"# Разделитель для статьи
+</span><span class='line'>
+</span><span class='line'>titlecase: true                 # Converts page and post titles to titlecase
+</span><span class='line'>
+</span><span class='line'># Перечислите модули которые вы хотите добавить на боковую панель, в том порядке который вам нужен
+</span><span class='line'># Для того чтобы добавить свой asides, создайте файл в директории /source/_includes/custom/asides/
+</span><span class='line'># И добавьте их к списку ниже как 'asides/custom_aside_name.html'
+</span><span class='line'>default_asides: [asides/recent_posts.html, asides/github.html, asides/delicious.html, asides/pinboard.html, asides/googleplus.html]
+</span><span class='line'>
+</span><span class='line'># Each layout uses the default asides, but they can have their own asides instead. Simply uncomment the lines below
+</span><span class='line'># and add an array with the asides you want to use.
+</span><span class='line'># blog_index_asides:
+</span><span class='line'># post_asides:
+</span><span class='line'># page_asides:</span></code></pre></td></tr></table></div></figure>
+
+</div></div>
+
+
+<p>Комментарии переведены не до конца. Пользуюсь машинным переводом, но он не всегда может помочь. Со временем перевод конечно же будет закончен. Но если найдутся желающие помочь с переводом, буду рад.</p>
+
+<h3>Создание страниц и сообщений.</h3>
+
+<p>Процедура создания новых сообщений/страниц, достаточна проста. Вы можете указывать имя на кириллице, скрипт автоматически переведет название в транслит и укажет полученное название в имени файла. Если в имени нового сообщения/статьи есть пробелы, необходимо использовать кавычки. Несмотря на то, что в справке это не упоминается.</p>
+
+<p>Новые сообщения создаются в каталоге <code>octopress/source/_posts</code> и имеют формат имени <code>YYYY-MM-DD-post-name.markdown</code>:</p>
+
+<pre><code>$ rake new_post["Новое сообщение"]
+mkdir -p source/_posts
+Creating new post: source/_posts/2016-11-02-novoie-soobshchieniie.markdown
+</code></pre>
+
+<p>Созданный файл имеет следующую структуру:</p>
+
+<pre><code>---
+layout: post
+title: "Новое сообщение"
+date: 2016-11-02 12:58:46 +0600
+comments: true
+categories:
+---
+</code></pre>
+
+<p>Это каркас сообщения. Настройки интуитивно понятны, можно разрешить/запретить комментарии, указать категорию (можно указать несколько категорий), функционал аналогичен функционалу тегов. Для разделения короткого и полного текста используется тег <code>&lt;!-- more --&gt;</code>.</p>
+
+<p>Для новых страниц создается новый каталог с именем создаваемой страницы. К примеру создаем новую страницу:</p>
+
+<pre><code>$ rake new_page["Новая страниц"]
+mkdir -p source/novaia-stranitsa
+Creating new page: source/novaia-stranitsa/index.markdown
+</code></pre>
+
+<p>В результате будет создан каталог, а уже в этом каталоге будет создан файл <code>index.markdown</code> со следующим содержимым:</p>
+
+<pre><code>---
+layout: page
+title: "Новая страница"
+date: 2016-11-02 12:55
+comments: true
+sharing: true
+footer: true
+---
+</code></pre>
+
+<p>Для создаваемых страниц я обычно отключаю комментарии, подвал и прочее. Для форматирования текста используется <a href="https://ru.wikipedia.org/wiki/Markdown">markdown</a>.</p>
+
+<h3>Справка по rake.</h3>
+
+<p>В документации Octopress на сайте разработчиков перечислены лишь несколько команд для rake: <code>generate</code>, <code>deploy</code>, <code>new_post</code>, <code>new_page</code> и др. На самом деле у <code>rake</code> для Octopress команд больше, посмотреть их список можно с помощью - <code>rake list</code>, а получить список с описанием команд можно вот так - <code>rake -T</code>:</p>
+
+<pre><code>$ rake -T
+rake clean                     # Очищает кэши: .pygments-cache, .gist-cache, .sass-cache
+rake copydot[source,dest]      # Копирует dot-файлы для развертывания
+rake deploy                    # Развертывает сгенерированный сайт на вашу платформу
+rake gen_deploy                # Генерирует и развертывает сайт
+rake generate                  # Генерирует сайт
+rake install[theme_name]       # Устанавливает тему для сайта
+rake integrate                 # Перемещает все посты, помещенные в stash командой isolate, обратно в
+                               # posts-директорию, сайт при этом готов к генерации 
+rake isolate[filename]         # Перемещает все посты, кроме того, над которым сейчас ведется работа,
+                               # во временную директорию stash, что приводит к существенному ускорению
+                               # генерации сайта
+rake list                      # Показывает список доступных задач
+rake new_page[filename]        # Создает новую страницу сайта в source/[filename]/index.markdown
+rake new_post[title]           # Создает новый пост для сайта в source/_posts
+rake preview                   # Предпросмотр сайта в браузере на локальной машине
+rake push                      # Развертывает public-директорию через Git
+rake rsync                     # Развертывает сайт через Rsync
+rake set_root_dir[dir]         # Обновляет настройки для поддержки публикации в root или вложенную директорию
+rake setup_github_pages[repo]  # Настраивает директорию _deploy и развертывает ветвь в Github Pages
+rake update_source[theme]      # Перемещает source в source.old, устанавливает source theme updates,
+                               # замещает source/_includes/navigation.html навигацией из source.old
+rake update_style[theme]       # Перемещает sass в sass.old, устанавливает sass theme updates, заменяет
+                               # sass/custom файлом sass.old/custom
+rake watch                     # Предпросмотр сайта и автоматическая генерация при изменении файлов
+                               # (не работает, хотя может я неправильно использую...)
+</code></pre>
+
+<p>Перевел в меру своих сил, если встретите неточность, пишите в комментариях.</p>
+
+<h3>Локализация на русский язык</h3>
+
+<p>К сожалению, Octopress не имеет локализации на русском языке. Но этот недостаток легко можно исправить вручную. Я ищу текст который нужно перевести с помощью команды <code>grep</code>.</p>
+
+<pre><code>$ grep -irl "comments" source
+</code></pre>
+
+<p>Где <code>comments</code> - слово которое надо перевести, а <code>source</code> - каталог поиска.
+Поиск должен проводиться в каталоге с файлами Octopress. Вы так же можете
+переделать саму тему. И при последующей установке темы у вас уже будет сайт на
+русском языке.</p>
+
+<p>Для локализации дат, надо заменить содержимое файла:</p>
+
+<pre><code>octopress/plugin/date.rb
+</code></pre>
+
+<p>на <a href="/files/date.rb.txt">это</a>. А содержимое файла:</p>
+
+<pre><code>octopress/source/_includes/post/date.html
+</code></pre>
+
+<p>на <a href="/files/date.html.txt">это</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Установка и настройка Bind9 на Debian&nbsp;8&nbsp;&laquo;Jessie&raquo;]]></title>
+    <link href="http://nixway.org/2015/05/01/ustanovka-i-nastroika-bind9-na-debian-jessie/"/>
+    <updated>2015-05-01T09:29:13+06:00</updated>
+    <id>http://nixway.org/2015/05/01/ustanovka-i-nastroika-bind9-na-debian-jessie</id>
+    <content type="html"><![CDATA[<p><img src="/images/posts/2015-05-01/debian+bind9.png" alt="Bind9" /></p>
+
+<p>В сети очень много статей на тему установки и настройки DNS-сервера Bind9. Они разные. Некоторые написаны просто и доступно, но нет пояснений зачем и почему. В других материал подан очень подробно, но новичкам такой материал осилить сложно. Я же попытаюсь совместить достоинства способов подачи материала, нащупать ту золотую середину, которая подойден большинству. Но опять таки, я не претендую на истину в последней инстанции и готов принять конструктивную критику.</p>
+
+<!--more-->
+
+
+<p>Итак, вступление закончено, приступим к самой статье. Я как приверженнец Debian, буду описывать процесс установки и настройки именно на этой ОС. Дано Debian&nbsp;8&nbsp;&laquo;Jessie&raquo; установленный вот с такими параметрами <em>(Ну разве кроме пункта <strong>web server</strong>, он пригодится тем, кто в дальнейшем будет работать с веб-сервером Apache):</em><br/>
+<a href="/images/posts/2015-05-01/debian_preinstall_options.png"><img src="/images/posts/2015-05-01/debian_preinstall_options_preview.png" alt="Debian preinstall options" /></a></p>
+
+<h4>Настройки сети:</h4>
+
+<pre><code>IP адрес роутера 192.168.1.1
+IP адрес сервера 192.168.1.10
+Имя домена nixway.loc
+</code></pre>
+
+<p>Для решения данной задачи настроим сервер таким образом, чтобы при обращении по доменному имени внутри сети он отвечал по локальному адресу. Все комманды выполняются от имени суперпользователя (<strong>root</strong>).</p>
+
+<p>Сначала установим необходимые пакеты:
+<code>
+apt-get -y install bind9 dnsutils
+</code></p>
+
+<p>Теперь необходимо настроить файл конфигурации Bind9:
+<code>
+vim /etc/bind/named.conf.options
+</code></p>
+
+<p>Приведём его к следующему виду:
+<code>
+acl mynetwork {192.168.1.0/24; 127.0.0.1; };
+options {
+    directory "/var/cache/bind";
+    auth-nxdomain no;
+    forwarders {192.168.1.1; 8.8.8.8; };
+    listen-on-v6 { none; };
+    allow-query { mynetwork; };
+};
+</code></p>
+
+<p><strong>Расшифровка:</strong><br/>
+<code>acl</code> - создает <a href="https://ru.wikipedia.org/wiki/ACL">ACL</a> (<em>Access control list</em>) - так называемый список контроля доступа, с помощью которого мы ограничиваем диапазон адресов которые могут запрашивать зоны с нашего сервера. В данном примере это разрешено подсети <code>192.168.1.0/24</code>. и <a href="https://ru.wikipedia.org/wiki/Localhost">локальному хосту</a>.<br/>
+<code>allow-query { mynetwork; };</code> - список тех, кто имеет право запрашивать  информацию. Можно ограничить с помошью <em>acl</em> либо установить <code>allow-query { any; };</code> - что будет означать, что запросы разрешенмы всем.<br/>
+<code>forwarders {192.168.1.1; 8.8.8.8; };</code> - это DNS провайдера, или любые другие, у которых можно получить информацию о доменах неизвестных вашему серверу.<br/>
+<code>listen-on-v6 { none; }</code> - запрещает работать с IPv6.</p>
+
+<h3>Настройка зон</h3>
+
+<p>Для начала покорректируем файл локальной конфигурации Bind9:
+<code>
+vim /etc/bind/named.conf.local
+</code></p>
+
+<p>Этот файл содержит локальную конфигурацию DNS-сервера, в нем объявляются зоны, связанные с доменами этого сервера. Добавляем в него файлы наших зон (зону прямого просмотра и зону обратного просмотра):
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>zone &ldquo;nixway.loc&rdquo; {
+</span><span class='line'>    type master;
+</span><span class='line'>    file &ldquo;/etc/bind/zones/nixway/flz.nixway.zone&rdquo;;
+</span><span class='line'>};&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;zone &ldquo;1.168.192.in-addr.arpa&rdquo; {
+</span><span class='line'>    type master;
+</span><span class='line'>    file &ldquo;/etc/bind/zones/nixway/rlz.nixway.zone&rdquo;;
+</span><span class='line'>};&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;pre&gt;&lt;code&gt;
+</span><span class='line'>### Зона прямого просмотра
+</span><span class='line'>Зона в DNS — это часть пространства имён DNS, управляемая конкретным сервером или группой серверов DNS. Зона прямого просмотра - это тип зоны в которой доменное имя преобразуется в IP-адрес. Создадим файл для зоны прямого просмотра:
+</span><span class='line'>&lt;/code&gt;&lt;/pre&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;vim /etc/bind/zones/nixway/flz.nixway.zone</span></code></pre></td></tr></table></div></figure></p>
+
+<p>Со следующим содержимым:
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>;
+</span><span class='line'>; Зона прямого просмотра
+</span><span class='line'>;
+</span><span class='line'>$TTL 30
+</span><span class='line'>$ORIGIN nixway.loc.&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;@               IN      SOA     ns1.nixway.loc. admin.nixway.loc. (
+</span><span class='line'>        2015050101      ; Serial
+</span><span class='line'>                1d      ; Refresh
+</span><span class='line'>                1h      ; Retry
+</span><span class='line'>                1w      ; Expire
+</span><span class='line'>                2h      ; Negative Cache TTL
+</span><span class='line'>)&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;@               IN      NS      ns1.nixway.loc.
+</span><span class='line'>@               IN      NS      ns.provider.org.
+</span><span class='line'>@               IN      A       192.168.1.10&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;ns1             IN      A       192.168.1.10
+</span><span class='line'>nixway.loc      IN      A       192.168.1.10&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;www             IN      CNAME   nixway.loc.&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;pre&gt;&lt;code&gt;
+</span><span class='line'>В конце этого файла нужно обязательно оставить пустую строку!
+</span><span class='line'>
+</span><span class='line'>**Расшифровка:**  
+</span><span class='line'>`$ORIGIN` - оригинальное имя зоны  
+</span><span class='line'>`ns1.nixway.loc.`  - Наш DNS-сервер (точка в конце обязательна).  
+</span><span class='line'>`admin.nixway.loc.` - email администратора сервера, где вместо символа @ используется точка.  
+</span><span class='line'>`Serial` - серийный номер зоны в формате ГГГГММДД и номер текущего изменения за этот день. (Важно, при каждом изменении, нужно редактировать этот номер увеличивая его в большую сторону) Пример: `2015020301.`  
+</span><span class='line'>`Refresh` - период времени с которым вторичный сервер днс обращается к основному.  
+</span><span class='line'>`Retry` - период с которым вторичный сервер будет повторять попытки при неудачном обновлении.  
+</span><span class='line'>`Expire` - максимальное время использования данных на вторичном сервере, после которого делается обязательное обновление.  
+</span><span class='line'>`Negative Cache TTL` - время актуальности данных в кэше запросов.  
+</span><span class='line'>
+</span><span class='line'>Далее идут записи имён хостов с ip-адресами или псевдонимами.  
+</span><span class='line'>`ns.provider.org.` - вместо этой записи можете указать NS вашего регистратора либо Free DNS сервиса.
+</span><span class='line'>
+</span><span class='line'>### Зона обратного просмотра
+</span><span class='line'>Зона обратного просмотра, выполняет преобразование IP-адреса в доменное имя. Создадим файл для зоны обратного просмотра:
+</span><span class='line'>&lt;/code&gt;&lt;/pre&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;vim /etc/bind/zones/nixway/rlz.nixway.zone</span></code></pre></td></tr></table></div></figure></p>
+
+<p>И запишем туда следующее:
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>;
+</span><span class='line'>; Зона обратного просмотря для nixway.loc
+</span><span class='line'>;
+</span><span class='line'>$TTL 30
+</span><span class='line'>@               IN      SOA     ns1.nixway.loc. root.nixway.loc. (
+</span><span class='line'>         201505013      ; Serial
+</span><span class='line'>                1d      ; Refresh
+</span><span class='line'>                1h      ; Retry
+</span><span class='line'>                1w      ; Expire
+</span><span class='line'>                2h      ; Negative Cache TTL
+</span><span class='line'>)&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;@               IN      NS      nixway.loc.&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;10              IN      PTR     ns1.nixway.loc.&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;pre&gt;&lt;code&gt;
+</span><span class='line'>В этом файле должны быть только записи типа `PTR`. В конце этого файла так же должна быть пустая строка. Число `10` - это последний [октет](https://ru.wikipedia.org/wiki/%D0%9E%D0%BA%D1%82%D0%B5%D1%82_%28%D0%B8%D0%BD%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B8%D0%BA%D0%B0%29) в IP адресе нашего сервера.
+</span><span class='line'>
+</span><span class='line'>Например, можно добавить в файл зоны прямого просмотра строку:
+</span><span class='line'>&lt;/code&gt;&lt;/pre&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;router          IN      A       192.168.1.1</span></code></pre></td></tr></table></div></figure></p>
+
+<p>А в файл зоны обратного просмотра строку:
+<code>
+1               IN      PTR     router.nixway.loc.
+</code></p>
+
+<p>Тогда по адресу <code>router.nixway.loc</code> в браузере будет открываться web-интерфейс роутера (эквивалентно <em>192.168.1.1</em>), но только внутри локальной сети.</p>
+
+<h3>Проверка</h3>
+
+<p>Проверим файлы зон на наличие ошибок командой:
+<code>
+named-checkconf -z
+</code></p>
+
+<p>Если ошибок нет, обновим информацию о зонах:
+<code>
+rndc reload
+</code></p>
+
+<p>Теперь необходимо отредактировать <em>resolv.conf</em>:
+<code>
+vim /etc/resolv.conf
+</code></p>
+
+<p>Приводим его в следующий вид:
+<code>
+domain nixway.loc
+search nixway.loc
+nameserver 192.168.1.10
+nameserver 192.168.1.1
+</code></p>
+
+<p>Проверку можно сделать двумя командами:
+<code>
+nslookup nixway.loc
+nslookup 192.168.1.10
+</code></p>
+
+<p>Которые должны выдать cледующий результат:
+<code>
+Имя:   nixway.loc
+Address: 192.168.1.10
+</code></p>
+
+<h3>Последние штрихи</h3>
+
+<p>Если DHCP у вас раздает роутер, не забудьте установить выдаваемые по умолчанию DNS сервера 192.168.1.10 и 192.168.1.1
+Проверьте корректность работы, введя в консоли Windows-машины
+<code>
+tracert nixway.loc
+</code></p>
+
+<p>Если маршрут пошел сразу на адрес  192.168.1.10, значит все работает корректно. Если нет, пропробуйте очистить кэш DNS и посторить еще раз:
+<code>
+ipconfig /flushdns
+</code></p>
+
+<p>Не забудьте пробросить необходимые порты на роутере, если это необходимо конечно.</p>
+
+<p><a href="http://forum.nixway.org/viewtopic.php?id=27">Обсуждение</a> статьи на форуме.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Установка и настройка LNMP на CentOS, Debian и Gentoo]]></title>
+    <link href="http://nixway.org/2013/06/12/ustanovka-i-nastroika-lnmp-na-centos-debian-gentoo/"/>
+    <updated>2013-06-12T16:15:21+06:00</updated>
+    <id>http://nixway.org/2013/06/12/ustanovka-i-nastroika-lnmp-na-centos-debian-gentoo</id>
+    <content type="html"><![CDATA[<p><img src="/images/posts/2013-06-12/nginx_to_centos_debian_and_gentoo.png" alt="nginx to CentOS, Debian and Gentoo" /></p>
+
+<p>Это руководство открывает серию материалов по установке известных систем управления содержимым (<a href="http://ru.wikipedia.org/wiki/CMS">CMS</a>) на веб-сервер <a href="https://ru.wikipedia.org/wiki/Nginx">nginx</a>. В отдельную статью необходимо выделить общую часть, которая будет одинаковой для всех CMS, написанных на PHP (грубо говоря мы сделаем тот же <a href="http://ru.wikipedia.org/wiki/LAMP">LAMP</a>, только вместо громоздкого и неповоротливого веб-сервера <a href="https://ru.wikipedia.org/wiki/Apache_HTTP_Server">Apache</a> у нас будет nginx). Задача данного руководства – установка веб-сервера nginx, системы управления базами данных MySQL и менеджера процессов FastCGI (FPM), а также их настройка.</p>
+
+<!--more-->
+
+
+<p>* Конфигурация и установка отдельных CMS будут описаны в дополнительных материалах.</p>
+
+<h2>Установка и запуск nginx, MySQL, PHP-FPM (Linux, nginx, MySQL, PHP - LNMP)</h2>
+
+<p>Все приведенные ниже инструкции сначала были выполнены.<br/>
+Небольшие пояснения:<br/>
+- символ <code>#</code> (решётка) - означает выполнение команды от <strong>root</strong> (суперпользователя)<br/>
+- <code>cat /path/to/some.file</code> - означает что ниже приведено полное содержимое файла <code>some.file</code>, расположенного в каталоге <code>/path/to</code><br/>
+- <code>nano /path/to/some.file</code> - означает что надо отредактировать часть файла как указанно<br/>
+- в процессе установки MySQL будет произведена предварительная настройка и задан пароль <strong>root</strong>.</p>
+
+<p><strong><em>Gentoo:</em></strong></p>
+
+<pre><code># echo "dev-lang/php gd gd2 curl simplexml tokenizer dom tidy sqlite xml fpm cgi" &gt;&gt; /etc/portage/package.use
+# emerge php nginx mysql
+</code></pre>
+
+<p>Вначале необходимо произвести начальную настройку MySQL:</p>
+
+<pre><code># emerge --config dev-db/mysql
+</code></pre>
+
+<p><strong><em>Debian:</em></strong></p>
+
+<pre><code># cat /etc/apt/sources.list.d/nginx.list
+deb http://nginx.org/packages/debian/ wheezy nginx
+deb-src http://nginx.org/packages/debian/ wheezy nginx
+# wget http://nginx.org/keys/nginx_signing.key &amp;&amp; cat nginx_signing.key | apt-key add -
+</code></pre>
+
+<pre><code># apt-get install nginx php5-cli php5-common php5-fpm fcgiwrap mysql-server php5-mysql php5-gd
+</code></pre>
+
+<p><strong><em>CentOS.</em></strong> Тут надо заметить, что в своих репозиториях CentOS нет nginx, поэтому добавим репозиторий:</p>
+
+<pre><code># cat /etc/yum.repos.d/nginx.repo
+[nginx]
+name=nginx repo
+baseurl=http://nginx.org/packages/centos/$releasever/$basearch/
+gpgcheck=0
+enabled=1
+# yum update
+</code></pre>
+
+<pre><code># yum install nginx mysql mysql-server php-fpm php-cli php-mysql php-gd
+</code></pre>
+
+<p>Настроить MySQL:</p>
+
+<pre><code># service mysql start
+# /usr/bin/mysql_secure_installation
+</code></pre>
+
+<p>Управление сервисами MySQL, nginx, PHP-FPM и добавление их в автозагрузку:<br/>
+<strong><em>Gentoo:</em></strong></p>
+
+<pre><code># /etc/init.d/nginx start
+# /etc/init.d/mysql start
+# /etc/init.d/php-fpm start
+
+# rc-update add nginx default
+# rc-update add mysql default
+# rc-update add php-fpm default
+</code></pre>
+
+<p><strong><em>Debian:</em></strong></p>
+
+<pre><code># /etc/init.d/nginx start
+# /etc/init.d/mysql start
+# /etc/init.d/php5-fpm start
+
+# update-rc.d nginx defaults
+# update-rc.d mysql defaults
+# update-rc.d php5-fpm defaults
+</code></pre>
+
+<p><strong><em>CentOS:</em></strong></p>
+
+<pre><code># service mysqld start
+# service nginx start
+# service php-fpm start
+
+# chkconfig --levels 235 mysqld on
+# chkconfig --levels 235 nginx on
+# chkconfig --levels 235 php-fpm on
+</code></pre>
+
+<p>Сразу после установки nginx понимает только статические файлы, не исполняемые на сервере, и, если установка прошла успешно, запустив его можно проверить отображение &laquo;Welcome to nginx!&raquo; на <code>localhost</code> (<code>127.0.0.1</code>):</p>
+
+<p><img src="/images/posts/2013-06-12/nginx-welcome-to-nginx.png" alt="Welcome to nginx!" /></p>
+
+<p>Впрочем может быть и так:</p>
+
+<p><img src="/images/posts/2013-06-12/nginx-403.png" alt="403 Forbidden" /></p>
+
+<p>Это означает, что сервер не настроен.</p>
+
+<p>Настройки по умолчанию подходят для большинства случаев и не требуют больших изменений на данном этапе. В различных дистрибутивах Linux настройки и месторасположение конфигурационных файлов могут различаться (также это замечание относится к использованию пакетов, установленных из репозиториев, отличных от основного), здесь всё зависит от поддерживающего пакет мейнтейнера.</p>
+
+<p>Неизменным остаётся расположение файла настроек <code>/etc/nginx/nginx.conf</code>. Конфигурации сайтов, дополнительные параметры добавляются в него через опцию <code>include</code>.
+В Debian например сейчас конфигурации сайтов добавляются в стиле Apache (добавление конфигурации созданием симлинков):</p>
+
+<pre><code>...
+include /etc/nginx/conf.d/*.conf;
+include /etc/nginx/sites-enabled/*;
+...
+</code></pre>
+
+<p>В официальных репозиториях этого нововведения нет и конфигурации сайтов добавляются следующим образов:</p>
+
+<pre><code>...
+include /etc/nginx/conf.d/*.conf;
+...
+</code></pre>
+
+<p>То есть любой файл из каталога <code>/etc/nginx/conf.d/</code> с расширением <code>.conf</code> будет добавлен.
+Если каталог <code>/etc/nginx/conf.d</code> - отсутствует, создайте его:</p>
+
+<pre><code># mkdir /etc/nginx/conf.d
+</code></pre>
+
+<p>В <code>include</code> как правило присутствует конфигурация сайта по умолчанию, который как раз и выводит надпись &laquo;Welcome to nginx!&raquo; при обращении к <code>localhost</code> (<code>127.0.0.1</code>):</p>
+
+<p>- Debian/Ubuntu - <code>/etc/nginx/sites-enabled/default</code>
+- Gentoo/CentOS - <code>/etc/nginx/conf.d/default</code>
+- Больше этот файл не нужен - удалите его.</p>
+
+<h4>Права на каталог сайтов</h4>
+
+<p>Создаем (если не существует) каталог для сайтов и устанавливаем права:</p>
+
+<pre><code># mkdir -p /var/www/localhost
+# chmod -R a-rwx,u+rwX,g+rX /var/www
+# chown www-data:www-data -R /var/www
+</code></pre>
+
+<p>Владельцем каталога сайтов должен быть пользователь, от имени которого запущен и работает вэб-сервер. В Debian и Ubuntu это <strong>www&#8209;data</strong>, в Gentoo, CentOS - пользователь <strong>nginx</strong>. В конфигурации за это отвечает директива <code>user</code> (<em>nginx.conf</em>):</p>
+
+<pre><code>user  www-data;
+worker_processes  4;
+...
+</code></pre>
+
+<p>При переносе сайта, а также чтобы был доступ к содержимому сайта у пользователей, входящих в группу <strong>www&#8209;data</strong> необходимы корректные права на содержимое. Права на каталоги <code>775</code>, на файлы <code>664</code>:</p>
+
+<pre><code># find /var/www -type d -exec chmod 775 {} +
+# find /var/www -type f -exec chmod 664 {} +
+</code></pre>
+
+<p>И добавить себя в группу <strong>www&#8209;data</strong> или <strong>nginx</strong> в зависимости от дистрибутива:</p>
+
+<pre><code># usermod -a -G www-data username
+</code></pre>
+
+<h4>Стандартная конфигурация nginx</h4>
+
+<pre><code># Документация http://nginx.org/ru/docs/ngx_core_module.html
+# Пользователь от которого работает вэб-сервер
+# user nginx;
+user www-data;
+# Количество рабочих процессов = количество ядер*2 /рекомендуется
+worker_processes 4;
+pid /var/run/nginx.pid;
+
+events {
+   # Максимальное число соединений, которое одновременно
+   # может открыть рабочий процесс
+   worker_connections 768;
+}
+
+http {
+   # Используем sendfile, но осторожно, если надо отдавать большие файлы,
+   # то sendfile случается вредит
+   sendfile on;
+   # Ограничиваем размер сегмента отправляемой за одну блокируемую отдачу
+   sendfile_max_chunk  128k;
+   # Буфер отдачи который используется для обрабатываемых данных
+   postpone_output  1460;
+   # Размер хеша для доменных имен.
+   server_names_hash_bucket_size 64;
+   # Размер данных принимаемых post запросом
+   client_max_body_size 15m;
+   tcp_nopush on;
+   tcp_nodelay on;
+   keepalive_timeout 65;
+   types_hash_max_size 2048;
+   # Не говорим врагу версию nginx
+   server_tokens off;
+   include /etc/nginx/mime.types;
+   default_type application/octet-stream;
+   # Настройки логирования
+   access_log /var/log/nginx/access.log;
+   error_log /var/log/nginx/error.log;
+   # Настройки компрессии
+   gzip on;
+   gzip_disable "msie6";
+   gzip_vary on;
+   gzip_proxied any;
+   gzip_comp_level 6;
+   gzip_buffers 16 8k;
+   gzip_http_version 1.1;
+   gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript;
+
+   include /etc/nginx/conf.d/*.conf;
+}
+</code></pre>
+
+<h4>Подключение процесс менеджера PHP-FPM к веб-серверу</h4>
+
+<p>* <strong>Важно</strong> - дополнительные пояснения - <a href="http://nixway.org/how-to/fastcgi_php_fpm_for_nginx/">FastCGI (PHP FPM) для nginx</a><br/>
+* Связку nginx и PHP-FPM настраиваем на работу через unix сокет</p>
+
+<p>Создадим новую конфигурацию для localhost:</p>
+
+<pre><code># nano /etc/nginx/conf.d/localhost.conf
+server {
+   server_name localhost;
+   # listen 192.168.0.120:80;
+   listen 127.0.0.1:80;
+   root /var/www/localhost;
+   index index.php;
+
+   location ~ [^/]\.php(/|$) {
+      fastcgi_split_path_info ^(.+?\.php)(/.*)$;
+      if (!-f $document_root$fastcgi_script_name) {
+         return 404;
+      }
+      # fastcgi_pass 127.0.0.1:9000;
+      fastcgi_pass unix:/var/run/php5-fpm.sock;
+      fastcgi_index index.php;
+      include fastcgi_params;
+   }
+}
+</code></pre>
+
+<p>и тестовый php-файл в корне</p>
+
+<pre><code># nano /var/www/localhost/index.php
+&lt;?php
+phpinfo();
+?&gt;
+</code></pre>
+
+<h4>Отредактируем конфигурацию PHP-FPM:</h4>
+
+<p><strong><em>Gentoo:</em></strong></p>
+
+<pre><code># nano /etc/php/fpm-php5.4/php-fpm.conf
+</code></pre>
+
+<p><strong><em>Debian:</em></strong></p>
+
+<pre><code># nano /etc/php5/fpm/pool.d/www.conf
+</code></pre>
+
+<p><strong><em>CentOS:</em></strong></p>
+
+<pre><code># nano /etc/php-fpm.d/www.conf
+</code></pre>
+
+<p>Отредактируем в этом файле следующие переменные, <code>listen</code>:</p>
+
+<pre><code>...
+; Note: This value is mandatory.
+; listen = 127.0.0.1:9000
+listen = /var/run/php5-fpm.sock
+...
+</code></pre>
+
+<p><code>user</code>, <code>group</code>:<br/>
+* В CentOS и Gentoo - <strong>nginx</strong>, Debian/Ubuntu - <strong>www&#8209;data</strong></p>
+
+<pre><code>; Unix user/group of processes
+; Note: The user is mandatory. If the group is not set, the default user's group
+;       will be used.
+user = www-data
+group = www-data
+</code></pre>
+
+<p>* в этом файле комментариями является любой текст после символа <code>;</code> (точка с запятой).</p>
+
+<p>После чего перегружаем nginx и PHP-FPM.</p>
+
+<p>Открываем браузер и заходим на <code>localhost</code>, в результате мы должны увидеть тестовую страницу PHP:</p>
+
+<p><img src="/images/posts/2013-06-12/nginx-phpinfo.png" alt="nginx phpinfo" /></p>
+
+<p>Версия nginx на момент написания - стабильная - nginx/1.4.1, но это в репозитории самого nginx, в репозиториях дистрибутивов версии более ранние, и поэтому могут возникнуть небольшие нестыковки, например в openSUSE 12.3 - версия nginx/1.2.9 и это руководство почти полностью подходит, но необходимо использовать <code>/etc/nginx/fastcgi_params</code> <a href="http://nixway.org/how-to/fastcgi_php_fpm_for_nginx/">отсюда</a>.</p>
+
+<h4>Полезные ссылки:</h4>
+
+<p>nginx: <a href="http://nginx.org/ru/">http://nginx.org/ru/</a><br/>
+nginx Wiki: <a href="http://wiki.nginx.org/nginxRu">http://wiki.nginx.org/nginxRu</a><br/>
+PHP: <a href="http://www.php.net/">http://www.php.net/</a><br/>
+PHP-FPM: <a href="http://php-fpm.org/">http://php-fpm.org/</a><br/>
+MySQL: <a href="http://www.mysql.com/">http://www.mysql.com/</a></p>
+
+<p>Автор статьи zenon, и изначально он выкладывал её <a href="http://linuxru.org/linux/205">здесь</a>. У себя я публикую статью с разрешения автора и с сохранением авторства.</p>
+]]></content>
+  </entry>
+  
+</feed>

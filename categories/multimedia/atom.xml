@@ -4,7 +4,7 @@
   <title><![CDATA[Категория: Multimedia | Путь юниксоида]]></title>
   <link href="http://nixway.org/categories/multimedia/atom.xml" rel="self"/>
   <link href="http://nixway.org/"/>
-  <updated>2016-08-15T13:45:23+06:00</updated>
+  <updated>2016-11-08T18:44:50+06:00</updated>
   <id>http://nixway.org/</id>
   <author>
     <name><![CDATA[nihi1ist]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Skype и PulseAudio. Настройка микрофона...]]></title>
-    <link href="http://nixway.org/multimedia/skype-i-pulseaudio-nastroika-mikrofona/"/>
+    <link href="http://nixway.org/2015/04/11/skype-i-pulseaudio-nastroika-mikrofona/"/>
     <updated>2015-04-11T16:36:28+06:00</updated>
-    <id>http://nixway.org/multimedia/skype-i-pulseaudio-nastroika-mikrofona</id>
+    <id>http://nixway.org/2015/04/11/skype-i-pulseaudio-nastroika-mikrofona</id>
     <content type="html"><![CDATA[<p><img src="/images/posts/2015-04-11/skype+pulseaudio+pavucontrol.png" alt="Skype &amp; PulseAudio" /></p>
 
 <p>После выпуска Skype версии 4.3 для Linux, многие поклонники Linux столкнулись с проблемой работы микрофона в вышеупомянутом Skype. Недавно нашел более-менее универсальное решение. Оно должно подойти всем, у кого микрофон в системе работает.</p>

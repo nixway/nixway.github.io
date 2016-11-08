@@ -1,0 +1,1022 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Категория: Postgresql | Путь юниксоида]]></title>
+  <link href="http://nixway.org/categories/postgresql/atom.xml" rel="self"/>
+  <link href="http://nixway.org/"/>
+  <updated>2016-11-08T18:44:50+06:00</updated>
+  <id>http://nixway.org/</id>
+  <author>
+    <name><![CDATA[nihi1ist]]></name>
+    <email><![CDATA[nihi1ist@nixway.org]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Оптимизация PostgreSQL под сервер 1С:Предприятия]]></title>
+    <link href="http://nixway.org/2015/12/06/optimizacija-postgresql-pod-server-1c-predpriyatiya/"/>
+    <updated>2015-12-06T13:31:30+06:00</updated>
+    <id>http://nixway.org/2015/12/06/optimizacija-postgresql-pod-server-1c-predpriyatiya</id>
+    <content type="html"><![CDATA[<p><img src="/images/posts/2015-12-06/postgresql_for_1c.png" alt="Оптимизация PostgreSQL под сервер 1С:Предприятие" /></p>
+
+<p>На данный момент производительность PostgreSQL в связке с сервером 1С:Предприятия в сравнении с тем же MS&nbsp;SQL оставляет желать лучшего. Эта статья продолжение попыток добиться достойной производительности на PostgreSQL. Хотя на данный момент у меня не получилось добиться производительности сопоставимой MS&nbsp;SQL, но думаю в недалеком будущем эта проблема будет решена.</p>
+
+<p>Далее в статье перечислены основные параметы и особенности, на  которые следует обратить внимание при оптимизации PostgreSQL.</p>
+
+<!-- more -->
+
+
+<h2><span style="color:#cd0021;">Основные параметры PostgreSQL.</span></h2>
+
+<h3>shared_buffers</h3>
+
+<p>Объём совместно используемой памяти, выделяемой PostgreSQL для кэширования данных, определяется числом страниц <code>shared_buffers</code> по 8 килобайт каждая. Следует учитывать, что операционная система сама кэширует данные, поэтому нет необходимости отводить под кэш всю наличную оперативную память. Размер <code>shared_buffers</code> зависит от многих факторов, для начала можно принять следующие значения:</p>
+
+<ul>
+<li><strong>8–16&nbsp;Мб</strong>&nbsp;–&nbsp;Обычный настольный компьютер с 512&nbsp;Мб и небольшой базой данных,</li>
+<li><strong>80–160&nbsp;Мб</strong>&nbsp;–&nbsp;Небольшой сервер, предназначенный для обслуживания базы данных с объёмом оперативной памяти 1&nbsp;Гб и базой данных около 10&nbsp;Гб,</li>
+<li><strong>400&nbsp;Мб</strong>&nbsp;–&nbsp;Сервер с несколькими процессорами, с объёмом памяти в 8&nbsp;Гб и базой данных занимающей свыше 100&nbsp;Гб обслуживающий несколько сотен активных соединений одновременно.</li>
+</ul>
+
+
+<h3>work_mem</h3>
+
+<p>Под каждый запрос выделяется ограниченный объём памяти. Этот объём используется для сортировки, объединения и других подобных операций. При превышении этого объёма сервер начинает использовать временные файлы на диске, что может существенно снизить производительность. Оценить необходимое значение для <code>work_mem</code> можно разделив объём доступной памяти (физическая память минус объём занятый под другие программы и под совместно используемые страницы <code>shared_buffers</code>) на максимальное число одновременно используемых активных соединений.</p>
+
+<h3>maintenance_work_mem</h3>
+
+<p>Эта память используется для выполнения операций по сбору статистики <code>ANALYZE</code>, сборке мусора <code>VACUUM</code>, создания индексов <code>CREATE INDEX</code> и добавления внешних ключей. Размер памяти выделяемой под эти операции должен быть сравним с физическим размером самого большого индекса на диске.</p>
+
+<h3>effective_cache_size</h3>
+
+<p>PostgreSQL в своих планах опирается на кэширование файлов, осуществляемое операционной системой. Этот параметр соответствует максимальному размеру объекта, который может поместиться в системный кэш. Это значение используется только для оценки. <code>effective_cache_size</code> можно установить в &frac12;&nbsp;- 2/3 от объёма имеющейся в наличии оперативной памяти, если вся она отдана в распоряжение PostgreSQL.</p>
+
+<p><span style="color:#cd0021;"><strong>ВНИМАНИЕ!</strong></span> Следующие параметры могут существенно увеличить производительность работы PostgreSQL. Однако их рекомендуется использовать только если имеются надежные <a href="https://ru.wikipedia.org/wiki/%D0%98%D1%81%D1%82%D0%BE%D1%87%D0%BD%D0%B8%D0%BA_%D0%B1%D0%B5%D1%81%D0%BF%D0%B5%D1%80%D0%B5%D0%B1%D0%BE%D0%B9%D0%BD%D0%BE%D0%B3%D0%BE_%D0%BF%D0%B8%D1%82%D0%B0%D0%BD%D0%B8%D1%8F">ИБП</a> и программное обеспечение, завершающее работу системы при низком заряде батарей.</p>
+
+<h3>fsync</h3>
+
+<p>Данный параметр отвечает за сброс данных из кэша на диск при завершении транзакций. Если установить в этом параметре значение <code>off</code>, то данные не будут записываться на дисковые накопители сразу после завершения операций. Это может существенно повысить скорость операций <code>insert</code> и <code>update</code>, но есть риск повредить базу, если произойдет сбой (неожиданное отключение питания, сбой ОС, сбой дисковой подсистемы).</p>
+
+<p>Отрицательное влияние включенного <code>fsync</code> можно уменьшить, отключив его, положившись на надежность вашего оборудования, или правильно подобрав параметр <code>wal_sync_method</code> - метод, который используется для принудительной записи данных на диск.</p>
+
+<p><strong>Возможные значения:</strong></p>
+
+<ul>
+<li><strong>open_datasync</strong>&nbsp;–&nbsp;запись данных методом <code>open()</code> с параметром <code>O_DSYNC</code>,</li>
+<li><strong>fdatasync</strong>&nbsp;–&nbsp;вызов метода <code>fdatasync()</code> после каждого <code>commit</code>,</li>
+<li><strong>fsync_writethrough</strong>&nbsp;–&nbsp;вызывать <code>fsync()</code> после каждого <code>commit</code> игнорирую параллельные процессы,</li>
+<li><strong>fsync</strong>&nbsp;–&nbsp;вызов <code>fsync()</code> после каждого <code>commit</code>,</li>
+<li><strong>open_sync</strong>&nbsp;–&nbsp;запись данных методом <code>open()</code> с параметром <code>O_SYNC</code>.</li>
+</ul>
+
+
+<p><span style="color:#cd0021;"><strong>ПРИМЕЧАНИЕ!</strong></span> Не все методы доступны на определенных платформах. Выбор метода зависит от операционной системы под управлением, которой работает PostgreSQL.</p>
+
+<p>В состав PostgreSQL входит утилита <strong>pg_test_fsync</strong>, с помощью которой можно определить оптимальное значение параметра <code>wal_sync_method</code>.</p>
+
+<p>Она выполняет серию дисковых тестов с использованием различных методов синхронизации. В результате этого теста получаются оценки производительности дисковой системы, по которым можно определить оптимальный метод синхронизации для данной операционной системы.</p>
+
+<p>Я решил провести вышеуказанный тест на своем рабочем имеющем следующие характеристики:</p>
+
+<ul>
+<li><strong>CPU:</strong> Intel Core i3-3220 @ 3.30GHz x 2</li>
+<li><strong>RAM:</strong> 4GB</li>
+<li><strong>HDD:</strong> Seagate ST3320418AS 320GB</li>
+</ul>
+
+
+<p><strong>Тест на Windows:</strong></p>
+
+<ul>
+<li><strong>ОС:</strong> Windows 7 Максимальная x64</li>
+<li><strong>ФС:</strong> NTFS</li>
+<li><strong>СУБД:</strong> PostgreSQL 9.4.2-1.1C x64</li>
+</ul>
+
+
+<pre><code>C:\PROGRA~1\POSTGR~1\9.4.2-1.1C\bin&gt;pg_test_fsync
+5 seconds per test
+O_DIRECT supported on this platform for open_datasync and open_sync.
+
+Compare file sync methods using one 8kB write:
+(in wal_sync_method preference order, except fdatasync
+is Linux's default)
+        open_datasync                     48817.440 ops/sec      20 usecs/op
+        fdatasync                                       n/a
+        fsync                                79.688 ops/sec   12549 usecs/op
+        fsync_writethrough                   80.072 ops/sec   12489 usecs/op
+        open_sync                                       n/a
+
+Compare file sync methods using two 8kB writes:
+(in wal_sync_method preference order, except fdatasync
+is Linux's default)
+        open_datasync                     24713.634 ops/sec      40 usecs/op
+        fdatasync                                       n/a
+        fsync                                78.690 ops/sec   12708 usecs/op
+        fsync_writethrough                   79.073 ops/sec   12646 usecs/op
+        open_sync                                       n/a
+
+Compare open_sync with different write sizes:
+(This is designed to compare the cost of writing 16kB
+in different write open_sync sizes.)
+         1 * 16kB open_sync write                       n/a
+         2 *  8kB open_sync writes                      n/a
+         4 *  4kB open_sync writes                      n/a
+         8 *  2kB open_sync writes                      n/a
+        16 *  1kB open_sync writes                      n/a
+
+Test if fsync on non-write file descriptor is honored:
+(If the times are similar, fsync() can sync data written
+on a different descriptor.)
+        write, fsync, close                  76.493 ops/sec   13073 usecs/op
+        write, close, fsync                  77.676 ops/sec   12874 usecs/op
+
+Non-Sync'ed 8kB writes:
+        write                              1800.319 ops/sec     555 usecs/op
+</code></pre>
+
+<p>Из результатов теста можно определить, что для Windows оптимальным решением будет использование <code>open_datasync</code>.</p>
+
+<p><strong>Тест на Linux:</strong></p>
+
+<ul>
+<li><strong>ОС:</strong> Debian 8.6 Jessie</li>
+<li><strong>Ядро:</strong> x86_64 Linux 3.16.0-4-amd64</li>
+<li><strong>ФС:</strong> ext4</li>
+<li><strong>СУБД:</strong> PostgreSQL 9.4.2-1.1C amd64</li>
+</ul>
+
+
+<pre><code>/usr/lib/postgresql/9.4/bin# ./pg_test_fsync
+5 seconds per test
+O_DIRECT supported on this platform for open_datasync and open_sync.
+
+Compare file sync methods using one 8kB write:
+(in wal_sync_method preference order, except fdatasync
+is Linux's default)
+        open_datasync                        80.215 ops/sec   12467 usecs/op
+        fdatasync                            80.349 ops/sec   12446 usecs/op
+        fsync                                39.384 ops/sec   25391 usecs/op
+        fsync_writethrough                              n/a
+        open_sync                            40.013 ops/sec   24992 usecs/op
+
+Compare file sync methods using two 8kB writes:
+(in wal_sync_method preference order, except fdatasync
+is Linux's default)
+        open_datasync                        40.033 ops/sec   24980 usecs/op
+        fdatasync                            77.264 ops/sec   12943 usecs/op
+        fsync                                36.325 ops/sec   27529 usecs/op
+        fsync_writethrough                              n/a
+        open_sync                            19.659 ops/sec   50866 usecs/op
+
+Compare open_sync with different write sizes:
+(This is designed to compare the cost of writing 16kB
+in different write open_sync sizes.)
+         1 * 16kB open_sync write            38.697 ops/sec   25842 usecs/op
+         2 *  8kB open_sync writes           17.356 ops/sec   57616 usecs/op
+         4 *  4kB open_sync writes            8.996 ops/sec  111156 usecs/op
+         8 *  2kB open_sync writes            4.552 ops/sec  219686 usecs/op
+        16 *  1kB open_sync writes            2.218 ops/sec  450930 usecs/op
+
+Test if fsync on non-write file descriptor is honored:
+(If the times are similar, fsync() can sync data written
+on a different descriptor.)
+        write, fsync, close                  34.341 ops/sec   29120 usecs/op
+        write, close, fsync                  35.753 ops/sec   27970 usecs/op
+
+Non-Sync'ed 8kB writes:
+        write                            484193.516 ops/sec       2 usecs/op
+</code></pre>
+
+<p>По результатам теста мы видим, что результаты тестирования на Linux лучше результатов того же тестирования на Windows. При этом результаты <code>open_datasync</code> и <code>fdatasync</code> сопоставимы.</p>
+
+<p>Следует учитывать, что в данных тестах использовалась дисковая система, состоящая из одного диска. При использовании RAID массива с большим количеством дисков картина может быть другой.</p>
+
+<h3>wal_buffers</h3>
+
+<p>Количество памяти используемое в <code>SHARED MEMORY</code> для ведения транзакционных логов. При доступной памяти 1-4&nbsp;Гб рекомендуется устанавливать 256-1024&nbsp;Кб. Этот параметр стоит увеличивать в системах с большим количеством модификаций таблиц базы данных.</p>
+
+<h3>checkpoint_segments</h3>
+
+<p>Oпределяет количество сегментов (каждый по 16&nbsp;МБ) лога транзакций между контрольными точками.  Для баз данных с множеством модифицирующих данные транзакций рекомендуется увеличение этого параметра. Критерием достаточности количества сегментов является отсутствие в логе  предупреждений (warning) о том, что контрольные точки происходят слишком часто.</p>
+
+<h3>full_page_writes</h3>
+
+<p>Включение этого параметра гарантирует корректное восстановление, ценой увеличения записываемых данных в журнал транзакций. Отключение этого параметра ускоряет работу, но может привести  к повреждению базы данных в случае системного сбоя или отключения питания.</p>
+
+<h3>synchronous_commit</h3>
+
+<p>Включает/выключает синхронную запись в лог-файлы после каждой транзакции. Включение синхронной записи защищает от возможной потери данных. Но, накладывает ограничение на пропускную способность сервера. Вы можете отключить синхронную запись, если вам необходимо обеспечить более высокую производительность по количеству транзакций. А&nbsp;потенциально низкая возможность потери небольшого количества изменений при крахе системы не критична. Для отключения синхронной записи установите значение <code>off</code> в этом параметре.</p>
+
+<p>Еще одним способом увеличения производительности работы PostgreSQL является перенос журнала транзакций (pg_xlog) на другой диск. Выделение для журнала транзакций  отдельного дискового ресурса позволяет получить получить при этом существенный выигрыш в производительности  10%-12% для нагруженных <a href="https://ru.wikipedia.org/wiki/OLTP">OLTP</a> систем.</p>
+
+<p>В Linux это делается с помощью создания символьной ссылки на новое положение каталога с журналом транзакций.</p>
+
+<p>В Windows можно использовать для этих целей утилиту <strong><a href="https://technet.microsoft.com/en-us/bb896768">Junction</a></strong>. Для этого надо:</p>
+
+<ol>
+<li>Остановить PostgreSQL.</li>
+<li>Сделать бэкап <code>C:\Program Files\PostgreSQL\X.X.X\data\pg_xlog</code>.</li>
+<li>Скопировать <code>C:\Program Files\PostgreSQL\X.X.X\data\pg_xlog</code> в <code>D:\pg_xlog</code> и удалить <code>C:\Program Files\PostgreSQL\X.X.X\data\pg_xlog</code>.</li>
+<li>Распаковать программу <strong>Junction</strong> в <code>C:\Program Files\PostgreSQL\X.X.X\data</code>.</li>
+<li>Открыть окно <strong>CMD</strong>, перейти в <code>C:\Program Files\PostgreSQL\X.X.X\data</code> и выполнить <code>junction -s pg_xlog D:\pg_xlog</code>.</li>
+<li>Установить права на папку <code>D:\pg_xlog</code> пользователю postgres.</li>
+<li>Запустить PostgreSQL.</li>
+</ol>
+
+
+<h2><span style="color:#cd0021;"> Особенности и ограничения в 1С:Предприятие при работе с PostgreSQL.</span></h2>
+
+<h3>Использование конструкции ПОЛНОЕ ВНЕШНЕЕ СОЕДИНЕНИЕ.</h3>
+
+<p>В СУБД PostgreSQL реализована только частичная поддержка  <code>FULL OUTER JOIN</code> (ERROR: &ldquo;FULL JOIN is only supported with mergejoinable join conditions&rdquo;). Для реализации полной поддержки <code>FULL OUTER JOIN</code> при работе 1С:Предприятия 8 с PostgreSQL подобный запрос трансформируется в другую форму с эквивалентным результатом, однако эффективность использования конструкции <code>ПОЛНОЕ ВНЕШНЕЕ СОЕДИНЕНИЕ</code> снижается.</p>
+
+<p>В связи с этим не рекомендуется использовать <code>ПОЛНОЕ ВНЕШНЕЕ СОЕДИНЕНИЕ</code> при работе с PostgreSQL. В большинстве случаев без использования этой конструкции можно обойтись, переписав исходный запрос.</p>
+
+<h3>Оптимизация использования виртуальной таблицы СрезПоследних при работе с PostgreSQL.</h3>
+
+<p><strong>Проблема:</strong> При работе с PostgreSQL использование соединения с виртуальной таблицей <code>СрезПоследних</code> может приводить к существенному снижению производительности. Из-за ошибки оптимизатора может быть выбран неоптимальный план выполнения запроса.</p>
+
+<p><strong>Решение:</strong> Если в запросе используется соединение с виртуальной таблицей языка запросов 1С:Предприятия <code>СрезПоследних</code> и запрос работает с неудовлетворительной производительностью, то рекомендуется вынести обращение к виртуальной таблице в отдельный запрос с сохранением результатов во временной таблице.</p>
+
+<h3>Решение проблемы с зависанием PostgreSQL.</h3>
+
+<p>При выполнения некоторых регламентных операций (Закрытие месяца, Расчет себестоимости и т.п.), где используются сложные запросы с большим количеством соединений больших таблиц, возможно существенное увеличение времени выполнения операции. В основном, эти проблемы связаны с работой оптимизатора PostgreSQL и отсутствием актуальной статистики по таблицам, участвующим в запросе.</p>
+
+<p><strong>Варианты решения проблемы:</strong></p>
+
+<ul>
+<li>Увеличить количество записей, просматриваемых при сборе статистики по таблицам. Большие значения могут повысить время выполнения команды <code>ANALYZE</code>, но улучшат построение плана запроса:
+
+<ul>
+<li>Файл <em>postgresql.conf</em> - <code>default_statistics_target = 1000 -10000</code>.</li>
+</ul>
+</li>
+<li>Отключение оптимизатору возможности использования <code>NESTED LOOP</code> при выборе плана выполнения запроса в конфигурации PostgreSQL:
+
+<ul>
+<li>Файл <em>postgresql.conf</em> - <code>enable_nestloop = off</code>.</li>
+<li>Отрицательным эффектом этого способа является возможное замедление некоторых запросов, поскольку при их выполении будут использоваться другие, более затратные, методы соединения (<code>HASH JOIN</code>).</li>
+</ul>
+</li>
+<li>Отключение оптимизатору возможности изменения порядка соединений таблиц в запросе:
+
+<ul>
+<li>Файл <em>postgresql.conf</em> - <code>join_collapse_limit=1</code>.</li>
+<li>Следует использовать этот метод, если вы уверены в правильности порядка соединений таблиц в проблемном запросе.</li>
+</ul>
+</li>
+<li>Изменение параметров настройки оптимизатора:
+
+<ul>
+<li>Файл <em>postgresql.conf:</em>
+
+<ul>
+<li><code>seq_page_cost = 0.1</code></li>
+<li><code>random_page_cost = 0.4</code></li>
+<li><code>cpu_operator_cost = 0.00025</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Использование версии PostgreSQL 9.1.2-1.1.C и выше, в которой реализован независимый от <code>AUTOVACUUM</code> сбор статистики, на основе информации об изменении данных в таблице. По умолчанию включен сбор статистики только для временных таблиц и во многих ситуациях этого достаточно. При возникновении проблем с производительностью выполнения регламентных операций, можно включить сбор статистики для всех  или отдельных проблемных таблиц изменив значение параметра конфигурации PostgreSQL (файл <em>postgresql.conf</em>) <code>online_analyze.table_type = "temporary"</code>  на <code>online_analyze.table_type = "all"</code>.</li>
+</ul>
+
+
+<p>После изменения этих параметров, следует оценить возможное влияние этих изменений на работу системы и выбрать наиболее приемлимый вариант для ваших задач.</p>
+
+<h2><span style="color:#cd0021;">Послесловие.</span></h2>
+
+<p>Ко всему вышеперечисленному можно так же добавить:</p>
+
+<ul>
+<li>Необходимость использования <a href="http://v8.1c.ru/overview/Term_000000642.htm">управляемых блокировок</a> при разработке прикладного решения. Если же у вас типовая конфигурация, то по возможности ее так же необходимо переводить на управляемые блокировки.</li>
+<li>Рекомендацию реализовать для PostgreSQL кэширование на <a href="https://ru.wikipedia.org/wiki/SSD">SSD-накопитель</a>. Сделать это можно с помощью <a href="https://ru.wikipedia.org/wiki/Flashcache">Flashcache</a> или <a href="https://en.wikipedia.org/wiki/Bcache">Bcache</a>. Подробнее вопрос организации системы кэширования я рассмотрю в другой статье.</li>
+<li>Довольно удобный <a href="http://pgtune.leopard.in.ua/">веб-сервис</a> для начальной настройки PostgreSQL его <a href="/how-to/1c-predpriyatie-8-3+postgresql-na-baze-debian-8-jessie/#comment-2612892713">порекомендовал</a> мне товарищ Vasiliy P. Melnik. Несмотря на то, что интерфейс на английском, он простой и интуитивно понятный. Думаю каждый желающий сможет с ним разобраться.</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[1С:Предприятие 8.3 + PostgreSQL 9.4 на базе Debian&nbsp;8&nbsp;&laquo;Jessie&raquo;]]></title>
+    <link href="http://nixway.org/2015/11/10/1c-predpriyatie-8-3+postgresql-na-baze-debian-8-jessie/"/>
+    <updated>2015-11-10T16:33:46+06:00</updated>
+    <id>http://nixway.org/2015/11/10/1c-predpriyatie-8-3+postgresql-na-baze-debian-8-jessie</id>
+    <content type="html"><![CDATA[<p><img src="/images/posts/2015-11-10/debian+1c+postgresql.png" alt="Debian + 1C + PostgreSQL" /></p>
+
+<p>В конце мая 2013 года компания 1С представила первый стабильный релиз платформы 1С:Предприятие версии&nbsp;8.3. Главная особенность ветки&nbsp;8.3 - это выпуск нативного клиента под *nix-подобные операционные системы. И вот спустя два года я решил написать новую статью посвященную этой теме. Я помню, что большая часть тех, кому была интересна моя <a href="http://linuxforum.ru/topic/11116">прошлая статья</a> просили и дальше брать в основу Ubuntu. Тем не менее, я решил взять за основу Debian&nbsp;8&nbsp;&laquo;Jessie&raquo;. Основная причина в том, что производительность серверов 1С:Предприятие на Ubuntu оставляет желать лучшего. В то время как Debian и CentOS показывают более высокую производительность <span style="color:gray;font-style:italic">(CentOS даже опережает Debian, но я постараюсь исправить это положение)</span>. Сравнительные таблицы производительности серверов 1С:Предприятие вы можете поискать в интернете. Сам я пока ничего толкового не нашел.</p>
+
+<!--more-->
+
+
+<h2>Содержание<a name="content"></a></h2>
+
+<p>1. <a href="#introduction">Предисловие</a><br/>
+2. <a href="#lead-up">Подготовка сервера</a><br/>
+3. <a href="#postgre">Установка PostgreSQL 9.4</a><br/>
+4. <a href="#server">Установка сервера 1С:Предприятие 8.3</a><br/>
+5. <a href="#hasp">Установка драйвера для аппаратной лицензии 1С (HASP)</a><br/>
+6. <a href="#client">Установка клиента 1С:Предприятие 8.3</a><br/>
+7. <a href="#apache24">Публикация ИБ на веб-сервере Apache 2.4</a><br/>
+8. <a href="#afterword">Послесловие</a></p>
+
+<h2>Предисловие.<a name="introduction"></a> <a href="#content" title="К содержанию">↑</a></h2>
+
+<p>Новичкам в *nix рекомендую выполнять установку по порядку и согласно инструкции. Статья специально разбита на главы, чтобы читатели могли пошагово проходить процесс установки. Вопросы любителей сделать &laquo;по своему&raquo; в большинстве своем будут проигнорированы. Если же вы всё делали согласно статье, но тем не менее у вас возникла проблема, внимательно проверьте все свои действия. Скорее всего, вы допустили ошибку. В случае если проверка не выявила ошибок, то вы можете описать возникую проблему в комментариях или в <a href="http://forum.nixway.org/viewtopic.php?id=55">теме</a> на нашем форуме, где форумчане постараются вам помочь. При этом рекомендую подробно описывать возникшую у вас проблему.</p>
+
+<h2>Подготовка сервера.<a name="lead-up"></a> <a href="#content" title="К содержанию">↑</a></h2>
+
+<p>Основное отличие Debian от Ubuntu с которым очень часто сталкиваются пользователи Ubuntu, это отсутствие в стандартной конфигурации команды повышения привилегий <code>sudo</code>. Операции требующие прав <strong>root</strong>, выполняются от суперпользователя <strong>root</strong>. Тем же кто не хочет изменять своей привычке работать с <code>sudo</code>, достаточно при установке ОС не задавать пароль суперпользователю <strong>root</strong> и пакет <strong><em>sudo</em></strong> будет установлен и настроен. Для наглядности, перед каждой командой будет указан определенный символ, если это <code>#</code> - значит команда выполняется от имени суперпользователя <strong>root</strong>, если символ <code>$</code> - то команда выполняется от имени текущего пользователя.</p>
+
+<p>1. Итак у вас имеется установленный Debian 8. Если установка только предстоит, рекомендую выбрать пункты:<br/>
+-&nbsp;Сервер SSH<br/>
+-&nbsp;Стандартные системные утилиты</p>
+
+<p>Как это указано на скриншоте:</p>
+
+<p><a href="/images/posts/2015-11-10/debian_preinstall_options.png"><img src="/images/posts/2015-11-10/debian_preinstall_options_preview.png" alt="Компоненты сервера" /></a></p>
+
+<p>Остальные пункты на ваше усмотрение.</p>
+
+<p>2. Сразу же поставим последние обновления, предварительно получив права <strong>root</strong>:</p>
+
+<pre><code>$ su
+# apt-get update
+# apt-get upgrade
+# apt-get dist-upgrade
+</code></pre>
+
+<p>3. Архивы с установочными пакетами можно скачать из интернета сразу на сервер или скопировать заранее скачанные установочные пакеты в расшаренный каталог <a href="https://ru.wikipedia.org/wiki/Samba">samba</a>. Предположу, что samba настроена не у всех, потому воспользуемся USB-накопителем (<em>флешкой</em>). Создаем в корне флешки каталоги:</p>
+
+<pre><code>1с
+postgre
+hasp
+</code></pre>
+
+<p>Раскидываем пакеты по каталогам, предварительно распаковав их.</p>
+
+<p>4. Создаем директорию, к которой будем монтировать флешку:</p>
+
+<pre><code># mkdir /mnt/1cinstall
+</code></pre>
+
+<p>5. Подключаем флешку к серверу, просматриваем как она подключилась:</p>
+
+<pre><code># fdisk -l
+
+Disk /dev/sdb: 14,9 GiB, 16013852672 bytes, 31277056 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: dos
+Disk identifier: 0xcad4ebea
+
+Device     Boot Start      End  Sectors  Size Id Type
+/dev/sdb4  *       63 31277055 31276993 14,9G  7 HPFS/NTFS/exFAT
+</code></pre>
+
+<p>У меня это <code>sdb4</code>, теперь монтируем флешку сразу в каталог <em>1сinstall</em>:</p>
+
+<pre><code># mount /dev/sdb4 /mnt/1cinstall
+</code></pre>
+
+<p>6. Проверяем что намонтировали:</p>
+
+<pre><code># ls -l /mnt/1cinstall
+</code></pre>
+
+<p>Т.к. на моей флешке ничего не было кроме папок с установочными пакетами, отобразились только они:</p>
+
+<pre><code>1с
+postgres
+hasp
+</code></pre>
+
+<p><span style="color:#cd0021;"><strong>ПРИМЕЧАНИЕ!</strong></span> Если вы ставите 1С:Предприятие на удаленную машину, то для передачи файлов можете воспользоваться утилитой <a href="http://ru.wikipedia.org/wiki/SCP">SCP</a>, которая входит в состав пакета <strong>openssh-client</strong>.</p>
+
+<h2>Установка PostgreSQL 9.4<a name="postgre"></a> <a href="#content" title="К содержанию">↑</a></h2>
+
+<p>Для корректной работы PostgreSQL в связке с 1С:Предприятие, необходимо провести ряд подготовительных процедур.</p>
+
+<p>1. Для начала надо установить необходимые локали. Это <code>en_US.UTF-8</code> и <code>ru_RU.UTF-8</code>. При этом локаль <code>ru_RU.UTF-8</code> должна быть выбрана по умолчанию. Отредактировать список локалей можно командой:</p>
+
+<pre><code># dpkg-reconfigure locales
+</code></pre>
+
+<p>2. Затем надо установить зависимости:</p>
+
+<pre><code># apt-get install ssl-cert libossp-uuid16 libxslt1.1
+</code></pre>
+
+<p>3. К сожалению, мейнтейнеры работающие на 1С, не следят за порядком в зависимостях своих пакетов. По этой простой причине, нам надо скачать и установить пакет <strong><em>libicu48</em></strong>:</p>
+
+<pre><code># wget http://ftp.ru.debian.org/debian/pool/main/i/icu/libicu48_4.8.1.1-12+deb7u3_amd64.deb
+</code></pre>
+
+<p>Даем права на выполнение:</p>
+
+<pre><code># chmod u+x libicu48*.deb
+</code></pre>
+
+<p>После чего устанавливаем:</p>
+
+<pre><code># dpkg -i libicu48*.deb
+</code></pre>
+
+<p>4. Так же необходимо увеличить максимальный размер сегмента памяти до 64&nbsp;Мб:</p>
+
+<pre><code># echo kernel.shmmax = `echo 64*1024*1024 | bc` &gt;&gt; /etc/sysctl.conf
+</code></pre>
+
+<p>Дабы необходимые изменения вступили в силу, вводим:</p>
+
+<pre><code># sysctl -p
+</code></pre>
+
+<p>Тут товарищ Vasiliy P. Melnik в своем <a href="http://nixway.org/how-to/1c-predpriyatie-8-3+postgresql-na-baze-debian-8-jessie/#comment-2612897528">комментарии</a> пишет, что в данной процедуре необходимости нет. Я его утверждение не проверял, но вы можете попробовать пропустить 4 пункт. А если всё таки процедура потребуется, вы можете выполнить её позже.</p>
+
+<p>5. В этой статье я решил использовать версию PostgreSQL от 1С. Переходим в каталог с пакетами PostgreSQL:</p>
+
+<pre><code># cd /mnt/1cinstall/postgres
+</code></pre>
+
+<p>Проверяем что есть в каталоге:</p>
+
+<pre><code># ls -l
+итого 5424
+drwxr-xr-x 2 nihi1ist nihi1ist    4096 окт  6 09:50 addons
+-rwxr-xr-x 1 nihi1ist nihi1ist  120250 июн  2 12:41 libpq5_9.4.2-1.1C_amd64.deb
+-rwxr-xr-x 1 nihi1ist nihi1ist 3657036 июн  2 12:42 postgresql-9.4_9.4.2-1.1C_amd64.deb
+-rwxr-xr-x 1 nihi1ist nihi1ist 1069692 июн  2 12:42 postgresql-client-9.4_9.4.2-1.1C_amd64.deb
+-rwxr-xr-x 1 nihi1ist nihi1ist   72172 авг 11 19:47 postgresql-client-common_154.1.1C_all.deb
+-rwxr-xr-x 1 nihi1ist nihi1ist  163684 авг 11 19:47 postgresql-common_154.1.1C_all.deb
+-rwxr-xr-x 1 nihi1ist nihi1ist  457782 июн  2 12:42 postgresql-contrib-9.4_9.4.2-1.1C_amd64.deb
+</code></pre>
+
+<p>Всего 6 пакетов, которые и нужно установить. В каталоге <em>addons</em>, находятся дополнительные пакеты, их я ставить не буду.</p>
+
+<pre><code># dpkg -i *.deb
+</code></pre>
+
+<p>После установки проверим, запустился ли сервис PostgreSQL:</p>
+
+<pre><code># service postgresql status
+</code></pre>
+
+<p>Если пакеты были установлены правильно, то вы получите примерно следующее сообщение (выхлоп):</p>
+
+<pre><code>● postgresql.service - LSB: PostgreSQL RDBMS server
+   Loaded: loaded (/etc/init.d/postgresql)
+   Active: active (running) since Вт 2015-11-10 20:52:32 ALMT; 16s ago
+  Process: 14225 ExecStop=/etc/init.d/postgresql stop (code=exited, status=0/SUCCESS)
+  Process: 14274 ExecReload=/etc/init.d/postgresql reload (code=exited, status=0/SUCCESS)
+  Process: 14235 ExecStart=/etc/init.d/postgresql start (code=exited, status=0/SUCCESS)
+   CGroup: /system.slice/postgresql.service
+           ├─14249 /usr/lib/postgresql/9.4/bin/postgres -D /var/lib/postgresql/9.4/main -c config_file=/etc/postgresql/9.4/main/postgresql...
+           ├─14251 postgres: checkpointer process   
+           ├─14252 postgres: writer process   
+           ├─14253 postgres: wal writer process   
+           ├─14254 postgres: autovacuum launcher process   
+           └─14255 postgres: stats collector process   
+
+ноя 10 20:52:32 as1 postgresql[14235]: Starting PostgreSQL 9.4 database server: main.
+</code></pre>
+
+<p>Если же вы получите сообщение похожее на это:</p>
+
+<pre><code>● postgresql.service - LSB: PostgreSQL RDBMS server
+   Loaded: loaded (/etc/init.d/postgresql)
+   Active: active (exited) since Вт 2015-11-10 20:28:40 ALMT; 10min ago
+
+ноя 10 20:28:40 as1 postgresql[11850]: No PostgreSQL clusters exist; see "man pg_createcluster" ... (warning).
+</code></pre>
+
+<p>Нас интересует последняя строчка, где  сообщается, что кластер PostgreSQL не обнаружен. Чтобы исправить эту ситуацию, достаточно просто перезапустить сервис PostgreSQL:</p>
+
+<pre><code># service postgresql restart
+</code></pre>
+
+<p>После чего снова проверьте статус сервиса. В итоге вы должны получить что-то похожее на первое сообщение.</p>
+
+<p>6. После установки нужно еще немного подправить конфигурационный файл. Как ни странно PostgreSQL будучи установленным из пакетов 1С, содержит неправильные настройки для обработки экранирующих символов, и при создании базы выдает ошибку:</p>
+
+<pre><code>syntax error at or near "SECOND" at character 127
+</code></pre>
+
+<p>или</p>
+
+<pre><code>syntax error at or near "SECOND" at character 227
+</code></pre>
+
+<p>Чтобы избежать вышеуказанных ошибок нужно отредактировать настройки PostgreSQL:</p>
+
+<pre><code># vim /etc/postgresql/9.4/main/postgresql.conf
+</code></pre>
+
+<p>Приведя нижеуказанные параметры к следующему виду:</p>
+
+<pre><code>backslash_quote = on
+escape_string_warning = off
+standard_conforming_strings = off
+</code></pre>
+
+<p>Обновим конфигурацию, не перезапуская сервис:</p>
+
+<pre><code># service postgresql reload
+</code></pre>
+
+<p>7. Зададим пароль внутреннему пользователю PostgreSQL, предварительно авторизировавшись под системным пользователем <strong>postgres</strong>. Итак, авторизация:</p>
+
+<pre><code># su postgres
+</code></pre>
+
+<p>Переход в домашний каталог текущего пользователя:</p>
+
+<pre><code># cd
+</code></pre>
+
+<p>Смена пароля у внутреннего пользователя PostgreSQL:</p>
+
+<pre><code>$ psql -U postgres -c "alter user postgres with password '123456';"
+</code></pre>
+
+<p>Где <code>-U postgres</code> - системный пользователь от имени которого будет запущен <code>psql</code>, <code>user postgres</code> - внутренний пользователь БД, ну а <code>123456</code> - <em>произвольный</em> пароль который будет задан внутреннему пользователю БД.</p>
+
+<p>Если смена пароля прошла успешно, вы должны получить сообщение:</p>
+
+<pre><code>ALTER ROLE
+</code></pre>
+
+<p>Выход из окружения системного пользователя <strong>postgres</strong>:
+<code>
+$ exit
+</code></p>
+
+<p>8. Напоследок зафиксируем пакеты PostgreSQL, чтобы они не обновлялись из стандартных репозиториев:</p>
+
+<pre><code># apt-mark hold libpq5 postgresql-9.4 postgresql-client-9.4 postgresql-client-common postgresql-common postgresql-contrib-9.4
+</code></pre>
+
+<p>Если команда выполнена правильно, вы должны получить следующее сообщение:</p>
+
+<pre><code>libpq5 помечен как зафиксированный.
+postgresql-9.4 помечен как зафиксированный.
+postgresql-client-9.4 помечен как зафиксированный.
+postgresql-client-common помечен как зафиксированный.
+postgresql-common помечен как зафиксированный.
+postgresql-contrib-9.4 помечен как зафиксированный.
+</code></pre>
+
+<p>На этом установка PostgreSQL закончена. Вопросы настройки и оптимизации будут рассмотрены в отдельных статьях.</p>
+
+<h2>Установка сервера 1С:Предприятие 8.3<a name="server"></a> <a href="#content" title="К содержанию">↑</a></h2>
+
+<p>Теперь нам предстоит установка сервера 1С:Предприятие. Как и в случае с PostgreSQL нам предстоит ряд подготовительных работ необходимых для штатного функционирования сервера 1С:Предприятие.</p>
+
+<p>1. Переходим в из каталога <em>postgres</em> в каталог <em>1c</em>:</p>
+
+<pre><code># cd ../1c
+</code></pre>
+
+<p>2. Устанавливаем дополнительные пакеты, которые необходимы для работы сервера:</p>
+
+<pre><code># apt-get install imagemagick libglib2.0-0 libgsf-1-114 ttf-mscorefonts-installer t1utils unixodbc --no-install-recommends
+</code></pre>
+
+<p>3. Так как я не нашел достойной альтернативы пакету <strong><em>ttf2pt1</em></strong>, который не тянет кучу зависимостей. То я буду ставить его. В репозиториях его нету, скачаем из архива Debian:</p>
+
+<pre><code># wget http://archive.debian.org/debian/pool/main/t/ttf2pt1/ttf2pt1_3.4.4-1.4_amd64.deb
+</code></pre>
+
+<p>Докачиваем <strong><em>libt1-5</em></strong> от которого зависит <strong><em>ttf2pt1</em></strong>:</p>
+
+<pre><code># wget http://ftp.ru.debian.org/debian/pool/main/t/t1lib/libt1-5_5.1.2-3.6_amd64.deb
+</code></pre>
+
+<p>Даем права на выполнение:</p>
+
+<pre><code># chmod u+x ttf2pt1*.deb libt1*.deb
+</code></pre>
+
+<p>Устанавливаем пакеты:</p>
+
+<pre><code># dpkg -i ttf2pt1*.deb libt1*.deb
+</code></pre>
+
+<p>Кстати, жду предложений по возможной альтернативе пакету <strong><em>ttf2pt1</em></strong>.</p>
+
+<p>4. Посмотрим, какие пакеты есть у нас в каталоге:</p>
+
+<pre><code># ls -l
+итого 628420
+-rwxrwxrwx 1 nihi1ist nihi1ist 206202908 ноя 19 05:45 1c-enterprise83-client_8.3.7-1776_amd64.deb
+-rwxrwxrwx 1 nihi1ist nihi1ist  19879626 ноя 19 05:45 1c-enterprise83-client-nls_8.3.7-1776_amd64.deb
+-rwxrwxrwx 1 nihi1ist nihi1ist  33830518 ноя 19 05:45 1c-enterprise83-common_8.3.7-1776_amd64.deb
+-rwxrwxrwx 1 nihi1ist nihi1ist   1607830 ноя 19 05:45 1c-enterprise83-common-nls_8.3.7-1776_amd64.deb
+-rwxrwxrwx 1 nihi1ist nihi1ist 174945770 ноя 19 05:45 1c-enterprise83-server_8.3.7-1776_amd64.deb
+-rwxrwxrwx 1 nihi1ist nihi1ist  60668720 ноя 19 05:45 1c-enterprise83-server-nls_8.3.7-1776_amd64.deb
+-rwxrwxrwx 1 nihi1ist nihi1ist 135750258 ноя 19 05:45 1c-enterprise83-thin-client_8.3.7-1776_amd64.deb
+-rwxrwxrwx 1 nihi1ist nihi1ist   9980106 ноя 19 05:45 1c-enterprise83-thin-client-nls_8.3.7-1776_amd64.deb
+-rwxrwxrwx 1 nihi1ist nihi1ist    190046 ноя 19 05:45 1c-enterprise83-ws_8.3.7-1776_amd64.deb
+-rwxrwxrwx 1 nihi1ist nihi1ist     11986 ноя 19 05:46 1c-enterprise83-ws-nls_8.3.7-1776_amd64.deb
+-rwxr-xr-x 1 nihi1ist nihi1ist    173740 фев 24  2013 libt1-5_5.1.2-3.6_amd64.deb
+-rwxr-xr-x 1 nihi1ist nihi1ist    236970 июн  8  2008 ttf2pt1_3.4.4-1.4_amd64.deb
+</code></pre>
+
+<p>Всего 8 пакетов, из которых нам для функционирования сервера 1С:Предприятия необходимы 3 пакета: <strong><em>1c-enterprise83-common</em></strong>, <strong><em>1c-enterprise83-server</em></strong>, <strong><em>1c-enterprise83-ws</em></strong>.</p>
+
+<h5>Небольшая таблица с пояснениями по назначению пакетов:</h5>
+
+<table>
+<thead>
+<tr>
+<th> Название пакета </th>
+<th> Описание пакета </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> <em>1c_enterprise83-client…</em> </td>
+<td> Компоненты клиента 1С Предприятие 8.3 для Linux </td>
+</tr>
+<tr>
+<td> <em>1c_enterprise83-thin-client…</em> </td>
+<td> Компоненты тонкого клиента 1С Предприятие 8.3 для Linux </td>
+</tr>
+<tr>
+<td> <em>1c_enterprise83-common…</em> </td>
+<td> Общие компоненты 1С Предприятие 8.3 для Linux </td>
+</tr>
+<tr>
+<td> <em>1c_enterprise83-server…</em> </td>
+<td> Сервер 1С Предприятие 8.2 для Linux </td>
+</tr>
+<tr>
+<td> <em>1c_enterprise83-ws…</em> </td>
+<td> Компоненты интернет-сервисов 1С Предприятие 8.3 для Linux </td>
+</tr>
+<tr>
+<td> <em>1c_enterprise83-…-nls&hellip;</em> </td>
+<td> Компоненты необходимые для ОС не поддерживающих кириллическую кодировку </td>
+</tr>
+</tbody>
+</table>
+
+
+<p>&nbsp;</p>
+
+<p>5. Устанавливаем необходимые пакеты:</p>
+
+<pre><code># dpkg -i 1c-enterprise83-common_8*.deb 1c-enterprise83-server_8*.deb 1c-enterprise83-ws_8.3*.deb
+</code></pre>
+
+<p>6. Даем пользователю <strong>usr1cv8</strong> и группе <strong>grp1cv8</strong> права на установочную директорию 1С:Предприятия:</p>
+
+<pre><code># chown -R usr1cv8:grp1cv8 /opt/1C
+</code></pre>
+
+<p>7. В выхлопе установщика вы можете заметить предупреждение:</p>
+
+<pre><code>update-rc.d: using dependency based boot sequencing
+insserv: warning: script 'K01srv1cv83' missing LSB tags and overrides
+insserv: warning: script 'srv1cv83' missing LSB tags and overrides
+</code></pre>
+
+<p>Начиная с версий 8.3.7, данная проблема исправлена. Потому, если вышеуказанного сообщения вы не получали, можете пропустить пункты&nbsp;8&nbsp;и&nbsp;9.</p>
+
+<p>8. Сообщение описанное в пункте 7 мы получаем из-за отсутствия в скрипте запуска LSB-тегов. Ошибка не критична и никак не повлияет на работу сервера 1С:Предприятие. Но её легко можно решить, для этого добавим LSB-теги в сценарий сервиса 1С:Предприятие:</p>
+
+<pre><code># vim /etc/init.d/srv1cv83
+</code></pre>
+
+<p>Находим строки:</p>
+
+<pre><code>#!/bin/bash
+#------------------------------------------------------------
+# 1C:Enterprise server configuration parameters
+#------------------------------------------------------------
+
+# 1C:Enterprise server keytab file.
+</code></pre>
+
+<p>Приводим к следующему виду:</p>
+
+<pre><code>#!/bin/bash
+#------------------------------------------------------------
+# 1C:Enterprise server configuration parameters
+#------------------------------------------------------------
+
+### BEGIN INIT INFO
+# Provides:          srv1cv83
+# Required-Start:    $remote_fs $network $syslog $named
+# Required-Stop:     $remote_fs $network $syslog $named
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Description:       1C:Enterprise 83 server.
+### END INIT INFO
+
+# 1C:Enterprise server keytab file.
+</code></pre>
+
+<p>После изменения сценария, запускаем:</p>
+
+<pre><code># systemctl daemon-reload
+</code></pre>
+
+<p>9. Перезапускаем службу сервера 1С:Предприятие:</p>
+
+<pre><code># service srv1cv83 restart
+</code></pre>
+
+<p>10. Проверяем запускаются ли при старте системы сервер 1С:Предприятие:</p>
+
+<pre><code># netstat -atn|grep 0.0.0.0:15
+</code></pre>
+
+<p>Вы должны получить примерно такое сообщение:</p>
+
+<pre><code>tcp        0      0 0.0.0.0:1560            0.0.0.0:*               LISTEN
+tcp        0      0 0.0.0.0:1540            0.0.0.0:*               LISTEN
+tcp        0      0 0.0.0.0:1541            0.0.0.0:*               LISTEN
+</code></pre>
+
+<p>11. Так же для профилактики можно проверить, все ли процессы сервера запущены:</p>
+
+<pre><code># ps aux|grep 1c
+</code></pre>
+
+<p>От имени пользователя <strong>usr1cv8</strong> должно быть запущено три процесса: <em>ragent</em>, <em>rmngr</em> и <em>rphost</em>. После имен процессов идут номера портов, через которые они работают:</p>
+
+<pre><code>usr1cv8  16832  0.3  1.8 357780 35668 ?        Ssl  21:39   0:01 /opt/1C/v8.3/x86_64/ragent -daemon
+usr1cv8  16835  0.8  5.4 955616 104104 ?       Sl   21:39   0:04 /opt/1C/v8.3/x86_64/rmngr -port 1541 -host as1 -range 1560:1591 -clstid 96f2358c-87be-11e5-049f-080027e1f738
+usr1cv8  16862  0.3 10.6 848588 204580 ?       Sl   21:39   0:01 /opt/1C/v8.3/x86_64/rphost -range 1560:1591 -reghost as1 -regport 1541 -pid 97c8c4c6-87be-11e5-049f-080027e1f738
+root     16940  0.0  0.1  13968  2220 pts/0    S+   21:48   0:00 grep 1c
+</code></pre>
+
+<h2>Установка драйвера для аппаратной лицензии 1С (HASP)<a name="hasp"></a> <a href="#content" title="К содержанию">↑</a></h2>
+
+<p>Большая часть новичков впервые столкнувшиеся с процессом установки 1С:Предприятие не могут понять о какой лицензии, ключе, <a href="https://ru.wikipedia.org/wiki/HASP">HASP</a> идет речь. Итак, лицензия&nbsp;1С необходима для запуска продуктов 1С:Предприятие. Лицензии&nbsp;1С можно разделить на аппаратные и программные. Мы рассмотрим аппаратную лицензию (<a href="https://ru.wikipedia.org/wiki/%D0%A2%D0%BE%D0%BA%D0%B5%D0%BD_(%D0%B0%D0%B2%D1%82%D0%BE%D1%80%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D0%B8"><em>USB-токен</em></a>). Аппаратные ключи&nbsp;1С делятся на 3 вида и их можно отличить по цвету:<br/>
+-&nbsp;<span style="color:green">зеленый</span> - серверный ключ&nbsp;1С (сервер&nbsp;1С:Предприятия),<br/>
+-&nbsp;<span style="color:blue">синий</span> (<span style="color:purple">фиолетовый</span>) - ключ&nbsp;1С, который поставляется вместе с конфигурацией и является однопользовательским,<br/>
+-&nbsp;<span style="color:red">красный</span> - лицензии на пользователей, данный ключ&nbsp;1С может приобретаться отдельно в том случае, если у Вас уже есть в наличие какая-либо конфигурация 1С:Предприятие.</p>
+
+<p><strong>Клиентское приложение допускает использование следующих ключей HASP:</strong><br/>
+-&nbsp;локальный клиентский ключ серии ORGL8 на 1 пользователя,<br/>
+-&nbsp;сетевой клиентский ключ серии ORGL8 на 5, 10, 20, 50, и 100 пользователей,<br/>
+-&nbsp;сетевой клиентский ключ серии ORGLА на 300 пользователей,<br/>
+-&nbsp;сетевой клиентский ключ серии ORGLВ на 500 пользователей.</p>
+
+<p>Причём на одном компьютере может быть установлено не более одного ключа одной серии. Подробнее о видах лицензии и ключей вы можете прочитать <a href="http://www.1service.ru/price/litsenzii_klyuchi_1s.php">здесь</a>.</p>
+
+<p>Из вышеуказанного следует - нам нужны два типа лицензий. <em>Лицензия для сервера</em> 1С:Предприятие и <em>лицензия для клиента</em> 1С:Предприятие. После того как мы выяснили какие ключи нам необходимы, можно перейти к установке драйвера. Свежий драйвер можно <a href="http://safenet-sentinel.ru/helpdesk/download-space/">скачать</a> на официальном сайте. Большинству подойдет HASP 4, его и скачивайте.</p>
+
+<p>1. Как вы помните, всё необходимое я уже скачал, потому просто переходим из каталога <em>1с</em>, в каталог <em>hasp</em>:</p>
+
+<pre><code># cd ../hasp
+</code></pre>
+
+<p>Проверим, что есть в каталоге:</p>
+
+<pre><code># ls -l
+итого 2872
+-rw-r--r-- 1 nihi1ist nihi1ist 2918898 авг 26 14:08 aksusbd_7.40-1_i386.deb
+-rw-r--r-- 1 nihi1ist nihi1ist   16851 авг 26 14:08 readme.html
+</code></pre>
+
+<p>Установочный пакет есть, но нет прав на выполнение. Дадим права на выполнение владельцу:</p>
+
+<pre><code># chmod a+x aksusbd*.deb
+</code></pre>
+
+<p>После чего установим пакет:</p>
+
+<pre><code># dpkg -i aksusbd*.deb
+</code></pre>
+
+<p>2. После установки сервис не запустился, запустим его:</p>
+
+<pre><code># service aksusbd start
+</code></pre>
+
+<p>Если сервис запустился штатно, команда просто отработает не выдав сообщений. Проверить запущен ли сервис можно командой:</p>
+
+<pre><code># service aksusbd status
+</code></pre>
+
+<p>Вы должны получить сообщение:</p>
+
+<pre><code>● aksusbd.service - LSB: Sentinel LDK RTE
+   Loaded: loaded (/etc/init.d/aksusbd)
+   Active: active (exited) since Чт 2015-12-03 19:37:12 ALMT; 10s ago
+  Process: 3848 ExecStart=/etc/init.d/aksusbd start (code=exited, status=0/SUCCESS)
+
+дек 03 19:37:12 hst1 aksusbd[3848]: Starting AKSUSB daemon: .
+дек 03 19:37:12 hst1 aksusbd[3848]: Starting WINEHASP daemon: .
+дек 03 19:37:12 hst1 aksusbd[3848]: Starting HASPLM daemon: .
+</code></pre>
+
+<p>  <span style="color:#cd0021;"><strong>ПРЕДУПРЕЖДЕНИЕ!</strong></span> Для 64-битного сервера 1С:Предприятие, нужен 64-битный серверный HASP-ключ. 32-битный серверный HASP-ключ с 64-битным сервером 1С:Предприятие работать не будет!</p>
+
+<p>  <span style="color:#cd0021;"><strong>ПРИМЕЧАНИЕ!</strong></span> Сервер 1С:Предприятие под *nix-подобные операционные системы не требует наличия серверного ключа, если число пользользователей не превышает 12. В этом случае требуется наличие только клиентских лицензий. Однако, согласно правилам лицензирования, организация должна приобрести серверный ключ.</p>
+
+<p>На этом установка драйвера закончена.</p>
+
+<h2>Установка клиента 1С:Предприятие 8.3<a name="client"></a> <a href="#content" title="К содержанию">↑</a></h2>
+
+<h3>Установка клиента</h3>
+
+<p>Итак, дано: рабочая станция с Debian&nbsp;8&nbsp;&laquo;Jessie&raquo; + DE Cinnamon на борту. Я предпочел Cinnamon, но каждый может выбрать <a href="https://ru.wikipedia.org/wiki/%D0%A1%D1%80%D0%B5%D0%B4%D0%B0_%D1%80%D0%B0%D0%B1%D0%BE%D1%87%D0%B5%D0%B3%D0%BE_%D1%81%D1%82%D0%BE%D0%BB%D0%B0">окружение</a> <em>(DE)</em> себе по вкусу. Можно приступить к установке клиента 1С:Предприятие.</p>
+
+<p>1. По уже заведенной традиции, устанавливаем дополнительные пакеты, необходимые для работы 1С:Предприятие:</p>
+
+<pre><code># apt-get install libwebkitgtk-1.0-0 imagemagick libglib2.0-0 libgsf-1-114 ttf-mscorefonts-installer t1utils unixodbc --no-install-recommends
+</code></pre>
+
+<p>2. На памятной флешке, имеются также пакеты клиента. Подключим флешку как указано в пунктах 4 и 5, главы <a href="#lead-up">Подготовка сервера</a> и сразу перейдем в каталог с пакетами 1С:Предприятие:</p>
+
+<pre><code># cd /mnt/1cinstall/1c
+</code></pre>
+
+<p>Посмотрим, что имеется в каталоге:</p>
+
+<pre><code># ls -l
+итого 628420
+-rwxrwxrwx 1 nihi1ist nihi1ist 206202908 ноя 19 05:45 1c-enterprise83-client_8.3.7-1776_amd64.deb
+-rwxrwxrwx 1 nihi1ist nihi1ist  19879626 ноя 19 05:45 1c-enterprise83-client-nls_8.3.7-1776_amd64.deb
+-rwxrwxrwx 1 nihi1ist nihi1ist  33830518 ноя 19 05:45 1c-enterprise83-common_8.3.7-1776_amd64.deb
+-rwxrwxrwx 1 nihi1ist nihi1ist   1607830 ноя 19 05:45 1c-enterprise83-common-nls_8.3.7-1776_amd64.deb
+-rwxrwxrwx 1 nihi1ist nihi1ist 174945770 ноя 19 05:45 1c-enterprise83-server_8.3.7-1776_amd64.deb
+-rwxrwxrwx 1 nihi1ist nihi1ist  60668720 ноя 19 05:45 1c-enterprise83-server-nls_8.3.7-1776_amd64.deb
+-rwxrwxrwx 1 nihi1ist nihi1ist 135750258 ноя 19 05:45 1c-enterprise83-thin-client_8.3.7-1776_amd64.deb
+-rwxrwxrwx 1 nihi1ist nihi1ist   9980106 ноя 19 05:45 1c-enterprise83-thin-client-nls_8.3.7-1776_amd64.deb
+-rwxrwxrwx 1 nihi1ist nihi1ist    190046 ноя 19 05:45 1c-enterprise83-ws_8.3.7-1776_amd64.deb
+-rwxrwxrwx 1 nihi1ist nihi1ist     11986 ноя 19 05:46 1c-enterprise83-ws-nls_8.3.7-1776_amd64.deb
+-rwxr-xr-x 1 nihi1ist nihi1ist    173740 фев 24  2013 libt1-5_5.1.2-3.6_amd64.deb
+-rwxr-xr-x 1 nihi1ist nihi1ist    236970 июн  8  2008 ttf2pt1_3.4.4-1.4_amd64.deb
+</code></pre>
+
+<p>3. Есть два варианта установки клиента. <em>Первый вариант</em> - установка полноценного клиента (включает толстый и тонкий клиенты), <em>второй вариант</em> - установка тонкого клиента. В случае с установкой полноценного клиента, необходимо также устанавливать и серверную часть.</p>
+
+<p>3.1. Сначала рассмотрим установку полноценного клиента:</p>
+
+<pre><code># dpkg -i 1c-enterprise83-client_8*.deb 1c-enterprise83-common_8*.deb 1c-enterprise83-server_8*.deb ttf2pt1*.deb libt1*.deb
+</code></pre>
+
+<p>После чего надо выполнить процедуры указанные в пунктах с 6 по 9, главы <a href="#server">Установка сервера 1С:Предприятие 8.3</a>.</p>
+
+<p>3.2. Тонкий клиент, можно устанавливать на те машины, где не планируется использование толстого клиента. Преимущество тонкого клиента, это отсутствие зависимостей от компонентов сервера 1С:Предприятие, а также возможность работать через интернет. Итак, установка тонкого клиента:</p>
+
+<pre><code># dpkg -i 1c-enterprise83-thin-client_8*.deb
+</code></pre>
+
+<p><strong> В каких случаях нам необходим толстый клиент?</strong><br/>
+- Работа с конфигуратором,<br/>
+- Создание информационных баз,<br/>
+- Проведение объемных вычислений (в случае толстого клиента, все вычисления проводятся на стороне клиента).</p>
+
+<p>Подробнее о тонких и толстых клиентах можно почитать <a href="http://v8.1c.ru/overview/Term_000000121.htm">здесь</a>.</p>
+
+<p>4. Теперь нам необходимо выбрать каким способом мы будем взаимодействовать с сервером. В зависимости от обстоятельств и предпочтений, вы можете <a href="http://nixway.org/how-to/ustanovka-i-nastroika-bind9-na-debian-jessie/">установить DNS-сервер</a>, или прописывать имя сервера на каждой клиентской машине вручную:</p>
+
+<pre><code># vim /etc/hosts
+</code></pre>
+
+<p>Надо добавить строку:</p>
+
+<pre><code>192.168.1.1     as1     as1.nixway.loc
+</code></pre>
+
+<p>Где <code>192.168.1.1</code> - IP-адрес сервера, <code>as1</code> - имя сервера, <code>as1.nixway.loc</code> - имя сервера в локальном домене, его указывать не обязательно.</p>
+
+<p>5. После того как вы добавили вышеуказанную строку, проверьте, доступен ли сервер по указанному имени:</p>
+
+<pre><code># ping -c4 as1.nixway.loc
+</code></pre>
+
+<p>Вы должны получить примерно такой ответ:</p>
+
+<pre><code>PING as1.nixway.loc (192.168.56.101) 56(84) bytes of data.                                                                                   
+64 bytes from as1.nixway.loc (192.168.56.101): icmp_seq=1 ttl=64 time=0.212 ms
+64 bytes from as1.nixway.loc (192.168.56.101): icmp_seq=2 ttl=64 time=0.309 ms
+64 bytes from as1.nixway.loc (192.168.56.101): icmp_seq=3 ttl=64 time=0.315 ms
+64 bytes from as1.nixway.loc (192.168.56.101): icmp_seq=4 ttl=64 time=0.258 ms
+
+--- as1.nixway.loc ping statistics ---
+4 packets transmitted, 4 received, 0% packet loss, time 3000ms
+rtt min/avg/max/mdev = 0.212/0.273/0.315/0.045 ms
+</code></pre>
+
+<p>Установка клиента закончена, можно приступать к созданию информационной базы.</p>
+
+<h3>Создание информационной базы.</h3>
+
+<p>Для начала можно (но совсем необязательно) установить демонстрационную конфигурацию. Дабы продемострировать работую так называемого &laquo;Управляемого приложения&raquo;. Демонстрационная конфигурация идет в комплекте с 1С:Предприятие 8.3. Установщик конфигурации представлен в виде простого скрипта. Потому, описывать процесс установки я не буду, просто выложу несколько скриншотов процесса установки:</p>
+
+<p><a href="/images/posts/2015-11-10/1c_demo_1.png"><img src="/images/posts/2015-11-10/1c_demo_1_preview.png" alt="Установка демо конфигурации" /></a></p>
+
+<p>1. Создание информационных баз на *nix-подобных ОС должно проходить из под толстого клиента. В противном случае вы рискуете получить ошибку:</p>
+
+<p><img src="/images/posts/2015-11-10/1c_error_1.png" alt="Создание ИБ. Ошибка" /></p>
+
+<p>Кроме вышеуказанной ошибки, встречается и другая, но уже в толстом клиенте. Когда при добавлении новой ИБ 1С:Предприятие выдает сообщение:</p>
+
+<p><img src="/images/posts/2015-11-10/1c_error_2.png" alt="Создание ИБ. Ошибка" /></p>
+
+<p>ИБ создается, но 1С:Предприятие некорректно обрабатывает её создание. В этом случае достаточно просто добавить ИБ в список:</p>
+
+<p><a href="/images/posts/2015-11-10/1c_02.1.png"><img src="/images/posts/2015-11-10/1c_02.1_preview.png" alt="Создание ИБ. Добавление существующей ИБ" /></a></p>
+
+<p>Вышеуказанные ошибки будут рассмотрены в отдельной статье.</p>
+
+<p>2. При первом запуске 1С:Предприятие сразу же предлагает нам добавить информационную базу (ИБ), жмем <kbd>Да</kbd>:</p>
+
+<p><img src="/images/posts/2015-11-10/1c_01.png" alt="Создание ИБ. Добавление" /></p>
+
+<p>3. Выбираем пункт <em>Создание новой информационной базы,</em> жмем <kbd>Далее ></kbd>:</p>
+
+<p><img src="/images/posts/2015-11-10/1c_02.png" alt="Создание ИБ. Новая" /></p>
+
+<p>4. Выбраем шаблон конфигурации для создаваемой ИБ или же создаем ИБ без конфигурации, жмем <kbd>Далее ></kbd>:</p>
+
+<p><img src="/images/posts/2015-11-10/1c_03.png" alt="Создание ИБ. Конфигурация" /></p>
+
+<p>5. Задаем имя ИБ и выбираем пункт <em>На сервере 1С:Предприятия,</em> жмем <kbd>Далее ></kbd>:</p>
+
+<p><img src="/images/posts/2015-11-10/1c_04.png" alt="Создание ИБ. Сервер" /></p>
+
+<p>6. По порядку указываем: доменное имя или IP-адрес сервера 1С:Предприятие, имя ИБ, параметры соединения, тип СУБД, адрес сервера баз данных (БД), имя БД на сервере БД, имя пользователя сервера БД, пароль пользователя сервера БД, жмем <kbd>Далее ></kbd>:</p>
+
+<p><img src="/images/posts/2015-11-10/1c_05.png" alt="Создание ИБ. Параметры подключения" /></p>
+
+<p>7. Параметры запуска оставляем без изменений, жмем <kbd>Готово</kbd>:</p>
+
+<p><img src="/images/posts/2015-11-10/1c_06.png" alt="Создание ИБ. Параметры запуска" /></p>
+
+<p>8. Если вы всё сделали правильно, то через некоторое время ИБ будет создана и вы увидите её в списке:</p>
+
+<p><img src="/images/posts/2015-11-10/1c_07.png" alt="Создание ИБ. Список ИБ" /></p>
+
+<p>9. Теперь, когда мы создали ИБ, можно её запустить. Как вы помните, я создавал ИБ из шаблона демонстрационной конфигурации. Так выглядит рабочее окно этой конфигурации:</p>
+
+<p><a href="/images/posts/2015-11-10/1c_08.png"><img src="/images/posts/2015-11-10/1c_08_preview.png" alt="Режим - 1С:Предприятие" /></a></p>
+
+<p>Ну и конечно же конфигуратор:</p>
+
+<p><a href="/images/posts/2015-11-10/1c_09.png"><img src="/images/posts/2015-11-10/1c_09_preview.png" alt="Режим - Конфигуратор" /></a></p>
+
+<h2>Публикация ИБ на веб-сервере Apache 2.4<a name="apache24"></a> <a href="#content" title="К содержанию">↑</a></h2>
+
+<p>Хочу обрадовать тех, кому не хватало возможности публикации информационной базы на веб-сервере Apache. Добавление поддержки последней версии Apache, я заметил при установке 1С:Предприятие версии 8.3.8.1652. Может поддержка Apache 2.4 появилась и раньше. Но проверять мне было лень, а новостей на эту тему я не нашел. Даже на <a href="http://v8.1c.ru/requirements/">официальном сайте</a> 1С, на данный момент устаревшая информация. Процесс публикации не изменился. <strong><em>Обращаю особое внимание, что процесс установки описан для Apache не ниже 2.4.</em></strong></p>
+
+<p>Создаем директорию для vrd-файла:</p>
+
+<pre><code># mkdir -p /var/www/ib/ibname
+</code></pre>
+
+<p>А также файл конфигурации Apache:</p>
+
+<pre><code># touch /etc/apache2/conf-available/ibname.conf
+</code></pre>
+
+<p>Переходим в каталог со утилитой публикации веб-клиента:</p>
+
+<pre><code># cd /opt/1C/v8.3/x86_64/
+</code></pre>
+
+<p>Запускаем утилиту:</p>
+
+<pre><code># ./webinst -apache24 -wsdir ibname -dir '/var/www/ib/ibname' -connstr 'Srvr="as1.nixway.loc";Ref="ibname";' -confPath /etc/apache2/conf-available/ibname.conf
+</code></pre>
+
+<p>Где <code>/var/www/ib/ibname</code> - директория где будет создан vrd-файл, <code>ibname</code> - имя ИБ, <code>as1.nixway.loc</code> - адрес сервера 1С:Предпрятие, а <code>/etc/apache2/conf-available/ibname.conf</code> - путь до конфигурационного файла Apache.</p>
+
+<p>Подключаем конфигурацию:</p>
+
+<pre><code># a2enconf ibname
+</code></pre>
+
+<p>Перечитываем конфигурацию Apache:</p>
+
+<pre><code># service apache2 reload
+</code></pre>
+
+<p>Если процедура публикации была проведена корректно, ИБ будет доступна по адресу:</p>
+
+<pre><code>http[s]://server_ip|server_name/ibname
+</code></pre>
+
+<p><a href="/images/posts/2015-11-10/1c_10.png"><img src="/images/posts/2015-11-10/1c_10_preview.png" alt="Режим - Веб-клиент" /></a></p>
+
+<h2>Послесловие<a name="afterword"></a> <a href="#content" title="К содержанию">↑</a></h2>
+
+<p>Прошу в комментариях задавать вопросы только по статье. Если же вы найдете в статье ошибку или у вас есть предложения, просьбы, вопросы выходящие за рамки статьи, можете оставлять их на нашем <a href="https://community.nixway.org">форуме</a>, в специально созданной <a href="https://community.nixway.org/viewtopic.php?pid=589">теме</a>.</p>
+
+<p>Напоминаю копипастерам, использование прямой ссылки на оригинальную статью обязательно.</p>
+
+<p><em>Статья обновлена 10 августа 2016 года.</em></p>
+]]></content>
+  </entry>
+  
+</feed>

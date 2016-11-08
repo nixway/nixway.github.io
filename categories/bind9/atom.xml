@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Категория: Bind9 | Путь юниксоида]]></title>
+  <link href="http://nixway.org/categories/bind9/atom.xml" rel="self"/>
+  <link href="http://nixway.org/"/>
+  <updated>2016-11-08T18:44:50+06:00</updated>
+  <id>http://nixway.org/</id>
+  <author>
+    <name><![CDATA[nihi1ist]]></name>
+    <email><![CDATA[nihi1ist@nixway.org]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Установка и настройка Bind9 на Debian&nbsp;8&nbsp;&laquo;Jessie&raquo;]]></title>
+    <link href="http://nixway.org/2015/05/01/ustanovka-i-nastroika-bind9-na-debian-jessie/"/>
+    <updated>2015-05-01T09:29:13+06:00</updated>
+    <id>http://nixway.org/2015/05/01/ustanovka-i-nastroika-bind9-na-debian-jessie</id>
+    <content type="html"><![CDATA[<p><img src="/images/posts/2015-05-01/debian+bind9.png" alt="Bind9" /></p>
+
+<p>В сети очень много статей на тему установки и настройки DNS-сервера Bind9. Они разные. Некоторые написаны просто и доступно, но нет пояснений зачем и почему. В других материал подан очень подробно, но новичкам такой материал осилить сложно. Я же попытаюсь совместить достоинства способов подачи материала, нащупать ту золотую середину, которая подойден большинству. Но опять таки, я не претендую на истину в последней инстанции и готов принять конструктивную критику.</p>
+
+<!--more-->
+
+
+<p>Итак, вступление закончено, приступим к самой статье. Я как приверженнец Debian, буду описывать процесс установки и настройки именно на этой ОС. Дано Debian&nbsp;8&nbsp;&laquo;Jessie&raquo; установленный вот с такими параметрами <em>(Ну разве кроме пункта <strong>web server</strong>, он пригодится тем, кто в дальнейшем будет работать с веб-сервером Apache):</em><br/>
+<a href="/images/posts/2015-05-01/debian_preinstall_options.png"><img src="/images/posts/2015-05-01/debian_preinstall_options_preview.png" alt="Debian preinstall options" /></a></p>
+
+<h4>Настройки сети:</h4>
+
+<pre><code>IP адрес роутера 192.168.1.1
+IP адрес сервера 192.168.1.10
+Имя домена nixway.loc
+</code></pre>
+
+<p>Для решения данной задачи настроим сервер таким образом, чтобы при обращении по доменному имени внутри сети он отвечал по локальному адресу. Все комманды выполняются от имени суперпользователя (<strong>root</strong>).</p>
+
+<p>Сначала установим необходимые пакеты:
+<code>
+apt-get -y install bind9 dnsutils
+</code></p>
+
+<p>Теперь необходимо настроить файл конфигурации Bind9:
+<code>
+vim /etc/bind/named.conf.options
+</code></p>
+
+<p>Приведём его к следующему виду:
+<code>
+acl mynetwork {192.168.1.0/24; 127.0.0.1; };
+options {
+    directory "/var/cache/bind";
+    auth-nxdomain no;
+    forwarders {192.168.1.1; 8.8.8.8; };
+    listen-on-v6 { none; };
+    allow-query { mynetwork; };
+};
+</code></p>
+
+<p><strong>Расшифровка:</strong><br/>
+<code>acl</code> - создает <a href="https://ru.wikipedia.org/wiki/ACL">ACL</a> (<em>Access control list</em>) - так называемый список контроля доступа, с помощью которого мы ограничиваем диапазон адресов которые могут запрашивать зоны с нашего сервера. В данном примере это разрешено подсети <code>192.168.1.0/24</code>. и <a href="https://ru.wikipedia.org/wiki/Localhost">локальному хосту</a>.<br/>
+<code>allow-query { mynetwork; };</code> - список тех, кто имеет право запрашивать  информацию. Можно ограничить с помошью <em>acl</em> либо установить <code>allow-query { any; };</code> - что будет означать, что запросы разрешенмы всем.<br/>
+<code>forwarders {192.168.1.1; 8.8.8.8; };</code> - это DNS провайдера, или любые другие, у которых можно получить информацию о доменах неизвестных вашему серверу.<br/>
+<code>listen-on-v6 { none; }</code> - запрещает работать с IPv6.</p>
+
+<h3>Настройка зон</h3>
+
+<p>Для начала покорректируем файл локальной конфигурации Bind9:
+<code>
+vim /etc/bind/named.conf.local
+</code></p>
+
+<p>Этот файл содержит локальную конфигурацию DNS-сервера, в нем объявляются зоны, связанные с доменами этого сервера. Добавляем в него файлы наших зон (зону прямого просмотра и зону обратного просмотра):
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>zone &ldquo;nixway.loc&rdquo; {
+</span><span class='line'>    type master;
+</span><span class='line'>    file &ldquo;/etc/bind/zones/nixway/flz.nixway.zone&rdquo;;
+</span><span class='line'>};&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;zone &ldquo;1.168.192.in-addr.arpa&rdquo; {
+</span><span class='line'>    type master;
+</span><span class='line'>    file &ldquo;/etc/bind/zones/nixway/rlz.nixway.zone&rdquo;;
+</span><span class='line'>};&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;pre&gt;&lt;code&gt;
+</span><span class='line'>### Зона прямого просмотра
+</span><span class='line'>Зона в DNS — это часть пространства имён DNS, управляемая конкретным сервером или группой серверов DNS. Зона прямого просмотра - это тип зоны в которой доменное имя преобразуется в IP-адрес. Создадим файл для зоны прямого просмотра:
+</span><span class='line'>&lt;/code&gt;&lt;/pre&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;vim /etc/bind/zones/nixway/flz.nixway.zone</span></code></pre></td></tr></table></div></figure></p>
+
+<p>Со следующим содержимым:
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>;
+</span><span class='line'>; Зона прямого просмотра
+</span><span class='line'>;
+</span><span class='line'>$TTL 30
+</span><span class='line'>$ORIGIN nixway.loc.&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;@               IN      SOA     ns1.nixway.loc. admin.nixway.loc. (
+</span><span class='line'>        2015050101      ; Serial
+</span><span class='line'>                1d      ; Refresh
+</span><span class='line'>                1h      ; Retry
+</span><span class='line'>                1w      ; Expire
+</span><span class='line'>                2h      ; Negative Cache TTL
+</span><span class='line'>)&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;@               IN      NS      ns1.nixway.loc.
+</span><span class='line'>@               IN      NS      ns.provider.org.
+</span><span class='line'>@               IN      A       192.168.1.10&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;ns1             IN      A       192.168.1.10
+</span><span class='line'>nixway.loc      IN      A       192.168.1.10&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;www             IN      CNAME   nixway.loc.&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;pre&gt;&lt;code&gt;
+</span><span class='line'>В конце этого файла нужно обязательно оставить пустую строку!
+</span><span class='line'>
+</span><span class='line'>**Расшифровка:**  
+</span><span class='line'>`$ORIGIN` - оригинальное имя зоны  
+</span><span class='line'>`ns1.nixway.loc.`  - Наш DNS-сервер (точка в конце обязательна).  
+</span><span class='line'>`admin.nixway.loc.` - email администратора сервера, где вместо символа @ используется точка.  
+</span><span class='line'>`Serial` - серийный номер зоны в формате ГГГГММДД и номер текущего изменения за этот день. (Важно, при каждом изменении, нужно редактировать этот номер увеличивая его в большую сторону) Пример: `2015020301.`  
+</span><span class='line'>`Refresh` - период времени с которым вторичный сервер днс обращается к основному.  
+</span><span class='line'>`Retry` - период с которым вторичный сервер будет повторять попытки при неудачном обновлении.  
+</span><span class='line'>`Expire` - максимальное время использования данных на вторичном сервере, после которого делается обязательное обновление.  
+</span><span class='line'>`Negative Cache TTL` - время актуальности данных в кэше запросов.  
+</span><span class='line'>
+</span><span class='line'>Далее идут записи имён хостов с ip-адресами или псевдонимами.  
+</span><span class='line'>`ns.provider.org.` - вместо этой записи можете указать NS вашего регистратора либо Free DNS сервиса.
+</span><span class='line'>
+</span><span class='line'>### Зона обратного просмотра
+</span><span class='line'>Зона обратного просмотра, выполняет преобразование IP-адреса в доменное имя. Создадим файл для зоны обратного просмотра:
+</span><span class='line'>&lt;/code&gt;&lt;/pre&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;vim /etc/bind/zones/nixway/rlz.nixway.zone</span></code></pre></td></tr></table></div></figure></p>
+
+<p>И запишем туда следующее:
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>;
+</span><span class='line'>; Зона обратного просмотря для nixway.loc
+</span><span class='line'>;
+</span><span class='line'>$TTL 30
+</span><span class='line'>@               IN      SOA     ns1.nixway.loc. root.nixway.loc. (
+</span><span class='line'>         201505013      ; Serial
+</span><span class='line'>                1d      ; Refresh
+</span><span class='line'>                1h      ; Retry
+</span><span class='line'>                1w      ; Expire
+</span><span class='line'>                2h      ; Negative Cache TTL
+</span><span class='line'>)&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;@               IN      NS      nixway.loc.&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;10              IN      PTR     ns1.nixway.loc.&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;pre&gt;&lt;code&gt;
+</span><span class='line'>В этом файле должны быть только записи типа `PTR`. В конце этого файла так же должна быть пустая строка. Число `10` - это последний [октет](https://ru.wikipedia.org/wiki/%D0%9E%D0%BA%D1%82%D0%B5%D1%82_%28%D0%B8%D0%BD%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B8%D0%BA%D0%B0%29) в IP адресе нашего сервера.
+</span><span class='line'>
+</span><span class='line'>Например, можно добавить в файл зоны прямого просмотра строку:
+</span><span class='line'>&lt;/code&gt;&lt;/pre&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;router          IN      A       192.168.1.1</span></code></pre></td></tr></table></div></figure></p>
+
+<p>А в файл зоны обратного просмотра строку:
+<code>
+1               IN      PTR     router.nixway.loc.
+</code></p>
+
+<p>Тогда по адресу <code>router.nixway.loc</code> в браузере будет открываться web-интерфейс роутера (эквивалентно <em>192.168.1.1</em>), но только внутри локальной сети.</p>
+
+<h3>Проверка</h3>
+
+<p>Проверим файлы зон на наличие ошибок командой:
+<code>
+named-checkconf -z
+</code></p>
+
+<p>Если ошибок нет, обновим информацию о зонах:
+<code>
+rndc reload
+</code></p>
+
+<p>Теперь необходимо отредактировать <em>resolv.conf</em>:
+<code>
+vim /etc/resolv.conf
+</code></p>
+
+<p>Приводим его в следующий вид:
+<code>
+domain nixway.loc
+search nixway.loc
+nameserver 192.168.1.10
+nameserver 192.168.1.1
+</code></p>
+
+<p>Проверку можно сделать двумя командами:
+<code>
+nslookup nixway.loc
+nslookup 192.168.1.10
+</code></p>
+
+<p>Которые должны выдать cледующий результат:
+<code>
+Имя:   nixway.loc
+Address: 192.168.1.10
+</code></p>
+
+<h3>Последние штрихи</h3>
+
+<p>Если DHCP у вас раздает роутер, не забудьте установить выдаваемые по умолчанию DNS сервера 192.168.1.10 и 192.168.1.1
+Проверьте корректность работы, введя в консоли Windows-машины
+<code>
+tracert nixway.loc
+</code></p>
+
+<p>Если маршрут пошел сразу на адрес  192.168.1.10, значит все работает корректно. Если нет, пропробуйте очистить кэш DNS и посторить еще раз:
+<code>
+ipconfig /flushdns
+</code></p>
+
+<p>Не забудьте пробросить необходимые порты на роутере, если это необходимо конечно.</p>
+
+<p><a href="http://forum.nixway.org/viewtopic.php?id=27">Обсуждение</a> статьи на форуме.</p>
+]]></content>
+  </entry>
+  
+</feed>

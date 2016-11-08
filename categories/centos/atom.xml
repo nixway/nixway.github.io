@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Категория: Centos | Путь юниксоида]]></title>
+  <link href="http://nixway.org/categories/centos/atom.xml" rel="self"/>
+  <link href="http://nixway.org/"/>
+  <updated>2016-11-08T18:44:50+06:00</updated>
+  <id>http://nixway.org/</id>
+  <author>
+    <name><![CDATA[nihi1ist]]></name>
+    <email><![CDATA[nihi1ist@nixway.org]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Установка и настройка LNMP на CentOS, Debian и Gentoo]]></title>
+    <link href="http://nixway.org/2013/06/12/ustanovka-i-nastroika-lnmp-na-centos-debian-gentoo/"/>
+    <updated>2013-06-12T16:15:21+06:00</updated>
+    <id>http://nixway.org/2013/06/12/ustanovka-i-nastroika-lnmp-na-centos-debian-gentoo</id>
+    <content type="html"><![CDATA[<p><img src="/images/posts/2013-06-12/nginx_to_centos_debian_and_gentoo.png" alt="nginx to CentOS, Debian and Gentoo" /></p>
+
+<p>Это руководство открывает серию материалов по установке известных систем управления содержимым (<a href="http://ru.wikipedia.org/wiki/CMS">CMS</a>) на веб-сервер <a href="https://ru.wikipedia.org/wiki/Nginx">nginx</a>. В отдельную статью необходимо выделить общую часть, которая будет одинаковой для всех CMS, написанных на PHP (грубо говоря мы сделаем тот же <a href="http://ru.wikipedia.org/wiki/LAMP">LAMP</a>, только вместо громоздкого и неповоротливого веб-сервера <a href="https://ru.wikipedia.org/wiki/Apache_HTTP_Server">Apache</a> у нас будет nginx). Задача данного руководства – установка веб-сервера nginx, системы управления базами данных MySQL и менеджера процессов FastCGI (FPM), а также их настройка.</p>
+
+<!--more-->
+
+
+<p>* Конфигурация и установка отдельных CMS будут описаны в дополнительных материалах.</p>
+
+<h2>Установка и запуск nginx, MySQL, PHP-FPM (Linux, nginx, MySQL, PHP - LNMP)</h2>
+
+<p>Все приведенные ниже инструкции сначала были выполнены.<br/>
+Небольшие пояснения:<br/>
+- символ <code>#</code> (решётка) - означает выполнение команды от <strong>root</strong> (суперпользователя)<br/>
+- <code>cat /path/to/some.file</code> - означает что ниже приведено полное содержимое файла <code>some.file</code>, расположенного в каталоге <code>/path/to</code><br/>
+- <code>nano /path/to/some.file</code> - означает что надо отредактировать часть файла как указанно<br/>
+- в процессе установки MySQL будет произведена предварительная настройка и задан пароль <strong>root</strong>.</p>
+
+<p><strong><em>Gentoo:</em></strong></p>
+
+<pre><code># echo "dev-lang/php gd gd2 curl simplexml tokenizer dom tidy sqlite xml fpm cgi" &gt;&gt; /etc/portage/package.use
+# emerge php nginx mysql
+</code></pre>
+
+<p>Вначале необходимо произвести начальную настройку MySQL:</p>
+
+<pre><code># emerge --config dev-db/mysql
+</code></pre>
+
+<p><strong><em>Debian:</em></strong></p>
+
+<pre><code># cat /etc/apt/sources.list.d/nginx.list
+deb http://nginx.org/packages/debian/ wheezy nginx
+deb-src http://nginx.org/packages/debian/ wheezy nginx
+# wget http://nginx.org/keys/nginx_signing.key &amp;&amp; cat nginx_signing.key | apt-key add -
+</code></pre>
+
+<pre><code># apt-get install nginx php5-cli php5-common php5-fpm fcgiwrap mysql-server php5-mysql php5-gd
+</code></pre>
+
+<p><strong><em>CentOS.</em></strong> Тут надо заметить, что в своих репозиториях CentOS нет nginx, поэтому добавим репозиторий:</p>
+
+<pre><code># cat /etc/yum.repos.d/nginx.repo
+[nginx]
+name=nginx repo
+baseurl=http://nginx.org/packages/centos/$releasever/$basearch/
+gpgcheck=0
+enabled=1
+# yum update
+</code></pre>
+
+<pre><code># yum install nginx mysql mysql-server php-fpm php-cli php-mysql php-gd
+</code></pre>
+
+<p>Настроить MySQL:</p>
+
+<pre><code># service mysql start
+# /usr/bin/mysql_secure_installation
+</code></pre>
+
+<p>Управление сервисами MySQL, nginx, PHP-FPM и добавление их в автозагрузку:<br/>
+<strong><em>Gentoo:</em></strong></p>
+
+<pre><code># /etc/init.d/nginx start
+# /etc/init.d/mysql start
+# /etc/init.d/php-fpm start
+
+# rc-update add nginx default
+# rc-update add mysql default
+# rc-update add php-fpm default
+</code></pre>
+
+<p><strong><em>Debian:</em></strong></p>
+
+<pre><code># /etc/init.d/nginx start
+# /etc/init.d/mysql start
+# /etc/init.d/php5-fpm start
+
+# update-rc.d nginx defaults
+# update-rc.d mysql defaults
+# update-rc.d php5-fpm defaults
+</code></pre>
+
+<p><strong><em>CentOS:</em></strong></p>
+
+<pre><code># service mysqld start
+# service nginx start
+# service php-fpm start
+
+# chkconfig --levels 235 mysqld on
+# chkconfig --levels 235 nginx on
+# chkconfig --levels 235 php-fpm on
+</code></pre>
+
+<p>Сразу после установки nginx понимает только статические файлы, не исполняемые на сервере, и, если установка прошла успешно, запустив его можно проверить отображение &laquo;Welcome to nginx!&raquo; на <code>localhost</code> (<code>127.0.0.1</code>):</p>
+
+<p><img src="/images/posts/2013-06-12/nginx-welcome-to-nginx.png" alt="Welcome to nginx!" /></p>
+
+<p>Впрочем может быть и так:</p>
+
+<p><img src="/images/posts/2013-06-12/nginx-403.png" alt="403 Forbidden" /></p>
+
+<p>Это означает, что сервер не настроен.</p>
+
+<p>Настройки по умолчанию подходят для большинства случаев и не требуют больших изменений на данном этапе. В различных дистрибутивах Linux настройки и месторасположение конфигурационных файлов могут различаться (также это замечание относится к использованию пакетов, установленных из репозиториев, отличных от основного), здесь всё зависит от поддерживающего пакет мейнтейнера.</p>
+
+<p>Неизменным остаётся расположение файла настроек <code>/etc/nginx/nginx.conf</code>. Конфигурации сайтов, дополнительные параметры добавляются в него через опцию <code>include</code>.
+В Debian например сейчас конфигурации сайтов добавляются в стиле Apache (добавление конфигурации созданием симлинков):</p>
+
+<pre><code>...
+include /etc/nginx/conf.d/*.conf;
+include /etc/nginx/sites-enabled/*;
+...
+</code></pre>
+
+<p>В официальных репозиториях этого нововведения нет и конфигурации сайтов добавляются следующим образов:</p>
+
+<pre><code>...
+include /etc/nginx/conf.d/*.conf;
+...
+</code></pre>
+
+<p>То есть любой файл из каталога <code>/etc/nginx/conf.d/</code> с расширением <code>.conf</code> будет добавлен.
+Если каталог <code>/etc/nginx/conf.d</code> - отсутствует, создайте его:</p>
+
+<pre><code># mkdir /etc/nginx/conf.d
+</code></pre>
+
+<p>В <code>include</code> как правило присутствует конфигурация сайта по умолчанию, который как раз и выводит надпись &laquo;Welcome to nginx!&raquo; при обращении к <code>localhost</code> (<code>127.0.0.1</code>):</p>
+
+<p>- Debian/Ubuntu - <code>/etc/nginx/sites-enabled/default</code>
+- Gentoo/CentOS - <code>/etc/nginx/conf.d/default</code>
+- Больше этот файл не нужен - удалите его.</p>
+
+<h4>Права на каталог сайтов</h4>
+
+<p>Создаем (если не существует) каталог для сайтов и устанавливаем права:</p>
+
+<pre><code># mkdir -p /var/www/localhost
+# chmod -R a-rwx,u+rwX,g+rX /var/www
+# chown www-data:www-data -R /var/www
+</code></pre>
+
+<p>Владельцем каталога сайтов должен быть пользователь, от имени которого запущен и работает вэб-сервер. В Debian и Ubuntu это <strong>www&#8209;data</strong>, в Gentoo, CentOS - пользователь <strong>nginx</strong>. В конфигурации за это отвечает директива <code>user</code> (<em>nginx.conf</em>):</p>
+
+<pre><code>user  www-data;
+worker_processes  4;
+...
+</code></pre>
+
+<p>При переносе сайта, а также чтобы был доступ к содержимому сайта у пользователей, входящих в группу <strong>www&#8209;data</strong> необходимы корректные права на содержимое. Права на каталоги <code>775</code>, на файлы <code>664</code>:</p>
+
+<pre><code># find /var/www -type d -exec chmod 775 {} +
+# find /var/www -type f -exec chmod 664 {} +
+</code></pre>
+
+<p>И добавить себя в группу <strong>www&#8209;data</strong> или <strong>nginx</strong> в зависимости от дистрибутива:</p>
+
+<pre><code># usermod -a -G www-data username
+</code></pre>
+
+<h4>Стандартная конфигурация nginx</h4>
+
+<pre><code># Документация http://nginx.org/ru/docs/ngx_core_module.html
+# Пользователь от которого работает вэб-сервер
+# user nginx;
+user www-data;
+# Количество рабочих процессов = количество ядер*2 /рекомендуется
+worker_processes 4;
+pid /var/run/nginx.pid;
+
+events {
+   # Максимальное число соединений, которое одновременно
+   # может открыть рабочий процесс
+   worker_connections 768;
+}
+
+http {
+   # Используем sendfile, но осторожно, если надо отдавать большие файлы,
+   # то sendfile случается вредит
+   sendfile on;
+   # Ограничиваем размер сегмента отправляемой за одну блокируемую отдачу
+   sendfile_max_chunk  128k;
+   # Буфер отдачи который используется для обрабатываемых данных
+   postpone_output  1460;
+   # Размер хеша для доменных имен.
+   server_names_hash_bucket_size 64;
+   # Размер данных принимаемых post запросом
+   client_max_body_size 15m;
+   tcp_nopush on;
+   tcp_nodelay on;
+   keepalive_timeout 65;
+   types_hash_max_size 2048;
+   # Не говорим врагу версию nginx
+   server_tokens off;
+   include /etc/nginx/mime.types;
+   default_type application/octet-stream;
+   # Настройки логирования
+   access_log /var/log/nginx/access.log;
+   error_log /var/log/nginx/error.log;
+   # Настройки компрессии
+   gzip on;
+   gzip_disable "msie6";
+   gzip_vary on;
+   gzip_proxied any;
+   gzip_comp_level 6;
+   gzip_buffers 16 8k;
+   gzip_http_version 1.1;
+   gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript;
+
+   include /etc/nginx/conf.d/*.conf;
+}
+</code></pre>
+
+<h4>Подключение процесс менеджера PHP-FPM к веб-серверу</h4>
+
+<p>* <strong>Важно</strong> - дополнительные пояснения - <a href="http://nixway.org/how-to/fastcgi_php_fpm_for_nginx/">FastCGI (PHP FPM) для nginx</a><br/>
+* Связку nginx и PHP-FPM настраиваем на работу через unix сокет</p>
+
+<p>Создадим новую конфигурацию для localhost:</p>
+
+<pre><code># nano /etc/nginx/conf.d/localhost.conf
+server {
+   server_name localhost;
+   # listen 192.168.0.120:80;
+   listen 127.0.0.1:80;
+   root /var/www/localhost;
+   index index.php;
+
+   location ~ [^/]\.php(/|$) {
+      fastcgi_split_path_info ^(.+?\.php)(/.*)$;
+      if (!-f $document_root$fastcgi_script_name) {
+         return 404;
+      }
+      # fastcgi_pass 127.0.0.1:9000;
+      fastcgi_pass unix:/var/run/php5-fpm.sock;
+      fastcgi_index index.php;
+      include fastcgi_params;
+   }
+}
+</code></pre>
+
+<p>и тестовый php-файл в корне</p>
+
+<pre><code># nano /var/www/localhost/index.php
+&lt;?php
+phpinfo();
+?&gt;
+</code></pre>
+
+<h4>Отредактируем конфигурацию PHP-FPM:</h4>
+
+<p><strong><em>Gentoo:</em></strong></p>
+
+<pre><code># nano /etc/php/fpm-php5.4/php-fpm.conf
+</code></pre>
+
+<p><strong><em>Debian:</em></strong></p>
+
+<pre><code># nano /etc/php5/fpm/pool.d/www.conf
+</code></pre>
+
+<p><strong><em>CentOS:</em></strong></p>
+
+<pre><code># nano /etc/php-fpm.d/www.conf
+</code></pre>
+
+<p>Отредактируем в этом файле следующие переменные, <code>listen</code>:</p>
+
+<pre><code>...
+; Note: This value is mandatory.
+; listen = 127.0.0.1:9000
+listen = /var/run/php5-fpm.sock
+...
+</code></pre>
+
+<p><code>user</code>, <code>group</code>:<br/>
+* В CentOS и Gentoo - <strong>nginx</strong>, Debian/Ubuntu - <strong>www&#8209;data</strong></p>
+
+<pre><code>; Unix user/group of processes
+; Note: The user is mandatory. If the group is not set, the default user's group
+;       will be used.
+user = www-data
+group = www-data
+</code></pre>
+
+<p>* в этом файле комментариями является любой текст после символа <code>;</code> (точка с запятой).</p>
+
+<p>После чего перегружаем nginx и PHP-FPM.</p>
+
+<p>Открываем браузер и заходим на <code>localhost</code>, в результате мы должны увидеть тестовую страницу PHP:</p>
+
+<p><img src="/images/posts/2013-06-12/nginx-phpinfo.png" alt="nginx phpinfo" /></p>
+
+<p>Версия nginx на момент написания - стабильная - nginx/1.4.1, но это в репозитории самого nginx, в репозиториях дистрибутивов версии более ранние, и поэтому могут возникнуть небольшие нестыковки, например в openSUSE 12.3 - версия nginx/1.2.9 и это руководство почти полностью подходит, но необходимо использовать <code>/etc/nginx/fastcgi_params</code> <a href="http://nixway.org/how-to/fastcgi_php_fpm_for_nginx/">отсюда</a>.</p>
+
+<h4>Полезные ссылки:</h4>
+
+<p>nginx: <a href="http://nginx.org/ru/">http://nginx.org/ru/</a><br/>
+nginx Wiki: <a href="http://wiki.nginx.org/nginxRu">http://wiki.nginx.org/nginxRu</a><br/>
+PHP: <a href="http://www.php.net/">http://www.php.net/</a><br/>
+PHP-FPM: <a href="http://php-fpm.org/">http://php-fpm.org/</a><br/>
+MySQL: <a href="http://www.mysql.com/">http://www.mysql.com/</a></p>
+
+<p>Автор статьи zenon, и изначально он выкладывал её <a href="http://linuxru.org/linux/205">здесь</a>. У себя я публикую статью с разрешения автора и с сохранением авторства.</p>
+]]></content>
+  </entry>
+  
+</feed>
