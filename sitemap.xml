@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://nixway.org/2016/11/09/ustanovka-i-nastoika-phppgadmin/</loc>
+    <lastmod>2016-11-09T13:17:09+06:00</lastmod>
+  </url>
+  <url>
     <loc>http://nixway.org/2016/08/23/ustanovka-i-nastroika-octopress-2.0-s-pomocshyu-rvm/</loc>
     <lastmod>2016-08-23T16:23:31+06:00</lastmod>
   </url>
@@ -166,6 +170,9 @@
   </url>
   <url>
     <loc>http://nixway.org/categories/ruby/</loc>
+  </url>
+  <url>
+    <loc>http://nixway.org/categories/how-to/</loc>
   </url>
   <url>
     <loc>http://nixway.org/wmail_decc12870106f6ccce7b9e226f2b6c7b.html</loc>

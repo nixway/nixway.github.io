@@ -4,7 +4,7 @@
   <title><![CDATA[Путь юниксоида]]></title>
   <link href="http://nixway.org/atom.xml" rel="self"/>
   <link href="http://nixway.org/"/>
-  <updated>2016-11-08T20:51:04+06:00</updated>
+  <updated>2016-11-09T17:30:23+06:00</updated>
   <id>http://nixway.org/</id>
   <author>
     <name><![CDATA[nihi1ist]]></name>
@@ -12,6 +12,134 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Установка и настройка phpPgAdmin]]></title>
+    <link href="http://nixway.org/2016/11/09/ustanovka-i-nastoika-phppgadmin/"/>
+    <updated>2016-11-09T13:17:09+06:00</updated>
+    <id>http://nixway.org/2016/11/09/ustanovka-i-nastoika-phppgadmin</id>
+    <content type="html"><![CDATA[<p><img src="http://nixway.org/images/posts/2016-11-09/phpPgAdmin.png" alt="Установка и настройка phpPgAdmin" /></p>
+
+<p>Искал альтернативу <a href="https://www.pgadmin.org/">pgAdmin3</a> поддерживающую работу через веб-интерфейс и наткнулся phpPgAdmin. На мой взгляд очень удобный иструмент для работы с PostgreSQL. Хотя и отстает в функционале от pgAdmin3, но мне вполне хватает. Так же для меня важно, что phpPgAdmin достаточно установить и настроить один раз. В качестве веб-сервера используется Apache 2.4.</p>
+
+<!--more-->
+
+
+<p>Процесс установки phpPgAdmin, для Debian и других ОС основанных на нем будет выглядеть так:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># apt-get install phppgadmin</span></code></pre></td></tr></table></div></figure>
+
+
+<p>В случае CentOS должен быть установлен репозиторий <a href="https://fedoraproject.org/wiki/EPEL">EPEL</a>, а команда на установку будет выглядеть так:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># yum -y install phpPgAdmin</span></code></pre></td></tr></table></div></figure>
+
+
+<p>И всё бы было замечательно, но конфигурация в пакете для Apache 2.2, а у меня Apache 2.4. Потому надо подправить конфигурационный файл.</p>
+
+<p>Конфигурационный файл в Debian:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>/etc/apache2/conf-available/phppgadmin.conf</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Конфигурационный файл в CentOS:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>/etc/httpd/conf.d/phpPgAdmin.conf</span></code></pre></td></tr></table></div></figure>
+
+
+<p>К следующему виду:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Alias /phppgadmin /usr/share/phppgadmin
+</span><span class='line'>
+</span><span class='line'>&lt;Directory /usr/share/phppgadmin&gt;
+</span><span class='line'>
+</span><span class='line'>DirectoryIndex index.php
+</span><span class='line'>AllowOverride None
+</span><span class='line'>
+</span><span class='line'># Only allow connections from localhost:
+</span><span class='line'>Require ip 192.168.1
+</span><span class='line'>#Require all granted
+</span><span class='line'>
+</span><span class='line'>&lt;IfModule mod_php5.c&gt;
+</span><span class='line'>  php_flag magic_quotes_gpc Off
+</span><span class='line'>  php_flag track_vars On
+</span><span class='line'>  #php_value include_path .
+</span><span class='line'>&lt;/IfModule&gt;
+</span><span class='line'>&lt;IfModule !mod_php5.c&gt;
+</span><span class='line'>  &lt;IfModule mod_actions.c&gt;
+</span><span class='line'>    &lt;IfModule mod_cgi.c&gt;
+</span><span class='line'>      AddType application/x-httpd-php .php
+</span><span class='line'>      Action application/x-httpd-php /cgi-bin/php
+</span><span class='line'>    &lt;/IfModule&gt;
+</span><span class='line'>    &lt;IfModule mod_cgid.c&gt;
+</span><span class='line'>      AddType application/x-httpd-php .php
+</span><span class='line'>      Action application/x-httpd-php /cgi-bin/php
+</span><span class='line'>    &lt;/IfModule&gt;
+</span><span class='line'>  &lt;/IfModule&gt;
+</span><span class='line'>&lt;/IfModule&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;/Directory&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>В параметре <code>Require</code> мы задаем правила доступа к phpPgAdmin. В вышеуказанном примере, доступ разрешается по маске <code>192.168.1</code>, остальные доступа не имеют. Потому, если вы планируете подключатся например из дома, то закомментируйте строку <code>Require ip 192.168.1</code> и раскомментируйте строку <code>Require all granted</code>, это позволит открывать страницу phpPgAdmin с любого IP-адреса. Но, если вы разрешили подключение из-за пределов вашей локальной сети, стоит включить обязательную проверку пароля в PostgreSQL.</p>
+
+<p>Ну и напоследок следует отключить дополнительную защиту при авторизации. Для этого нужно в конфигурационном файле phpPgAdmin в параметре <code>$conf['extra_login_security']</code> выставить значение <code>false</code>.</p>
+
+<p>Конфигурационный файл phpPgAdmin в Debian:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>/etc/phppgadmin/config.inc.php</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Конфигурационный файл phpPgAdmin в CentOS:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>/etc/phpPgAdmin/config.inc.php</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Если вы настроили все правильно, то по IP-адресу или доменному имени (если вы <a href="http://nixway.org/2015/05/01/ustanovka-i-nastroika-bind9-na-debian-jessie/">настроили</a> его) сервера вам будет доступен веб-интерфейс phpPgAdmin:</p>
+
+<p><img src="http://nixway.org/images/posts/2016-11-09/phppgadmin_index_page.png" alt="phpPgAdmin index page" /></p>
+
+<p>На главной странице, вы можете выбрать подходящий язык интерфейса и тему оформления.</p>
+
+<p><span style="color:#cd0021;"><strong>ПРИМЕЧАНИЕ!</strong></span> Недавно вышел pgAdmin4, в котором реализовали поддержку веб-интерфейса. Постараюсь на</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Установка и настройка Octopress 2.0 с помощью RVM]]></title>

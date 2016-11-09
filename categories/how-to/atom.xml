@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Категория: How-to | Путь юниксоида]]></title>
+  <link href="http://nixway.org/categories/how-to/atom.xml" rel="self"/>
+  <link href="http://nixway.org/"/>
+  <updated>2016-11-09T17:30:23+06:00</updated>
+  <id>http://nixway.org/</id>
+  <author>
+    <name><![CDATA[nihi1ist]]></name>
+    <email><![CDATA[nihi1ist@nixway.org]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Установка и настройка phpPgAdmin]]></title>
+    <link href="http://nixway.org/2016/11/09/ustanovka-i-nastoika-phppgadmin/"/>
+    <updated>2016-11-09T13:17:09+06:00</updated>
+    <id>http://nixway.org/2016/11/09/ustanovka-i-nastoika-phppgadmin</id>
+    <content type="html"><![CDATA[<p><img src="/images/posts/2016-11-09/phpPgAdmin.png" alt="Установка и настройка phpPgAdmin" /></p>
+
+<p>Искал альтернативу <a href="https://www.pgadmin.org/">pgAdmin3</a> поддерживающую работу через веб-интерфейс и наткнулся phpPgAdmin. На мой взгляд очень удобный иструмент для работы с PostgreSQL. Хотя и отстает в функционале от pgAdmin3, но мне вполне хватает. Так же для меня важно, что phpPgAdmin достаточно установить и настроить один раз. В качестве веб-сервера используется Apache 2.4.</p>
+
+<!--more-->
+
+
+<p>Процесс установки phpPgAdmin, для Debian и других ОС основанных на нем будет выглядеть так:</p>
+
+<pre><code># apt-get install phppgadmin
+</code></pre>
+
+<p>В случае CentOS должен быть установлен репозиторий <a href="https://fedoraproject.org/wiki/EPEL">EPEL</a>, а команда на установку будет выглядеть так:</p>
+
+<pre><code># yum -y install phpPgAdmin
+</code></pre>
+
+<p>И всё бы было замечательно, но конфигурация в пакете для Apache 2.2, а у меня Apache 2.4. Потому надо подправить конфигурационный файл.</p>
+
+<p>Конфигурационный файл в Debian:</p>
+
+<pre><code>/etc/apache2/conf-available/phppgadmin.conf
+</code></pre>
+
+<p>Конфигурационный файл в CentOS:</p>
+
+<pre><code>/etc/httpd/conf.d/phpPgAdmin.conf
+</code></pre>
+
+<p>К следующему виду:</p>
+
+<pre><code>Alias /phppgadmin /usr/share/phppgadmin
+
+&lt;Directory /usr/share/phppgadmin&gt;
+
+DirectoryIndex index.php
+AllowOverride None
+
+# Only allow connections from localhost:
+Require ip 192.168.1
+#Require all granted
+
+&lt;IfModule mod_php5.c&gt;
+  php_flag magic_quotes_gpc Off
+  php_flag track_vars On
+  #php_value include_path .
+&lt;/IfModule&gt;
+&lt;IfModule !mod_php5.c&gt;
+  &lt;IfModule mod_actions.c&gt;
+    &lt;IfModule mod_cgi.c&gt;
+      AddType application/x-httpd-php .php
+      Action application/x-httpd-php /cgi-bin/php
+    &lt;/IfModule&gt;
+    &lt;IfModule mod_cgid.c&gt;
+      AddType application/x-httpd-php .php
+      Action application/x-httpd-php /cgi-bin/php
+    &lt;/IfModule&gt;
+  &lt;/IfModule&gt;
+&lt;/IfModule&gt;
+
+&lt;/Directory&gt;
+</code></pre>
+
+<p>В параметре <code>Require</code> мы задаем правила доступа к phpPgAdmin. В вышеуказанном примере, доступ разрешается по маске <code>192.168.1</code>, остальные доступа не имеют. Потому, если вы планируете подключатся например из дома, то закомментируйте строку <code>Require ip 192.168.1</code> и раскомментируйте строку <code>Require all granted</code>, это позволит открывать страницу phpPgAdmin с любого IP-адреса. Но, если вы разрешили подключение из-за пределов вашей локальной сети, стоит включить обязательную проверку пароля в PostgreSQL.</p>
+
+<p>Ну и напоследок следует отключить дополнительную защиту при авторизации. Для этого нужно в конфигурационном файле phpPgAdmin в параметре <code>$conf['extra_login_security']</code> выставить значение <code>false</code>.</p>
+
+<p>Конфигурационный файл phpPgAdmin в Debian:</p>
+
+<pre><code>/etc/phppgadmin/config.inc.php
+</code></pre>
+
+<p>Конфигурационный файл phpPgAdmin в CentOS:</p>
+
+<pre><code>/etc/phpPgAdmin/config.inc.php
+</code></pre>
+
+<p>Если вы настроили все правильно, то по IP-адресу или доменному имени (если вы <a href="/2015/05/01/ustanovka-i-nastroika-bind9-na-debian-jessie/">настроили</a> его) сервера вам будет доступен веб-интерфейс phpPgAdmin:</p>
+
+<p><img src="/images/posts/2016-11-09/phppgadmin_index_page.png" alt="phpPgAdmin index page" /></p>
+
+<p>На главной странице, вы можете выбрать подходящий язык интерфейса и тему оформления.</p>
+
+<p><span style="color:#cd0021;"><strong>ПРИМЕЧАНИЕ!</strong></span> Недавно вышел pgAdmin4, в котором реализовали поддержку веб-интерфейса. Постараюсь на</p>
+]]></content>
+  </entry>
+  
+</feed>
