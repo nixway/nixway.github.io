@@ -4,7 +4,7 @@
   <title><![CDATA[Категория: How-to | Путь юниксоида]]></title>
   <link href="http://nixway.org/categories/how-to/atom.xml" rel="self"/>
   <link href="http://nixway.org/"/>
-  <updated>2016-11-09T21:21:46+06:00</updated>
+  <updated>2016-11-11T22:55:32+06:00</updated>
   <id>http://nixway.org/</id>
   <author>
     <name><![CDATA[nihi1ist]]></name>
@@ -12,6 +12,138 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Установка PureFTPd с поддежкой MySQL на Debian&nbsp;8&nbsp;&laquo;Jessie&raquo;]]></title>
+    <link href="http://nixway.org/2016/11/15/ustanovka-pure-ftpd-mysql-na-debian-jessie/"/>
+    <updated>2016-11-15T10:11:27+06:00</updated>
+    <id>http://nixway.org/2016/11/15/ustanovka-pure-ftpd-mysql-na-debian-jessie</id>
+    <content type="html"><![CDATA[<p><img src="/images/posts/2016-11-15/debian+pure-ftpd+mysql.png" alt="Установка и настройка PureFTPd с поддежкой MySQ" />
+В один прекрасный день мне понадобился FTP-сервер. Для начала попробовал ProFTPd, но он мне не подошел. Требовался простой в настройке и обслуживании и вместе с тем безопасный FTP-сервер. Также требовалась возможность работы через веб-интрефейс и поддержка виртуальных пользователей. Тогда то я и решил попробовать PureFTPd.</p>
+
+<!--more-->
+
+
+<h3>Установка PureFTPd</h3>
+
+<p>На выбор в репозитории предлагается 4 варианта возможной конфигурации:<br/>
+-&nbsp;<code>pure-ftpd</code> - FTP-сервер, с аутентификацией через системных пользователей,<br/>
+-&nbsp;<code>pure-ftpd-ldap</code> - FTP-сервер, с аутентификацией через пользователей LDAP,<br/>
+-&nbsp;<code>pure-ftpd-mysql</code> - FTP-сервер, с аутентификацией через пользователей хранимых в СУБД MySQL,<br/>
+-&nbsp;<code>pure-ftpd-postgresql</code> - FTP-сервер, с аутентификацией через пользователей хранимых в СУБД PostgreSQL.</p>
+
+<p>Небольшие пояснения:<br/>
+-&nbsp;символ <code>#</code> (решётка)&nbsp;-&nbsp;означает выполнение команды от <strong>root</strong> (суперпользователя),<br/>
+-&nbsp;<code>cat /path/to/some.file</code>&nbsp;-&nbsp;означает что ниже приведено полное содержимое файла <code>some.file</code>, расположенного в директории <code>/path/to</code>,<br/>
+-&nbsp;<code>echo no &gt; /path/to/some.file</code>&nbsp;-&nbsp;означает, что в <code>some.file</code> вставлен текст <code>no</code>, с заменой содержимого. Если файл не существует, он будет создан.</p>
+
+<p>Я выбрал вариант с поддержкой MySQL:</p>
+
+<pre><code>apt-get install pure-ftpd-common pure-ftpd-mysql
+</code></pre>
+
+<h3>Настройка PureFTPd</h3>
+
+<p>Одной из особеннойстей PureFTPd является то, что каждый параметр конфигурации хранится в отдельном файле. И каждый файл имеет имя параметра, а в самом файле хранятся значения этих параметров. Файлы эти расположены в директории:</p>
+
+<pre><code>/etc/pure-ftpd/conf
+</code></pre>
+
+<p>Рассмотрим наиболее интересные файлы конфигурации предоставленные нам мейнтейнерами по умолчанию.</p>
+
+<p>Указан файл для логов трансфера, в формате Apache:</p>
+
+<pre><code># cat /etc/pure-ftpd/conf/AltLog
+clf:/var/log/pure-ftpd/transfer.log
+</code></pre>
+
+<p>Указан файл конфигурации для MySQL:</p>
+
+<pre><code># cat /etc/pure-ftpd/conf/MySQLConfigFile
+/etc/pure-ftpd/db/mysql.conf
+</code></pre>
+
+<p>Анонимным пользователям доступ запрещен:</p>
+
+<pre><code># cat /etc/pure-ftpd/conf/NoAnonymous
+yes
+</code></pre>
+
+<p>Теперь необходимо дополнить конфигурацию. Для начала запретим UNIX-аутентификацию:</p>
+
+<pre><code># echo no &gt; /etc/pure-ftpd/conf/UnixAuthentication
+</code></pre>
+
+<p>Затем запретим PAM-аутентификацию:</p>
+
+<pre><code># echo no &gt; /etc/pure-ftpd/conf/PAMAuthentication
+</code></pre>
+
+<p>Ограничим пользоватей их домашним каталогом:</p>
+
+<pre><code># echo "yes" &gt; /etc/pure-ftpd/conf/ChrootEveryone
+</code></pre>
+
+<p>Укажем диапазон портов для пассивных соединений:</p>
+
+<pre><code># echo "40110 40210" &gt; /etc/pure-ftpd/conf/PassivePortRange
+</code></pre>
+
+<p>Не забудьте потом открыть необходимые порты в брандмауэре.</p>
+
+<p>По <a href="/pureftpd-config-params/index.html">ссылке</a> доступна таблица со всеми возможными параметрами которые я нашел.</p>
+
+<h3>Установка веб-интерфейса PureFTP WebUI.</h3>
+
+<p>Есть два веб-интерфейса, которые я нашел. Это <a href="https://pure-ftpd-webui.org">PureFTPd WebUI</a> и <a href="http://machiel.generaal.net/index.php?subject=user_manager_pureftpd">User Manager</a>. Для себя я выбрал PureFTPd WebUI. Ну-с, приступим к установке.</p>
+
+<p>Переходим в директорию файлов веб-сервера:</p>
+
+<pre><code># cd /var/www/sitename
+</code></pre>
+
+<p>Где <code>sitename</code> - директория веб-сервера с уже настроенным сайтом.</p>
+
+<p>Скачаем файлы веб-интерфейса с гитхаба:</p>
+
+<pre><code>git clone https://github.com/mazay/pure-ftpd-webui.git
+</code></pre>
+
+<p>Переходим в скачаный каталог <code>pure-ftpd-webui</code>:</p>
+
+<pre><code># cd pure-ftpd-webui
+</code></pre>
+
+<p>В одном из файлов я нашел ошибку в функции <code>create_table_settings()</code>. Неверно указано значение параметра <code>pureftpd_init_script_path</code> и отсутствует параметр <code>pureftpwho_path</code>. Надо заменить строку:</p>
+
+<pre><code>('pureftpd_init_script_path','/etc/init.d/pure-ftpd');";
+</code></pre>
+
+<p>На</p>
+
+<pre><code>('pureftpd_init_script_path','/etc/init.d/pure-ftpd-mysql'),
+('pureftpwho_path','/usr/sbin/pure-ftpwho');";
+</code></pre>
+
+<p>Для нормального доступа у вас уже должен быть настроен веб-сервер. После того как откроете страницу <code>http://sitename/pure-ftpd-webui</code>, вам будет доступна страница настройки:</p>
+
+<p><img src="/images/posts/2016-11-15/pureftpd-webui-install-page.png" alt="Страница настройки PureFTPd" /></p>
+
+<p>Где <code>sitename</code> - доменное имя сервера или его IP-адрес.</p>
+
+<p>После того как вы нажмете кнопку <kbd>Install</kbd> вы попадете на страницу настройки подключения к СУБД MySQL:</p>
+
+<p><img src="/images/posts/2016-11-15/pureftpd-webui-install-preferences-1.png" alt="Настройки подключения PureFTPd к MySQL" /></p>
+
+<p>На следующем шаге, вам предложат указать параметры пользователя для подключения к веб-интерфейсу:</p>
+
+<p><img src="/images/posts/2016-11-15/pureftpd-webui-install-preferences-2.png" alt="Настройки подключения PureFTPd к MySQL" /></p>
+
+<p>После завершения настройки, вам будет доступен интерфейс для управления PureFTPd:</p>
+
+<p><img src="/images/posts/2016-11-15/pureftpd-webui-config-page.png" alt="Настройки подключения PureFTPd к MySQL" /></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Установка и настройка phpPgAdmin]]></title>
