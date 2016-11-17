@@ -4,7 +4,7 @@
   <title><![CDATA[Категория: 1c:enterprise | Путь юниксоида]]></title>
   <link href="http://nixway.org/categories/1c-enterprise/atom.xml" rel="self"/>
   <link href="http://nixway.org/"/>
-  <updated>2016-11-11T23:58:59+06:00</updated>
+  <updated>2016-11-17T21:33:12+06:00</updated>
   <id>http://nixway.org/</id>
   <author>
     <name><![CDATA[nihi1ist]]></name>
@@ -136,7 +136,7 @@ Non-Sync'ed 8kB writes:
         write                              1800.319 ops/sec     555 usecs/op
 </code></pre>
 
-<p>Из результатов теста можно определить, что для Windows оптимальным решением будет использование <code>open_datasync</code>.</p>
+<p>По результатам теста мы видим, что для Windows оптимальным решением будет использование <code>open_datasync</code>.</p>
 
 <p><strong>Тест на Linux:</strong></p>
 
@@ -189,7 +189,7 @@ Non-Sync'ed 8kB writes:
         write                            484193.516 ops/sec       2 usecs/op
 </code></pre>
 
-<p>По результатам теста мы видим, что результаты тестирования на Linux лучше результатов того же тестирования на Windows. При этом результаты <code>open_datasync</code> и <code>fdatasync</code> сопоставимы.</p>
+<p>По результатам теста мы видим, что наилучшую скорость выдают методы <code>fdatasync</code> и <code>open_datasync</code>. Так же можно заметить, что на же оборудовании Linux выдал скорость записи почти в половину больше, чем на Windows.</p>
 
 <p>Следует учитывать, что в данных тестах использовалась дисковая система, состоящая из одного диска. При использовании RAID массива с большим количеством дисков картина может быть другой.</p>
 

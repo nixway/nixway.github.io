@@ -4,7 +4,7 @@
   <title><![CDATA[Путь юниксоида]]></title>
   <link href="http://nixway.org/atom.xml" rel="self"/>
   <link href="http://nixway.org/"/>
-  <updated>2016-11-11T23:58:59+06:00</updated>
+  <updated>2016-11-17T21:33:12+06:00</updated>
   <id>http://nixway.org/</id>
   <author>
     <name><![CDATA[nihi1ist]]></name>
@@ -35,11 +35,11 @@
 <p>Небольшие пояснения:<br/>
 -&nbsp;символ <code>#</code> (решётка)&nbsp;-&nbsp;означает выполнение команды от <strong>root</strong> (суперпользователя),<br/>
 -&nbsp;<code>cat /path/to/some.file</code>&nbsp;-&nbsp;означает что ниже приведено полное содержимое файла <code>some.file</code>, расположенного в директории <code>/path/to</code>,<br/>
--&nbsp;<code>echo no &gt; /path/to/some.file</code>&nbsp;-&nbsp;означает, что в <code>some.file</code> вставлен текст <code>no</code>, с заменой содержимого. Если файл не существует, он будет создан.</p>
+-&nbsp;<code>echo no &gt; /path/to/some.file</code>&nbsp;-&nbsp;означает, что в <code>some.file</code> будет вставлен текст <code>no</code>, с заменой содержимого. Если файл не существует, он будет создан.</p>
 
 <p>Я выбрал вариант с поддержкой MySQL:</p>
 
-<pre><code>apt-get install pure-ftpd-common pure-ftpd-mysql
+<pre><code># apt-get install pure-ftpd-common pure-ftpd-mysql
 </code></pre>
 
 <h3>Настройка PureFTPd</h3>
@@ -108,7 +108,7 @@ yes
 <p>Скачаем файлы веб-интерфейса с гитхаба:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>git clone https://github.com/mazay/pure-ftpd-webui.git</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git clone https://github.com/mazay/pure-ftpd-webui.git</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Переходим в скачаный каталог <code>pure-ftpd-webui</code>:</p>
@@ -1096,7 +1096,7 @@ yes
 </span><span class='line'>        write                              1800.319 ops/sec     555 usecs/op</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Из результатов теста можно определить, что для Windows оптимальным решением будет использование <code>open_datasync</code>.</p>
+<p>По результатам теста мы видим, что для Windows оптимальным решением будет использование <code>open_datasync</code>.</p>
 
 <p><strong>Тест на Linux:</strong></p>
 
@@ -1188,7 +1188,7 @@ yes
 </span><span class='line'>        write                            484193.516 ops/sec       2 usecs/op</span></code></pre></td></tr></table></div></figure>
 
 
-<p>По результатам теста мы видим, что результаты тестирования на Linux лучше результатов того же тестирования на Windows. При этом результаты <code>open_datasync</code> и <code>fdatasync</code> сопоставимы.</p>
+<p>По результатам теста мы видим, что наилучшую скорость выдают методы <code>fdatasync</code> и <code>open_datasync</code>. Так же можно заметить, что на же оборудовании Linux выдал скорость записи почти в половину больше, чем на Windows.</p>
 
 <p>Следует учитывать, что в данных тестах использовалась дисковая система, состоящая из одного диска. При использовании RAID массива с большим количеством дисков картина может быть другой.</p>
 

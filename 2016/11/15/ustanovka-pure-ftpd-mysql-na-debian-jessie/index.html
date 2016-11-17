@@ -131,11 +131,11 @@
 <p>Небольшие пояснения:<br/>
 -&nbsp;символ <code>#</code> (решётка)&nbsp;-&nbsp;означает выполнение команды от <strong>root</strong> (суперпользователя),<br/>
 -&nbsp;<code>cat /path/to/some.file</code>&nbsp;-&nbsp;означает что ниже приведено полное содержимое файла <code>some.file</code>, расположенного в директории <code>/path/to</code>,<br/>
--&nbsp;<code>echo no &gt; /path/to/some.file</code>&nbsp;-&nbsp;означает, что в <code>some.file</code> вставлен текст <code>no</code>, с заменой содержимого. Если файл не существует, он будет создан.</p>
+-&nbsp;<code>echo no &gt; /path/to/some.file</code>&nbsp;-&nbsp;означает, что в <code>some.file</code> будет вставлен текст <code>no</code>, с заменой содержимого. Если файл не существует, он будет создан.</p>
 
 <p>Я выбрал вариант с поддержкой MySQL:</p>
 
-<pre><code>apt-get install pure-ftpd-common pure-ftpd-mysql
+<pre><code># apt-get install pure-ftpd-common pure-ftpd-mysql
 </code></pre>
 
 <h3>Настройка PureFTPd</h3>
@@ -204,7 +204,7 @@ yes
 <p>Скачаем файлы веб-интерфейса с гитхаба:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>git clone https://github.com/mazay/pure-ftpd-webui.git</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git clone https://github.com/mazay/pure-ftpd-webui.git</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Переходим в скачаный каталог <code>pure-ftpd-webui</code>:</p>

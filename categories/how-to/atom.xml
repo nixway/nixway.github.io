@@ -4,7 +4,7 @@
   <title><![CDATA[Категория: How-to | Путь юниксоида]]></title>
   <link href="http://nixway.org/categories/how-to/atom.xml" rel="self"/>
   <link href="http://nixway.org/"/>
-  <updated>2016-11-11T23:58:59+06:00</updated>
+  <updated>2016-11-17T21:33:12+06:00</updated>
   <id>http://nixway.org/</id>
   <author>
     <name><![CDATA[nihi1ist]]></name>
@@ -35,11 +35,11 @@
 <p>Небольшие пояснения:<br/>
 -&nbsp;символ <code>#</code> (решётка)&nbsp;-&nbsp;означает выполнение команды от <strong>root</strong> (суперпользователя),<br/>
 -&nbsp;<code>cat /path/to/some.file</code>&nbsp;-&nbsp;означает что ниже приведено полное содержимое файла <code>some.file</code>, расположенного в директории <code>/path/to</code>,<br/>
--&nbsp;<code>echo no &gt; /path/to/some.file</code>&nbsp;-&nbsp;означает, что в <code>some.file</code> вставлен текст <code>no</code>, с заменой содержимого. Если файл не существует, он будет создан.</p>
+-&nbsp;<code>echo no &gt; /path/to/some.file</code>&nbsp;-&nbsp;означает, что в <code>some.file</code> будет вставлен текст <code>no</code>, с заменой содержимого. Если файл не существует, он будет создан.</p>
 
 <p>Я выбрал вариант с поддержкой MySQL:</p>
 
-<pre><code>apt-get install pure-ftpd-common pure-ftpd-mysql
+<pre><code># apt-get install pure-ftpd-common pure-ftpd-mysql
 </code></pre>
 
 <h3>Настройка PureFTPd</h3>
@@ -106,7 +106,7 @@ yes
 
 <p>Скачаем файлы веб-интерфейса с гитхаба:</p>
 
-<pre><code>git clone https://github.com/mazay/pure-ftpd-webui.git
+<pre><code>$ git clone https://github.com/mazay/pure-ftpd-webui.git
 </code></pre>
 
 <p>Переходим в скачаный каталог <code>pure-ftpd-webui</code>:</p>
